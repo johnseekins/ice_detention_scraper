@@ -2,7 +2,6 @@
 from bs4 import BeautifulSoup
 import re
 import requests
-import sys
 import time
 from utils import logger
 

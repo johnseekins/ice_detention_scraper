@@ -25,11 +25,11 @@ Requirements:
 
 import argparse
 import logging
-from utils import logger
-from scraper import ICEFacilityScraper
-from enricher import ExternalDataEnricher
-from data_loader import load_existing_data
 from csv_utils import CSVHandler
+from data_loader import load_existing_data
+from enricher import ExternalDataEnricher
+from scraper import ICEFacilityScraper
+from utils import logger
 
 # CLI, argument parsing, script orchestration
 
