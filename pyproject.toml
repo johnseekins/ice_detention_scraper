@@ -1,0 +1,16 @@
+[project]
+name = "ice-detention-scraper"
+version = "1.0.0"
+description = "help identify the online profile of each ICE detention facility"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.13.5",
+    "lxml>=6.0.1",
+    "requests>=2.32.5",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.11",
+]

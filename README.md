@@ -37,7 +37,7 @@ At this point of development you probably want "enable all debugging" to see the
 Run the script and by default it will put a CSV file called `ice_detention_facilities_enriched.csv` in the same
 directory.
 
-```
+```bash
     python main.py --scrape          # Scrape fresh data from ICE website
     python main.py --enrich          # Enrich existing data with external sources
     python main.py --scrape --enrich # Do both operations
@@ -51,11 +51,33 @@ directory.
     # With custom output file
     python main.py --load-existing --enrich --debug-wikipedia -o debug_facilities.csv
 ```
+
 ## Requirements:
-```    
-    pip install requests beautifulsoup4 lxml
-    # or for globally managed environments, (e.g. Debian and Ubuntu)
-    sudo apt install python3-requests python3-bs4 python3-lxml
+
+* Install [and enable mise](https://mise.jdx.dev/getting-started.html)
+* Install dependencies
+
+### Linux:
+
+```bash
+    # easiest command, but you may prefer using your package manager: https://mise.jdx.dev/installing-mise.html
+    curl https://mise.run | bash
+    if ! grep -q 'eval "$(mise activate bash --shims)"' "$HOME/.bashrc"; then echo 'eval "$(mise activate bash --shims)"' >> ~/.bashrc; fi
+    mise install
+    eval "$(mise activate bash)"
+    pip install --upgrade pip wheel uv
+    uv sync
+```
+
+### OS X:
+
+```zsh
+    brew install mise
+    if ! grep -q 'eval "$(mise activate zsh --shims)"' "$HOME/.zshrc"; then echo 'eval "$(mise activate zsh --shims)"' >> ~/.zshrc; fi
+    mise install
+    eval "$(mise activate zsh)"
+    pip install --upgrade pip wheel uv
+    uv sync
 ```
 
 ## Todo / Known Issues:
@@ -65,7 +87,7 @@ in hopes of finding similarly named pages but this is too aggressive, and it vee
 that have simpler names, like the county name instead of `county + detention center`). Use the debug mode to see what
 it is doing.
 * ICE scraping is not robustly tested. The image URL extraction needs some work. (should be able to get the detention center image URLs.)
-* OSM enrichment submits to OSM Nominatim API search with an extra comma between address number and street name. 
+* OSM enrichment submits to OSM Nominatim API search with an extra comma between address number and street name.
 * The user-agent for running ice.gov scrape web requests calls itself `'User-Agent': 'ICE-Facilities-Research/1.0 (Educational Research Purpose)'`.
 You can change this in scraper.py and enricher.py.
 * It tells some pretty inaccurate percentages in the final summary - a lot of false positives, the Wikipedia debug percent

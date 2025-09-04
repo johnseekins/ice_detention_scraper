@@ -24,6 +24,8 @@ Requirements:
 """
 
 import argparse
+import logging
+from utils import logger
 from scraper import ICEFacilityScraper
 from enricher import ExternalDataEnricher
 from data_loader import load_existing_data
@@ -36,17 +38,21 @@ def main():
     parser = argparse.ArgumentParser(
         description="ICE Detention Facilities Data Scraper and Enricher"
     )
-    parser.add_argument('--scrape', action='store_true')
-    parser.add_argument('--enrich', action='store_true')
-    parser.add_argument('--load-existing', action='store_true')
-    parser.add_argument('--output', '-o', default='ice_detention_facilities.csv')
-    parser.add_argument('--debug-wikipedia', action='store_true')
-    parser.add_argument('--debug-wikidata', action='store_true')
-    parser.add_argument('--debug-osm', action='store_true')
+    parser.add_argument("--scrape", action="store_true")
+    parser.add_argument("--enrich", action="store_true")
+    parser.add_argument("--load-existing", action="store_true")
+    parser.add_argument("--output", "-o", default="ice_detention_facilities.csv")
+    parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--debug-wikipedia", action="store_true")
+    parser.add_argument("--debug-wikidata", action="store_true")
+    parser.add_argument("--debug-osm", action="store_true")
 
     args = parser.parse_args()
-
-    print("ICE Detention Facilities Scraper by the Open Security Mapping Project. MIT License.")
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+    logger.info(
+        "ICE Detention Facilities Scraper by the Open Security Mapping Project. MIT License."
+    )
 
     if not any([args.scrape, args.enrich, args.load_existing]):
         parser.print_help()
@@ -54,35 +60,40 @@ def main():
 
     facilities_data = []
 
+    if args.scrape and args.load_existing:
+        logger.error("Can't scrape and load existing data!")
+        exit(1)
+
     if args.scrape:
         scraper = ICEFacilityScraper()
         facilities_data = scraper.scrape_facilities()
     elif args.load_existing:
         facilities_data = load_existing_data()
-        print(f"Loaded {len(facilities_data)} existing facilities from local data. (Not scraping ICE.gov)")
+        logger.info(
+            f"Loaded {len(facilities_data)} existing facilities from local data. (Not scraping ICE.gov)"
+        )
 
     if args.enrich:
         if not facilities_data:
-            print("No facility data available for enrichment.")
+            logger.warn("No facility data available for enrichment.")
             return
         enricher = ExternalDataEnricher(
             debug_wikipedia=args.debug_wikipedia,
             debug_wikidata=args.debug_wikidata,
-            debug_osm=args.debug_osm
+            debug_osm=args.debug_osm,
         )
         facilities_data = enricher.enrich_facility_data(facilities_data)
 
     if facilities_data:
         csv_handler = CSVHandler()
         output_filename = args.output
-        if args.enrich and not output_filename.endswith('_enriched.csv'):
-            base_name = output_filename.replace('.csv', '')
+        if args.enrich and not output_filename.endswith("_enriched.csv"):
+            base_name = output_filename.replace(".csv", "")
             output_filename = f"{base_name}_enriched.csv"
         csv_handler.export_to_csv(facilities_data, output_filename)
         csv_handler.print_summary(facilities_data)
     else:
-        print("No data to export!")
-
+        logger.warn("No data to export!")
 
 
 if __name__ == "__main__":
