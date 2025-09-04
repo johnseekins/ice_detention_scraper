@@ -10,23 +10,18 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: Ruff Format
-        uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1
-        with:
-          src: '.'
-          args: 'format --check'
-      - name: Ruff Check
-        uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1
-        with:
-          src: '.'
-
       - name: setup python
         run: |
-          curl https://mise.run | bash
-          mise install
+          curl -SsL https://mise.run | bash > /dev/null
+          mise trust --quiet .config/mise.toml
+          mise install --quiet
           eval "$(mise activate bash)"
+          pip install --upgrade pip wheel uv
           uv sync
-          uv run
+      - name: Ruff Format
+        run: uv run ruff format --check
+      - name: Ruff Check
+        run: uv run ruff check
       - name: run mypy
         run: uv run mypy .
 
