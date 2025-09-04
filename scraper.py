@@ -179,45 +179,52 @@ class ICEFacilityScraper(object):
         """Extract data from a single facility element"""
         facility = copy.deepcopy(facility_schema)
         facility["source_url"] = page_url
-        try:
-            # Get all text content from the element
-            element_text = element.get_text(separator=" ", strip=True)
+        logger.debug("Trying to get facility data from %s", element)
+        # Method 1: Try structured extraction if element has proper HTML structure
+        name = element.select_one(".views-field-title")
+        if name:
+            facility["name"] = name.text
+        field_office = element.select_one(".views-field-field-field-office-name")
+        if field_office:
+            facility["field_office"] = field_office.text
+        address = element.select_one(".address-line1")
+        if address:
+            facility["address"] = address.text
+        locality = element.select_one(".locality")
+        if locality:
+            facility["locality"] = locality.text
+        administrative_area = element.select_one(".administrative-area")
+        if administrative_area:
+            facility["administrative_area"] = administrative_area.text
+        postal_code = element.select_one(".postal-code")
+        if postal_code:
+            facility["postal_code"] = postal_code.text
+        country = element.select_one(".country")
+        if country:
+            facility["country"] = country.text
+        phone = element.select_one(".ct-addr")
+        if phone:
+            facility["phone"] = phone.text
 
-            # Method 1: Try structured extraction if element has proper HTML structure
-            facility_name_elem = element.select_one(
-                ".facility-name, .field-name, h3, h2, .title"
+        # Method 2: If structured extraction failed, parse the text content
+        if not facility["name"] or not facility["field_office"]:
+            logger.warning("Falling back to text scraping!")
+            facility = self._parse_facility_text(
+                element.get_text(separator=" ", strip=True), facility
             )
-            field_office_elem = element.select_one(".field-office, .office")
-            address_elem = element.select_one(".address, .field-address")
-            phone_elem = element.select_one(".phone, .field-phone")
 
-            if facility_name_elem:
-                facility["name"] = facility_name_elem.get_text(strip=True)
-            if field_office_elem:
-                facility["field_office"] = field_office_elem.get_text(strip=True)
-            if address_elem:
-                facility["address"] = address_elem.get_text(strip=True)
-            if phone_elem:
-                facility["phone"] = phone_elem.get_text(strip=True)
+        # Extract image URL using the specified nested structure
+        image_element = element.findAll("img")
+        if image_element:
+            facility["image_url"] = f"https://www.ice.gov{image_element[0]['src']}"
+        facility_url_element = element.findAll("a")
+        if facility_url_element:
+            facility["facility_url"] = (
+                f"https://www.ice.gov{facility_url_element[0]['href']}"
+            )
+        # Clean up extracted data
+        facility = self._clean_facility_data(facility)
 
-            # Method 2: If structured extraction failed, parse the text content
-            if not facility["name"] or not facility["field_office"]:
-                facility = self._parse_facility_text(element_text, facility)
-
-            # Extract image URL using the specified nested structure
-            image_element = element.findAll("img")
-            if image_element:
-                facility["image_url"] = f"https://www.ice.gov{image_element[0]['src']}"
-            facility_url_element = element.findAll("a")
-            if facility_url_element:
-                facility["facility_url"] = (
-                    f"https://www.ice.gov{facility_url_element[0]['href']}"
-                )
-            # Clean up extracted data
-            facility = self._clean_facility_data(facility)
-
-        except Exception as e:
-            logger.error("    Error extracting facility data: %s", e)
         logger.debug("Returning %s", facility)
         return facility
 

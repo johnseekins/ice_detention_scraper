@@ -7,12 +7,16 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 facility_schema = {
-    "name": "",
-    "field_office": "",
     "address": "",
-    "phone": "",
+    "administrative_area": "",
+    "country": "",
     "facility_url": "",
+    "field_office": "",
     "image_url": "",
+    "locality": "",
+    "name": "",
+    "phone": "",
+    "postal_code": "",
     "source_url": "",
 }
 enrichment_schema = [
