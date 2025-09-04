@@ -15,15 +15,21 @@ jobs:
           curl -SsL https://mise.run | bash > /dev/null
           mise trust --quiet .config/mise.toml
           mise install --quiet
-          eval "$(mise activate bash)"
-          pip install --upgrade pip wheel uv
+          eval "$(mise activate bash)" > /dev/null
+          pip install -q --no-cache-dir --upgrade pip wheel uv
           uv sync
       - name: Ruff Format
-        run: uv run ruff format --check
+        run: |
+          eval "$(mise activate bash)"
+          uv run ruff format --check
       - name: Ruff Check
-        run: uv run ruff check
+        run: |
+          eval "$(mise activate bash)"
+          uv run ruff check
       - name: run mypy
-        run: uv run mypy .
+        run: |
+          eval "$(mise activate bash)"
+          uv run mypy .
 
   markdown:
     name: Markdown linting
