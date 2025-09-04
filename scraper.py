@@ -26,9 +26,7 @@ class ICEFacilityScraper(object):
         self.session = requests.Session()
         self.session.mount("https://", _adapter)
         self.session.mount("http://", _adapter)
-        self.session.headers.update(
-            {"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"}
-        )
+        self.session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
 
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
@@ -42,9 +40,7 @@ class ICEFacilityScraper(object):
             try:
                 facilities = self._scrape_page(url)
                 self.facilities_data.extend(facilities)
-                logger.debug(
-                    "Found %s facilities on page %s", len(facilities), page_num + 1
-                )
+                logger.debug("Found %s facilities on page %s", len(facilities), page_num + 1)
                 time.sleep(1)  # Be respectful to the server
             except Exception as e:
                 logger.error("Error scraping page %s: %s", page_num + 1, e)
@@ -97,9 +93,7 @@ class ICEFacilityScraper(object):
                     break
 
             if not content_container:
-                logger.warning(
-                    "  Warning: Could not find content container, searching entire page"
-                )
+                logger.warning("  Warning: Could not find content container, searching entire page")
                 content_container = soup
 
             # Look for facility entries - try multiple patterns
@@ -125,9 +119,7 @@ class ICEFacilityScraper(object):
 
             if not facility_elements:
                 # Fallback: look for any element containing facility-like text patterns
-                logger.warning(
-                    "  Using fallback: searching for facility patterns in text"
-                )
+                logger.warning("  Using fallback: searching for facility patterns in text")
                 facility_elements = self._find_facility_patterns(content_container)
 
             # Extract data from each facility element
@@ -205,13 +197,14 @@ class ICEFacilityScraper(object):
         phone = element.select_one(".ct-addr")
         if phone:
             facility["phone"] = phone.text
+        facility["full_address"] = (
+            f"{facility['address']} {facility['locality']} {facility['administrative_area']}, {facility['postal_code']} {facility['country']}"
+        )
 
         # Method 2: If structured extraction failed, parse the text content
         if not facility["name"] or not facility["field_office"]:
             logger.warning("Falling back to text scraping!")
-            facility = self._parse_facility_text(
-                element.get_text(separator=" ", strip=True), facility
-            )
+            facility = self._parse_facility_text(element.get_text(separator=" ", strip=True), facility)
 
         # Extract image URL using the specified nested structure
         image_element = element.findAll("img")
@@ -219,9 +212,7 @@ class ICEFacilityScraper(object):
             facility["image_url"] = f"https://www.ice.gov{image_element[0]['src']}"
         facility_url_element = element.findAll("a")
         if facility_url_element:
-            facility["facility_url"] = (
-                f"https://www.ice.gov{facility_url_element[0]['href']}"
-            )
+            facility["facility_url"] = f"https://www.ice.gov{facility_url_element[0]['href']}"
         # Clean up extracted data
         facility = self._clean_facility_data(facility)
 

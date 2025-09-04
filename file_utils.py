@@ -70,28 +70,14 @@ def print_summary(facilities_data: list) -> None:
         field_offices[office] = field_offices.get(office, 0) + 1
 
     logger.info("\nFacilities by Field Office:")
-    for office, count in sorted(
-        field_offices.items(), key=lambda x: x[1], reverse=True
-    ):
+    for office, count in sorted(field_offices.items(), key=lambda x: x[1], reverse=True):
         logger.info("  %s: %s", office, count)
 
     # Check enrichment data if available
     if "wikipedia_page_url" in facilities_data[0]:
-        wiki_found = sum(
-            1
-            for f in facilities_data
-            if f.get("wikipedia_page_url") and f["wikipedia_page_url"]
-        )
-        wikidata_found = sum(
-            1
-            for f in facilities_data
-            if f.get("wikidata_page_url") and f["wikidata_page_url"]
-        )
-        osm_found = sum(
-            1
-            for f in facilities_data
-            if f.get("osm_result_url") and f["osm_result_url"]
-        )
+        wiki_found = sum(1 for f in facilities_data if f.get("wikipedia_page_url") and f["wikipedia_page_url"])
+        wikidata_found = sum(1 for f in facilities_data if f.get("wikidata_page_url") and f["wikidata_page_url"])
+        osm_found = sum(1 for f in facilities_data if f.get("osm_result_url") and f["osm_result_url"])
 
         logger.info("\n=== External Data Enrichment Results ===")
         logger.info(
@@ -127,18 +113,12 @@ def print_summary(facilities_data: list) -> None:
 
             logger.info("False positives detected and rejected: %s", false_positives)
             logger.info("Search errors encountered: %s", errors)
-            logger.info(
-                "Note: Review 'wikipedia_search_query' column for detailed search information"
-            )
+            logger.info("Note: Review 'wikipedia_search_query' column for detailed search information")
 
         if "wikidata_search_query" in facilities_data[0]:
-            logger.warning(
-                "Note: Review 'wikidata_search_query' column for detailed search information"
-            )
+            logger.warning("Note: Review 'wikidata_search_query' column for detailed search information")
 
         if "osm_search_query" in facilities_data[0]:
-            logger.warning(
-                "Note: Review 'osm_search_query' column for detailed search information"
-            )
+            logger.warning("Note: Review 'osm_search_query' column for detailed search information")
 
     logger.info("\n=== ICE Detention Facilities Scraper: Run completed ===")

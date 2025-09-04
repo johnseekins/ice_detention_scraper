@@ -45,9 +45,7 @@ def main() -> None:
         default=False,
         help="Scrape initial facility data",
     )
-    parser.add_argument(
-        "--enrich", action="store_true", default=False, help="enrich collected data"
-    )
+    parser.add_argument("--enrich", action="store_true", default=False, help="enrich collected data")
     parser.add_argument(
         "--load-existing",
         action="store_true",
@@ -66,18 +64,10 @@ def main() -> None:
         default="ice_detention_facilities",
         help="The file we'll write data out to (excluding the suffix)",
     )
-    parser.add_argument(
-        "--debug", action="store_true", help="Full debug information and logging"
-    )
-    parser.add_argument(
-        "--debug-wikipedia", action="store_true", help="debug wikipedia enrichment"
-    )
-    parser.add_argument(
-        "--debug-wikidata", action="store_true", help="debug wikidata enrichment"
-    )
-    parser.add_argument(
-        "--debug-osm", action="store_true", help="debug OpenStreetMap enrichment"
-    )
+    parser.add_argument("--debug", action="store_true", help="Full debug information and logging")
+    parser.add_argument("--debug-wikipedia", action="store_true", help="debug wikipedia enrichment")
+    parser.add_argument("--debug-wikidata", action="store_true", help="debug wikidata enrichment")
+    parser.add_argument("--debug-osm", action="store_true", help="debug OpenStreetMap enrichment")
 
     args = parser.parse_args()
     if args.debug:
@@ -85,9 +75,7 @@ def main() -> None:
         args.debug_wikipedia = True
         args.debug_wikidata = True
         args.debug_osm = True
-    logger.info(
-        "ICE Detention Facilities Scraper by the Open Security Mapping Project. MIT License."
-    )
+    logger.info("ICE Detention Facilities Scraper by the Open Security Mapping Project. MIT License.")
 
     if not any([args.scrape, args.enrich, args.load_existing]):
         parser.print_help()
@@ -104,9 +92,7 @@ def main() -> None:
         facilities_data = scraper.scrape_facilities()
     elif args.load_existing:
         facilities_data = load_existing_data()
-        logger.info(
-            f"Loaded {len(facilities_data)} existing facilities from local data. (Not scraping ICE.gov)"
-        )
+        logger.info(f"Loaded {len(facilities_data)} existing facilities from local data. (Not scraping ICE.gov)")
 
     if args.enrich:
         if not facilities_data:

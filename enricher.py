@@ -23,9 +23,7 @@ class ExternalDataEnricher(object):
         self.session = requests.Session()
         self.session.mount("https://", _adapter)
         self.session.mount("http://", _adapter)
-        self.session.headers.update(
-            {"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"}
-        )
+        self.session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
         self.debug_wikipedia = debug_wikipedia
         self.debug_wikidata = debug_wikidata
         self.debug_osm = debug_osm
@@ -36,9 +34,7 @@ class ExternalDataEnricher(object):
         total = len(facilities_data)
 
         for i, facility in enumerate(facilities_data):
-            logger.info(
-                "Processing facility %s/%s: %s...", i + 1, total, facility["name"][:50]
-            )
+            logger.info("Processing facility %s/%s: %s...", i + 1, total, facility["name"])
             enriched_facility = facility.copy()
             base_enrichment = {
                 "wikipedia_page_url": False,
@@ -60,17 +56,11 @@ class ExternalDataEnricher(object):
             try:
                 wiki_result = self._search_wikipedia(facility_name)
                 if isinstance(wiki_result, dict):  # Debug mode returns dict
-                    enriched_facility["wikipedia_page_url"] = (
-                        wiki_result["url"] if wiki_result["url"] else False
-                    )
+                    enriched_facility["wikipedia_page_url"] = wiki_result["url"] if wiki_result["url"] else False
                     if self.debug_wikipedia:
-                        enriched_facility["wikipedia_search_query"] = wiki_result[
-                            "search_query"
-                        ]
+                        enriched_facility["wikipedia_search_query"] = wiki_result["search_query"]
                 else:
-                    enriched_facility["wikipedia_page_url"] = (
-                        wiki_result if wiki_result else False
-                    )
+                    enriched_facility["wikipedia_page_url"] = wiki_result if wiki_result else False
                 time.sleep(WIKIPEDIA_DELAY)
             except Exception as e:
                 logger.error(" Wikipedia search error: %s", e)
@@ -81,20 +71,12 @@ class ExternalDataEnricher(object):
             # Wikidata search # todo refactor to method
             try:
                 wikidata_result = self._search_wikidata(facility_name)
-                if isinstance(
-                    wikidata_result, dict
-                ):  # debug returns dict with url and title
-                    enriched_facility["wikidata_page_url"] = wikidata_result.get(
-                        "url", False
-                    )
+                if isinstance(wikidata_result, dict):  # debug returns dict with url and title
+                    enriched_facility["wikidata_page_url"] = wikidata_result.get("url", False)
                     if self.debug_wikidata:
-                        enriched_facility["wikidata_search_query"] = (
-                            wikidata_result.get("title", "")
-                        )
+                        enriched_facility["wikidata_search_query"] = wikidata_result.get("title", "")
                 else:
-                    enriched_facility["wikidata_page_url"] = (
-                        wikidata_result if wikidata_result else False
-                    )
+                    enriched_facility["wikidata_page_url"] = wikidata_result if wikidata_result else False
                 time.sleep(WIKIDATA_DELAY)
             except Exception as e:
                 logger.error(" Wikidata search error: %s", e)
@@ -104,21 +86,13 @@ class ExternalDataEnricher(object):
 
             # OpenStreetMap search # todo refactor to method
             try:
-                osm_result = self._search_openstreetmap(
-                    facility_name, facility.get("address", "")
-                )
-                if isinstance(
-                    osm_result, dict
-                ):  # debug returns dict with url and title
+                osm_result = self._search_openstreetmap(facility_name, facility.get("full_address", ""))
+                if isinstance(osm_result, dict):  # debug returns dict with url and title
                     enriched_facility["osm_result_url"] = osm_result.get("url", False)
                     if self.debug_osm:
-                        enriched_facility["osm_search_query"] = osm_result.get(
-                            "title", ""
-                        )
+                        enriched_facility["osm_search_query"] = osm_result.get("title", "")
                 else:
-                    enriched_facility["osm_result_url"] = (
-                        osm_result if osm_result else False
-                    )
+                    enriched_facility["osm_result_url"] = osm_result if osm_result else False
                 time.sleep(NOMINATIM_DELAY)
             except Exception as e:
                 logger.error(" OSM search error: %s", e)
@@ -150,9 +124,7 @@ class ExternalDataEnricher(object):
         }
 
         # Try direct page access first (replace space with underscores is the only change)
-        wiki_url = (
-            f"https://en.wikipedia.org/wiki/{quote(search_name.replace(' ', '_'))}"
-        )
+        wiki_url = f"https://en.wikipedia.org/wiki/{quote(search_name.replace(' ', '_'))}"
         try:
             response = self.session.get(wiki_url, allow_redirects=True, timeout=10)
 
@@ -184,22 +156,14 @@ class ExternalDataEnricher(object):
                     "processing",
                 ]
 
-                is_false_positive = any(
-                    indicator in page_text for indicator in false_positive_indicators
-                )
-                has_facility_context = any(
-                    indicator in page_text for indicator in facility_indicators
-                )
+                is_false_positive = any(indicator in page_text for indicator in false_positive_indicators)
+                has_facility_context = any(indicator in page_text for indicator in facility_indicators)
 
                 # Only accept if it's not a false positive AND has facility context
                 # OR if the cleaned name still contains facility-related terms
-                facility_terms_in_name = any(
-                    term in search_name.lower() for term in facility_indicators
-                )
+                facility_terms_in_name = any(term in search_name.lower() for term in facility_indicators)
 
-                if not is_false_positive and (
-                    has_facility_context or facility_terms_in_name
-                ):
+                if not is_false_positive and (has_facility_context or facility_terms_in_name):
                     debug_info["url"] = response.url
                     debug_info["method"] = "direct_access"
                     if self.debug_wikipedia:
@@ -207,9 +171,7 @@ class ExternalDataEnricher(object):
                     return response.url
                 else:
                     if self.debug_wikipedia:
-                        debug_info["search_query"] += (
-                            " [REJECTED: false_positive or no_facility_context]"
-                        )
+                        debug_info["search_query"] += " [REJECTED: false_positive or no_facility_context]"
 
             # If direct access fails, try Wikipedia search API with original name first
             search_queries = [
@@ -290,9 +252,9 @@ class ExternalDataEnricher(object):
                             "village",
                             "township",
                         ]
-                        if any(
-                            term in title_lower for term in generic_indicators
-                        ) and not any(term in title_lower for term in facility_terms):
+                        if any(term in title_lower for term in generic_indicators) and not any(
+                            term in title_lower for term in facility_terms
+                        ):
                             relevance_score -= 3
 
                         # Check name similarity (basic heuristic)
@@ -308,14 +270,10 @@ class ExternalDataEnricher(object):
                             final_url = f"https://en.wikipedia.org/wiki/{quote(page_title.replace(' ', '_'))}"
 
                             # Verify the page exists and isn't a redirect to something unrelated
-                            verify_response = self.session.get(
-                                final_url, allow_redirects=True, timeout=10
-                            )
+                            verify_response = self.session.get(final_url, allow_redirects=True, timeout=10)
                             if verify_response.status_code == 200:
                                 debug_info["url"] = verify_response.url
-                                debug_info["method"] = (
-                                    f"api_search_attempt_{query_attempt + 1}_score_{relevance_score}"
-                                )
+                                debug_info["method"] = f"api_search_attempt_{query_attempt + 1}_score_{relevance_score}"
                                 debug_info["search_query"] = (
                                     f"{search_query} -> {page_title} (score: {relevance_score})"
                                 )
@@ -429,9 +387,7 @@ class ExternalDataEnricher(object):
         search_name = self._clean_facility_name(facility_name)
         location_context = ""
         if address:
-            parts = address.split(
-                ", "
-            )  # todo the address between the number and street name should not have a comma.
+            parts = address.split(", ")  # todo the address between the number and street name should not have a comma.
             if len(parts) >= 3:
                 location_context = f", {parts[-3]}, {parts[-2].split()[0]}"
         search_url = "https://nominatim.openstreetmap.org/search"
@@ -449,12 +405,8 @@ class ExternalDataEnricher(object):
                     for result in data:
                         osm_type = result.get("type", "").lower()
                         display_name = result.get("display_name", "").lower()
-                        if any(
-                            term in osm_type
-                            for term in ["prison", "detention", "correctional"]
-                        ) or any(
-                            term in display_name
-                            for term in ["prison", "detention", "correctional", "jail"]
+                        if any(term in osm_type for term in ["prison", "detention", "correctional"]) or any(
+                            term in display_name for term in ["prison", "detention", "correctional", "jail"]
                         ):
                             # todo courthouse could be added, or other tags such as "prison:for=migrant" as a clear positive search result.
                             osm_id = result.get("osm_id")

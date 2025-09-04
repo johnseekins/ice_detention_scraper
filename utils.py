@@ -12,6 +12,7 @@ facility_schema = {
     "country": "",
     "facility_url": "",
     "field_office": "",
+    "full_address": "",
     "image_url": "",
     "locality": "",
     "name": "",
