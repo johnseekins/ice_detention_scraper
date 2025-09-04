@@ -23,7 +23,7 @@ Requirements:
     sudo apt install python3-requests python3-bs4 python3-lxml
 """
 
-import argparse
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import logging
 from csv_utils import CSVHandler
 from data_loader import load_existing_data
@@ -35,17 +35,43 @@ from utils import logger
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="ICE Detention Facilities Data Scraper and Enricher"
+    parser = ArgumentParser(
+        description="ICE Detention Facilities Data Scraper and Enricher",
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--scrape", action="store_true")
-    parser.add_argument("--enrich", action="store_true")
-    parser.add_argument("--load-existing", action="store_true")
-    parser.add_argument("--output", "-o", default="ice_detention_facilities.csv")
-    parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--debug-wikipedia", action="store_true")
-    parser.add_argument("--debug-wikidata", action="store_true")
-    parser.add_argument("--debug-osm", action="store_true")
+    parser.add_argument(
+        "--scrape",
+        action="store_true",
+        default=False,
+        help="Scrape initial facility data",
+    )
+    parser.add_argument(
+        "--enrich", action="store_true", default=False, help="enrich collected data"
+    )
+    parser.add_argument(
+        "--load-existing",
+        action="store_true",
+        default=False,
+        help="load data from local files",
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        default="ice_detention_facilities.csv",
+        help="The file we'll write data out to",
+    )
+    parser.add_argument(
+        "--debug", action="store_true", help="Full debug information and logging"
+    )
+    parser.add_argument(
+        "--debug-wikipedia", action="store_true", help="debug wikipedia enrichment"
+    )
+    parser.add_argument(
+        "--debug-wikidata", action="store_true", help="debug wikidata enrichment"
+    )
+    parser.add_argument(
+        "--debug-osm", action="store_true", help="debug OpenStreetMap enrichment"
+    )
 
     args = parser.parse_args()
     if args.debug:

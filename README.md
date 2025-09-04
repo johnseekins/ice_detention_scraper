@@ -46,7 +46,7 @@ directory.
     # Enable Wikipedia debugging (extra col in CSV)
     uv run python main.py --load-existing --enrich --debug-wikipedia
     # Enable all debugging (extra cols in CSV) - this is recommended right now:
-    uv run python main.py --load-existing --enrich --debug-wikipedia --debug-wikidata --debug-osm
+    uv run python main.py --load-existing --enrich --debug
 
     # With custom output file
     uv run python main.py --load-existing --enrich --debug-wikipedia -o debug_facilities.csv
@@ -56,6 +56,9 @@ directory.
 
 * Install [and enable mise](https://mise.jdx.dev/getting-started.html)
 * Install dependencies
+* ensure local pre-commit hooks are properly triggered
+
+Examples of the full setup for some OSes are below:
 
 ### Linux
 

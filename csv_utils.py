@@ -110,7 +110,7 @@ class CSVHandler(object):
 
             # Debug information if available
             if "wikipedia_search_query" in facilities_data[0]:
-                logger.debug("\n=== Wikipedia Debug Information ===")
+                logger.info("\n=== Wikipedia Debug Information ===")
                 false_positives = 0
                 errors = 0
                 for facility in facilities_data:
@@ -120,11 +120,11 @@ class CSVHandler(object):
                     elif "ERROR" in query:
                         errors += 1
 
-                logger.debug(
+                logger.info(
                     "False positives detected and rejected: %s", false_positives
                 )
-                logger.debug("Search errors encountered: %s", errors)
-                logger.debug(
+                logger.info("Search errors encountered: %s", errors)
+                logger.info(
                     "Note: Review 'wikipedia_search_query' column for detailed search information"
                 )
 
