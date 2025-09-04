@@ -1,5 +1,8 @@
 import csv
-from utils import logger
+from utils import (
+    facility_obj,
+    logger,
+)
 #
 # # CSVHandler class for CSV export and reporting
 
@@ -10,10 +13,10 @@ class CSVHandler:
         facilities_data, filename="ice_detention_facilities_enriched.csv"
     ):
         if not facilities_data:
-            logger.warn("No data to export!")
+            logger.warning("No data to export!")
             return None
 
-        base_fields = ["name", "field_office", "address", "phone", "image_url"]
+        base_fields = list(facility_obj.keys())
         enrichment_fields = [
             "wikipedia_page_url",
             "wikidata_page_url",
@@ -133,12 +136,12 @@ class CSVHandler:
                 )
 
             if "wikidata_search_query" in facilities_data[0]:
-                logger.warn(
+                logger.warning(
                     "Note: Review 'wikidata_search_query' column for detailed search information"
                 )
 
             if "osm_search_query" in facilities_data[0]:
-                logger.warn(
+                logger.warning(
                     "Note: Review 'osm_search_query' column for detailed search information"
                 )
 

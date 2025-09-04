@@ -38,18 +38,18 @@ Run the script and by default it will put a CSV file called `ice_detention_facil
 directory.
 
 ```bash
-    python main.py --scrape          # Scrape fresh data from ICE website
-    python main.py --enrich          # Enrich existing data with external sources
-    python main.py --scrape --enrich # Do both operations
-    python main.py --help            # Show help
+    uv run python main.py --scrape          # Scrape fresh data from ICE website
+    uv run python main.py --enrich          # Enrich existing data with external sources
+    uv run python main.py --scrape --enrich # Do both operations
+    uv run python main.py --help            # Show help
 
     # Enable Wikipedia debugging (extra col in CSV)
-    python main.py --load-existing --enrich --debug-wikipedia
+    uv run python main.py --load-existing --enrich --debug-wikipedia
     # Enable all debugging (extra cols in CSV) - this is recommended right now:
-    python main.py --load-existing --enrich --debug-wikipedia --debug-wikidata --debug-osm
+    uv run python main.py --load-existing --enrich --debug-wikipedia --debug-wikidata --debug-osm
 
     # With custom output file
-    python main.py --load-existing --enrich --debug-wikipedia -o debug_facilities.csv
+    uv run python main.py --load-existing --enrich --debug-wikipedia -o debug_facilities.csv
 ```
 
 ## Requirements:

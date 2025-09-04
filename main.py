@@ -50,6 +50,9 @@ def main():
     args = parser.parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)
+        args.debug_wikipedia = True
+        args.debug_wikidata = True
+        args.debug_osm = True
     logger.info(
         "ICE Detention Facilities Scraper by the Open Security Mapping Project. MIT License."
     )
@@ -75,7 +78,7 @@ def main():
 
     if args.enrich:
         if not facilities_data:
-            logger.warn("No facility data available for enrichment.")
+            logger.warning("No facility data available for enrichment.")
             return
         enricher = ExternalDataEnricher(
             debug_wikipedia=args.debug_wikipedia,
@@ -93,7 +96,7 @@ def main():
         csv_handler.export_to_csv(facilities_data, output_filename)
         csv_handler.print_summary(facilities_data)
     else:
-        logger.warn("No data to export!")
+        logger.warning("No data to export!")
 
 
 if __name__ == "__main__":

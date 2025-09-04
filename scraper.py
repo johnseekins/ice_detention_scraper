@@ -1,11 +1,12 @@
 # ICEFacilityScraper class and scraping-related code
 from bs4 import BeautifulSoup
+import copy
 import re
 import requests
 from requests.adapters import HTTPAdapter
 import time
 import urllib3
-from utils import logger
+from utils import facility_obj, logger
 
 
 class ICEFacilityScraper(object):
@@ -51,8 +52,8 @@ class ICEFacilityScraper(object):
 
     def _scrape_page(self, url):
         """Scrape a single page of facilities using BeautifulSoup"""
+        logger.debug("  Fetching: %s", url)
         try:
-            logger.debug("  Fetching: %s", url)
             response = self.session.get(url, timeout=30)
             response.raise_for_status()
 
@@ -63,7 +64,6 @@ class ICEFacilityScraper(object):
             facilities = self._extract_facilities_from_html(soup, url)
 
             return facilities
-
         except requests.RequestException as e:
             logger.error("  Error fetching %s: %s", url, e)
             return []
@@ -75,6 +75,7 @@ class ICEFacilityScraper(object):
         """Extract facility data from BeautifulSoup parsed HTML"""
         facilities = []
 
+        logger.debug("Searching %s for content", page_url)
         try:
             # Look for the main content area - ICE uses different possible containers
             content_selectors = [
@@ -85,7 +86,6 @@ class ICEFacilityScraper(object):
                 "main",  # HTML5 main element
                 "div.content",  # Generic content
             ]
-
             content_container = None
             for selector in content_selectors:
                 content_container = soup.select_one(selector)
@@ -94,7 +94,7 @@ class ICEFacilityScraper(object):
                     break
 
             if not content_container:
-                logger.warn(
+                logger.warning(
                     "  Warning: Could not find content container, searching entire page"
                 )
                 content_container = soup
@@ -108,7 +108,6 @@ class ICEFacilityScraper(object):
                 "article",  # Article elements
                 "div.node",  # Drupal node containers
             ]
-
             facility_elements = []
             for selector in facility_selectors:
                 elements = content_container.select(selector)
@@ -123,7 +122,9 @@ class ICEFacilityScraper(object):
 
             if not facility_elements:
                 # Fallback: look for any element containing facility-like text patterns
-                logger.warn("  Using fallback: searching for facility patterns in text")
+                logger.warning(
+                    "  Using fallback: searching for facility patterns in text"
+                )
                 facility_elements = self._find_facility_patterns(content_container)
 
             # Extract data from each facility element
@@ -173,15 +174,8 @@ class ICEFacilityScraper(object):
 
     def _extract_single_facility(self, element, page_url):
         """Extract data from a single facility element"""
-        facility = {
-            "name": "",
-            "field_office": "",
-            "address": "",
-            "phone": "",
-            "image_url": "",
-            "source_url": page_url,
-        }
-
+        facility = copy.deepcopy(facility_obj)
+        facility["source_url"] = page_url
         try:
             # Get all text content from the element
             element_text = element.get_text(separator=" ", strip=True)
@@ -208,21 +202,21 @@ class ICEFacilityScraper(object):
                 self._parse_facility_text(element_text, facility)
 
             # Extract image URL using the specified nested structure
-            image_url = self._extract_image_url(element)
-            if image_url:
-                facility["image_url"] = image_url
-
+            image_element = element.findAll("img")
+            if image_element:
+                facility["image_url"] = f"https://www.ice.gov{image_element[0]['src']}"
+            facility_url_element = element.findAll("a")
+            if facility_url_element:
+                facility["facility_url"] = (
+                    f"https://www.ice.gov{facility_url_element[0]['href']}"
+                )
             # Clean up extracted data
             facility = self._clean_facility_data(facility)
 
         except Exception as e:
             logger.error("    Error extracting facility data: %s", e)
-
+        logger.debug("Returning %s", facility)
         return facility
-
-    def _extract_image_url(self, element):
-        """Extract a default facility image (currently no-op)"""
-        return ""
 
     def _clean_facility_data(self, facility):
         """Clean up data (currently a no-op)"""
