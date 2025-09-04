@@ -25,7 +25,7 @@ Requirements:
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import logging
-from csv_utils import CSVHandler
+from file_utils import export_to_file, print_summary
 from data_loader import load_existing_data
 from enricher import ExternalDataEnricher
 from scraper import ICEFacilityScraper
@@ -55,10 +55,16 @@ def main() -> None:
         help="load data from local files",
     )
     parser.add_argument(
-        "--output",
+        "--file-type",
+        default="csv",
+        choices=["csv", "json"],
+        help="type of file to export",
+    )
+    parser.add_argument(
+        "--output-file-name",
         "-o",
-        default="ice_detention_facilities.csv",
-        help="The file we'll write data out to",
+        default="ice_detention_facilities",
+        help="The file we'll write data out to (excluding the suffix)",
     )
     parser.add_argument(
         "--debug", action="store_true", help="Full debug information and logging"
@@ -114,13 +120,12 @@ def main() -> None:
         facilities_data = enricher.enrich_facility_data(facilities_data)
 
     if facilities_data:
-        csv_handler = CSVHandler()
-        output_filename = args.output
-        if args.enrich and not output_filename.endswith("_enriched.csv"):
+        output_filename = args.output_file_name
+        if args.enrich and not output_filename.endswith("_enriched"):
             base_name = output_filename.replace(".csv", "")
-            output_filename = f"{base_name}_enriched.csv"
-        csv_handler.export_to_csv(facilities_data, output_filename)
-        csv_handler.print_summary(facilities_data)
+            output_filename = f"{base_name}_enriched"
+        export_to_file(facilities_data, output_filename, args.file_type)
+        print_summary(facilities_data)
     else:
         logger.warning("No data to export!")
 

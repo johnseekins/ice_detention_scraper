@@ -30,18 +30,15 @@ repos:
       - id: ruff-format
         language: system
         name: Ruff Formatting
-        # already in the uv virtualenv, so...
-        entry: ruff format -q .
+        entry: uv run ruff format -q .
         files: \.py$
       - id: ruff-check
         name: Ruff Syntax checking
         language: system
-        # already in the uv virtualenv, so...
-        entry: ruff check --fix -q
+        entry: uv run ruff check --fix -q
         files: \.py$
       # - id: mypy
       #   name: MyPy type validation
       #   language: system
-      #   # already in the uv virtualenv, so...
-      #   entry: mypy --explicit-package-bases .
+      #   entry: uv run mypy .
       #   files: \.py$
