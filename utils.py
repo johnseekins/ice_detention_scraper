@@ -18,6 +18,7 @@ facility_schema = {
     "name": "",
     "phone": "",
     "postal_code": "",
+    "raw_scrape": "",
     "source_url": "",
 }
 enrichment_schema = [

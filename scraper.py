@@ -1,4 +1,5 @@
 # ICEFacilityScraper class and scraping-related code
+import base64
 from bs4 import BeautifulSoup
 import copy
 import re
@@ -170,6 +171,8 @@ class ICEFacilityScraper(object):
     def _extract_single_facility(self, element, page_url):
         """Extract data from a single facility element"""
         facility = copy.deepcopy(facility_schema)
+        raw_scrape = str(element)
+        facility["raw_scrape"] = base64.b64encode(raw_scrape.encode("utf-8")).decode("utf-8")
         facility["source_url"] = page_url
         logger.debug("Trying to get facility data from %s", element)
         # Method 1: Try structured extraction if element has proper HTML structure
@@ -204,7 +207,7 @@ class ICEFacilityScraper(object):
         # Method 2: If structured extraction failed, parse the text content
         if not facility["name"] or not facility["field_office"]:
             logger.warning("Falling back to text scraping!")
-            facility = self._parse_facility_text(element.get_text(separator=" ", strip=True), facility)
+            facility = self._parse_facility_text(raw_scrape, facility)
 
         # Extract image URL using the specified nested structure
         image_element = element.findAll("img")
