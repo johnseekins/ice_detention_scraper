@@ -1,6 +1,8 @@
 import requests
+from requests.adapters import HTTPAdapter
 import time
 from urllib.parse import quote
+import urllib3
 from utils import logger
 
 # ExternalDataEnricher class for enrichment logic
@@ -13,7 +15,14 @@ WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
 
 class ExternalDataEnricher:
     def __init__(self, debug_wikipedia=False, debug_wikidata=False, debug_osm=False):
+        _retry_strategy = urllib3.Retry(
+            total=4,
+            backoff_factor=1,
+        )
+        _adapter = HTTPAdapter(max_retries=_retry_strategy)
         self.session = requests.Session()
+        self.session.mount("https://", _adapter)
+        self.session.mount("http://", _adapter)
         self.session.headers.update(
             {"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"}
         )
