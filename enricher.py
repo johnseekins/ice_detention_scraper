@@ -128,32 +128,32 @@ class ExternalDataEnricher(object):
 
             enriched_data.append(enriched_facility)
 
-            if (i + 1) % 10 == 0:
-                logger.info(" Progress: %s/%s facilities processed", i + 1, total)
+            # do we need the "progress bar" if we show the count in the beginning message?
+            # if (i + 1) % 10 == 0:
+            #     logger.info(" Progress: %s/%s facilities processed", i + 1, total)
 
         logger.info("Data enrichment completed!")
         return enriched_data
 
     def _search_wikipedia(self, facility_name):
         """Search Wikipedia for facility and return final URL after redirects"""
+        # Clean facility name for search
+        search_name = self._clean_facility_name(facility_name)
+
+        # Store original and cleaned names for debug
+        debug_info = {
+            "original_name": facility_name,
+            "cleaned_name": search_name,
+            "search_query": search_name,
+            "url": None,
+            "method": "none",
+        }
+
+        # Try direct page access first (replace space with underscores is the only change)
+        wiki_url = (
+            f"https://en.wikipedia.org/wiki/{quote(search_name.replace(' ', '_'))}"
+        )
         try:
-            # Clean facility name for search
-            search_name = self._clean_facility_name(facility_name)
-
-            # Store original and cleaned names for debug
-            debug_info = {
-                "original_name": facility_name,
-                "cleaned_name": search_name,
-                "search_query": search_name,
-                "url": None,
-                "method": "none",
-            }
-
-            # Try direct page access first (replace space with underscores is the only change)
-            wiki_url = (
-                f"https://en.wikipedia.org/wiki/{quote(search_name.replace(' ', '_'))}"
-            )
-
             response = self.session.get(wiki_url, allow_redirects=True, timeout=10)
 
             if response.status_code == 200:
@@ -376,16 +376,16 @@ class ExternalDataEnricher(object):
     def _search_wikidata(self, facility_name):
         # Fetches 3 results based on _clean_facility_name (not exact name). todo: needs adjustment.
         # Falls back to first result (usually truncated, eg. county)
+        search_name = self._clean_facility_name(facility_name)
+        search_url = "https://www.wikidata.org/w/api.php"
+        params = {
+            "action": "wbsearchentities",
+            "search": search_name,
+            "language": "en",
+            "format": "json",
+            "limit": 3,
+        }
         try:
-            search_name = self._clean_facility_name(facility_name)
-            search_url = "https://www.wikidata.org/w/api.php"
-            params = {
-                "action": "wbsearchentities",
-                "search": search_name,
-                "language": "en",
-                "format": "json",
-                "limit": 3,
-            }
             response = self.session.get(search_url, params=params, timeout=10)
             data = response.json()
             if data.get("search"):
@@ -426,22 +426,22 @@ class ExternalDataEnricher(object):
     def _search_openstreetmap(self, facility_name, address):
         # when the URL result is a "way" this is usually correct.
         # checks top five results.
+        search_name = self._clean_facility_name(facility_name)
+        location_context = ""
+        if address:
+            parts = address.split(
+                ", "
+            )  # todo the address between the number and street name should not have a comma.
+            if len(parts) >= 3:
+                location_context = f", {parts[-3]}, {parts[-2].split()[0]}"
+        search_url = "https://nominatim.openstreetmap.org/search"
+        params = {
+            "q": f"{search_name}{location_context}",
+            "format": "json",
+            "limit": 5,
+            "dedupe": 1,
+        }
         try:
-            search_name = self._clean_facility_name(facility_name)
-            location_context = ""
-            if address:
-                parts = address.split(
-                    ", "
-                )  # todo the address between the number and street name should not have a comma.
-                if len(parts) >= 3:
-                    location_context = f", {parts[-3]}, {parts[-2].split()[0]}"
-            search_url = "https://nominatim.openstreetmap.org/search"
-            params = {
-                "q": f"{search_name}{location_context}",
-                "format": "json",
-                "limit": 5,
-                "dedupe": 1,
-            }
             response = self.session.get(search_url, params=params, timeout=15)
             if response.status_code == 200:
                 data = response.json()
