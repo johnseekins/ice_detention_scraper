@@ -6,7 +6,10 @@ import requests
 from requests.adapters import HTTPAdapter
 import time
 import urllib3
-from utils import facility_obj, logger
+from utils import (
+    facility_schema,
+    logger,
+)
 
 
 class ICEFacilityScraper(object):
@@ -174,7 +177,7 @@ class ICEFacilityScraper(object):
 
     def _extract_single_facility(self, element, page_url):
         """Extract data from a single facility element"""
-        facility = copy.deepcopy(facility_obj)
+        facility = copy.deepcopy(facility_schema)
         facility["source_url"] = page_url
         try:
             # Get all text content from the element

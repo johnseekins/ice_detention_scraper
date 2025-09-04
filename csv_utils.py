@@ -1,13 +1,15 @@
 import csv
 from utils import (
-    facility_obj,
+    debug_schema,
+    facility_schema,
+    enrichment_schema,
     logger,
 )
 #
 # # CSVHandler class for CSV export and reporting
 
 
-class CSVHandler:
+class CSVHandler(object):
     @staticmethod
     def export_to_csv(
         facilities_data, filename="ice_detention_facilities_enriched.csv"
@@ -16,25 +18,14 @@ class CSVHandler:
             logger.warning("No data to export!")
             return None
 
-        base_fields = list(facility_obj.keys())
-        enrichment_fields = [
-            "wikipedia_page_url",
-            "wikidata_page_url",
-            "osm_result_url",
-        ]
-        debug_fields = [
-            "wikipedia_search_query",
-            "wikidata_search_query",
-            "osm_search_query",
-        ]
-
+        base_fields = list(facility_schema.keys())
         fieldnames = base_fields.copy()
 
-        if any(field in facilities_data[0] for field in enrichment_fields):
-            fieldnames.extend(enrichment_fields)
+        if any(field in facilities_data[0] for field in enrichment_schema):
+            fieldnames.extend(enrichment_schema)
 
-        if any(field in facilities_data[0] for field in debug_fields):
-            fieldnames.extend(debug_fields)
+        if any(field in facilities_data[0] for field in debug_schema):
+            fieldnames.extend(debug_schema)
 
         try:
             with open(filename, "w", newline="", encoding="utf-8") as csvfile:

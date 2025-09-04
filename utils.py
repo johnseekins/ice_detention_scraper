@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
-facility_obj = {
+facility_schema = {
     "name": "",
     "field_office": "",
     "address": "",
@@ -15,3 +15,13 @@ facility_obj = {
     "image_url": "",
     "source_url": "",
 }
+enrichment_schema = [
+    "wikipedia_page_url",
+    "wikidata_page_url",
+    "osm_result_url",
+]
+debug_schema = [
+    "wikipedia_search_query",
+    "wikidata_search_query",
+    "osm_search_query",
+]

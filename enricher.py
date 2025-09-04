@@ -13,7 +13,7 @@ WIKIPEDIA_DELAY = 0.5  # Be respectful to Wikipedia
 WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
 
 
-class ExternalDataEnricher:
+class ExternalDataEnricher(object):
     def __init__(self, debug_wikipedia=False, debug_wikidata=False, debug_osm=False):
         _retry_strategy = urllib3.Retry(
             total=4,
