@@ -1,19 +1,10 @@
-import sys
-
-import requests
-import time
-import re
-from utils import logger
-
-try:
-    from bs4 import BeautifulSoup
-except ImportError:
-    logger.error(
-        "Error: BeautifulSoup4 is required. Install it with: pip install beautifulsoup4 or another package manager."
-    )
-    sys.exit(1)
-
 # ICEFacilityScraper class and scraping-related code
+from bs4 import BeautifulSoup
+import re
+import requests
+import sys
+import time
+from utils import logger
 
 
 class ICEFacilityScraper(object):
@@ -211,16 +202,24 @@ class ICEFacilityScraper(object):
                 self._parse_facility_text(element_text, facility)
 
             # Extract image URL using the specified nested structure
-            # image_url = self._extract_image_url(element)
-            # if image_url:
-            #    facility["image_url"] = image_url
+            image_url = self._extract_image_url(element)
+            if image_url:
+               facility["image_url"] = image_url
 
             # Clean up extracted data
-            # facility = self._clean_facility_data(facility)
+            facility = self._clean_facility_data(facility)
 
         except Exception as e:
             logger.error("    Error extracting facility data: %s", e)
 
+        return facility
+
+    def _extract_image_url(self, element):
+        """Extract a default facility image (currently no-op)"""
+        return ""
+
+    def _clean_facility_data(self, facility):
+        """Clean up data (currently a no-op)"""
         return facility
 
     def _parse_facility_text(self, text, facility):
