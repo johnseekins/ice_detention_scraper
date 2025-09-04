@@ -2,7 +2,9 @@
 from bs4 import BeautifulSoup
 import re
 import requests
+from requests.adapters import HTTPAdapter
 import time
+import urllib3
 from utils import logger
 
 
@@ -12,7 +14,14 @@ class ICEFacilityScraper(object):
     def __init__(self):
         self.base_url = "https://www.ice.gov/detention-facilities"
         self.facilities_data = []
+        _retry_strategy = urllib3.Retry(
+            total=4,
+            backoff_factor=1,
+        )
+        _adapter = HTTPAdapter(max_retries=_retry_strategy)
         self.session = requests.Session()
+        self.session.mount("https://", _adapter)
+        self.session.mount("http://", _adapter)
         self.session.headers.update(
             {"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"}
         )
@@ -24,13 +33,11 @@ class ICEFacilityScraper(object):
         # URLs for all pages
         urls = [f"{self.base_url}?exposed_form_display=1&page={i}" for i in range(6)]
 
-        all_facilities = []
-
         for page_num, url in enumerate(urls):
             logger.info("Scraping page %s/6...", page_num + 1)
             try:
                 facilities = self._scrape_page(url)
-                all_facilities.extend(facilities)
+                self.facilities_data.extend(facilities)
                 logger.debug(
                     "Found %s facilities on page %s", len(facilities), page_num + 1
                 )
@@ -38,7 +45,7 @@ class ICEFacilityScraper(object):
             except Exception as e:
                 logger.error("Error scraping page %s: %s", page_num + 1, e)
 
-        self.facilities_data = all_facilities
+        # self.facilities_data = all_facilities
         logger.info("Total facilities scraped: %s", len(self.facilities_data))
         return self.facilities_data
 

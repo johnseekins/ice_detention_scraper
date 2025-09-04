@@ -96,19 +96,19 @@ class CSVHandler:
 
             logger.info("\n=== External Data Enrichment Results ===")
             logger.info(
-                "Wikipedia pages found: %s/%s (%s%)",
+                "Wikipedia pages found: %s/%s (%s%%)",
                 wiki_found,
                 total_facilities,
                 wiki_found / total_facilities * 100,
             )
             logger.info(
-                "Wikidata entries found: %s/%s (%s%)",
+                "Wikidata entries found: %s/%s (%s%%)",
                 wikidata_found,
                 total_facilities,
                 wikidata_found / total_facilities * 100,
             )
             logger.info(
-                "OpenStreetMap results found: %s/%s (%s%)",
+                "OpenStreetMap results found: %s/%s (%s%%)",
                 osm_found,
                 total_facilities,
                 osm_found / total_facilities * 100,
