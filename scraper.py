@@ -230,6 +230,7 @@ class ICEFacilityScraper(object):
         try:
             # Split text into lines and clean
             # lines = [line.strip() for line in text.split("\n") if line.strip()]
+            # text = lines.join("\n")
             # Common patterns for ICE facility listings
             patterns = [
                 # Pattern: "Facility Name | Other NameField Office"

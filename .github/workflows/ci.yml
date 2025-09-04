@@ -20,6 +20,16 @@ jobs:
         with:
           src: '.'
 
+      - name: setup python
+        run: |
+          curl https://mise.run | bash
+          mise install
+          eval "$(mise activate bash)"
+          uv sync
+          uv run
+      - name: run mypy
+        run: uv run mypy .
+
   markdown:
     name: Markdown linting
     runs-on: ubuntu-latest

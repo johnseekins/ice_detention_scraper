@@ -34,7 +34,7 @@ from utils import logger
 # CLI, argument parsing, script orchestration
 
 
-def main():
+def main() -> None:
     parser = ArgumentParser(
         description="ICE Detention Facilities Data Scraper and Enricher",
         formatter_class=ArgumentDefaultsHelpFormatter,

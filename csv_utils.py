@@ -12,14 +12,14 @@ from utils import (
 class CSVHandler(object):
     @staticmethod
     def export_to_csv(
-        facilities_data, filename="ice_detention_facilities_enriched.csv"
-    ):
+        facilities_data: list, filename: str = "ice_detention_facilities_enriched.csv"
+    ) -> str | None:
         if not facilities_data:
             logger.warning("No data to export!")
             return None
 
-        base_fields = list(facility_schema.keys())
-        fieldnames = base_fields.copy()
+        base_fields: list = list(facility_schema.keys())
+        fieldnames: list = base_fields.copy()
 
         if any(field in facilities_data[0] for field in enrichment_schema):
             fieldnames.extend(enrichment_schema)
@@ -47,7 +47,7 @@ class CSVHandler(object):
             return None
 
     @staticmethod
-    def print_summary(facilities_data):
+    def print_summary(facilities_data: list) -> None:
         """Print summary statistics about the facilities"""
         if not facilities_data:
             logger.info("No data to summarize!")
@@ -59,7 +59,7 @@ class CSVHandler(object):
         logger.info("Total facilities: %s", total_facilities)
 
         # Count by field office
-        field_offices = {}
+        field_offices: dict = {}
         for facility in facilities_data:
             office = facility.get("field_office", "Unknown")
             field_offices[office] = field_offices.get(office, 0) + 1
