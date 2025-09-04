@@ -202,7 +202,7 @@ class ICEFacilityScraper(object):
 
             # Method 2: If structured extraction failed, parse the text content
             if not facility["name"] or not facility["field_office"]:
-                self._parse_facility_text(element_text, facility)
+                facility = self._parse_facility_text(element_text, facility)
 
             # Extract image URL using the specified nested structure
             image_element = element.findAll("img")
@@ -227,68 +227,68 @@ class ICEFacilityScraper(object):
 
     def _parse_facility_text(self, text, facility):
         """Parse facility information from raw text"""
-        try:
-            # Split text into lines and clean
-            # lines = [line.strip() for line in text.split("\n") if line.strip()]
-            # text = lines.join("\n")
-            # Common patterns for ICE facility listings
-            patterns = [
-                # Pattern: "Facility Name | Other NameField Office"
-                r"^([^|]+(?:\|[^|]+)?)\s*([A-Z][^A-Z]*Field Office)",
-                # Pattern: "Facility Name Field Office"
-                r"^([^A-Z]*[^-]+?)\s*([A-Z][^A-Z]*Field Office)",
-                # Pattern: "- Facility NameField Office"
-                r"^-\s*([^-]+?)\s*([A-Z][^A-Z]*Field Office)",
-            ]
+        # Common patterns for ICE facility listings
+        patterns = [
+            # Pattern: "Facility Name | Other NameField Office"
+            r"^([^|]+(?:\|[^|]+)?)\s*([A-Z][^A-Z]*Field Office)",
+            # Pattern: "Facility Name Field Office"
+            r"^([^A-Z]*[^-]+?)\s*([A-Z][^A-Z]*Field Office)",
+            # Pattern: "- Facility NameField Office"
+            r"^-\s*([^-]+?)\s*([A-Z][^A-Z]*Field Office)",
+        ]
 
-            facility_info = None
-            for pattern in patterns:
-                match = re.match(pattern, text, re.MULTILINE | re.DOTALL)
-                if match:
-                    facility_info = match
-                    break
+        facility_info = None
+        for pattern in patterns:
+            match = re.match(pattern, text, re.MULTILINE | re.DOTALL)
+            if match:
+                facility_info = match
+                break
 
-            if facility_info:
-                facility["name"] = facility_info.group(1).strip()
-                facility["field_office"] = facility_info.group(2).strip()
-                # Extract address from remaining text
-                remaining_text = text[facility_info.end() :].strip()
-                address_lines = []
-                phone = ""
-                for line in remaining_text.split("\n"):
-                    line = line.strip()
-                    if not line:
-                        continue
-                    # Check if it's a phone number
-                    if re.match(r"^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$", line):
-                        phone = line
-                    # Check if it looks like an address component
-                    elif (
-                        any(
-                            indicator in line.lower()
-                            for indicator in [
-                                "street",
-                                "road",
-                                "avenue",
-                                "drive",
-                                "blvd",
-                                "highway",
-                                "hwy",
-                            ]
-                        )
-                        or re.match(r"^\d+\s", line)  # Starts with number
-                        or re.search(
-                            r"\b[A-Z]{2}\s+\d{5}", line
-                        )  # Contains state and zip
-                        or "United States" in line
-                    ):
-                        address_lines.append(line)
+        if facility_info:
+            facility["name"] = facility_info.group(1).strip()
+            facility["field_office"] = facility_info.group(2).strip()
+            if facility["name"].endswith(" St."):
+                facility["name"] = facility["name"].rstrip(" St.")
+                facility["field_office"] = f"St. {facility['field_office']}"
+            if facility["name"].endswith(" San"):
+                facility["name"] = facility["name"].rstrip(" San")
+                facility["field_office"] = f"San {facility['field_office']}"
+            # Extract address from remaining text
+            remaining_text = text[facility_info.end() :].strip()
+            address_lines = []
+            phone = ""
+            for line in remaining_text.split("\n"):
+                line = line.strip()
+                if not line:
+                    continue
+                line = re.search(r"(.*United States).*$", line).group(1)
+                logger.debug("Processing %s", line)
+                # Check if it's a phone number
+                if re.match(r"^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$", line):
+                    phone = line
+                # Check if it looks like an address component
+                elif (
+                    any(
+                        indicator in line.lower()
+                        for indicator in [
+                            "street",
+                            "road",
+                            "avenue",
+                            "drive",
+                            "blvd",
+                            "highway",
+                            "hwy",
+                        ]
+                    )
+                    or re.match(r"^\d+\s", line)  # Starts with number
+                    or re.search(r"\b[A-Z]{2}\s+\d{5}", line)  # Contains state and zip
+                    or "United States" in line
+                ):
+                    address_lines.append(line)
 
-                if address_lines:
-                    facility["address"] = ", ".join(address_lines)
-                if phone:
-                    facility["phone"] = phone
-        except Exception as e:
-            logger.error(" Error parsing facility text: %s", e)
+            if address_lines:
+                facility["address"] = ", ".join(address_lines)
+            facility["phone"] = phone
+        return facility
 
     pass
