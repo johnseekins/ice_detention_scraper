@@ -74,7 +74,7 @@ class CSVHandler:
         for office, count in sorted(
             field_offices.items(), key=lambda x: x[1], reverse=True
         ):
-            logger.info("  %$: %s", office, count)
+            logger.info("  %s: %s", office, count)
 
         # Check enrichment data if available
         if "wikipedia_page_url" in facilities_data[0]:
