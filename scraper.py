@@ -211,8 +211,8 @@ class ICEFacilityScraper(object):
                 self._parse_facility_text(element_text, facility)
 
             # Extract image URL using the specified nested structure
-            #image_url = self._extract_image_url(element)
-            #if image_url:
+            # image_url = self._extract_image_url(element)
+            # if image_url:
             #    facility["image_url"] = image_url
 
             # Clean up extracted data
