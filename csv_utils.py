@@ -120,7 +120,9 @@ class CSVHandler(object):
                     elif "ERROR" in query:
                         errors += 1
 
-                logger.debug("False positives detected and rejected: %s", false_positives)
+                logger.debug(
+                    "False positives detected and rejected: %s", false_positives
+                )
                 logger.debug("Search errors encountered: %s", errors)
                 logger.debug(
                     "Note: Review 'wikipedia_search_query' column for detailed search information"

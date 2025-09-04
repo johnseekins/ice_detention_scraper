@@ -32,7 +32,7 @@ The script should be compliant with these websites' rate limiting for queries.
 
 At this point of development you probably want "enable all debugging" to see the results below.
 
-## Usage:
+## Usage
 
 Run the script and by default it will put a CSV file called `ice_detention_facilities_enriched.csv` in the same
 directory.
@@ -52,12 +52,12 @@ directory.
     uv run python main.py --load-existing --enrich --debug-wikipedia -o debug_facilities.csv
 ```
 
-## Requirements:
+## Requirements
 
 * Install [and enable mise](https://mise.jdx.dev/getting-started.html)
 * Install dependencies
 
-### Linux:
+### Linux
 
 ```bash
     # easiest command, but you may prefer using your package manager: https://mise.jdx.dev/installing-mise.html
@@ -67,9 +67,10 @@ directory.
     eval "$(mise activate bash)"
     pip install --upgrade pip wheel uv
     uv sync
+    uv run pre-commit install
 ```
 
-### OS X:
+### OS X
 
 ```zsh
     brew install mise
@@ -78,9 +79,10 @@ directory.
     eval "$(mise activate zsh)"
     pip install --upgrade pip wheel uv
     uv sync
+    uv run pre-commit install
 ```
 
-## Todo / Known Issues:
+## Todo / Known Issues
 
 * The enrichment on both Wikidata and Wikipedia is pretty messy & inaccurate right now. It tries to truncate common words
 in hopes of finding similarly named pages but this is too aggressive, and it veers way off. (That is, it's looking for places
@@ -95,11 +97,11 @@ seems wrong.
 * The remote query rate limiting is (I think) done in series but would go faster with parallel/async processing.
 * This is only targeted at English (EN) Wikipedia currently, but  multi-lingual page checks would help a wider audience.
 
-## Credit:
+## Credit
 
 Original version by Dan Feidt ([@HongPong](https://github.com/HongPong)), with assistance from various AI gizmos. (My
 first real Python program, please clap.)
 
-## License:
+## License
 
 MIT License.
