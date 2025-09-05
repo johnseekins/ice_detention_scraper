@@ -1,3 +1,4 @@
+import copy
 import requests
 from requests.adapters import HTTPAdapter
 import time
@@ -28,25 +29,23 @@ class ExternalDataEnricher(object):
         self.debug_wikidata = debug_wikidata
         self.debug_osm = debug_osm
 
-    def enrich_facility_data(self, facilities_data):
+    def enrich_facility_data(self, facilities_data: dict) -> dict:
         logger.info("Starting data enrichment with external sources...")
-        enriched_data = []
-        total = len(facilities_data)
+        enriched_data = copy.deepcopy(facilities_data)
+        enriched_data["facilities"] = []
+        total = len(facilities_data["facilities"])
 
-        for i, facility in enumerate(facilities_data):
+        for i, facility in enumerate(facilities_data["facilities"]):
             logger.info("Processing facility %s/%s: %s...", i + 1, total, facility["name"])
             enriched_facility = facility.copy()
             base_enrichment = {
-                "wikipedia_page_url": False,
-                "wikidata_page_url": False,
-                "osm_result_url": False,
+                "wikipedia_page_url": "",
+                "wikipedia_search_query": "",
+                "wikidata_page_url": "",
+                "wikidata_search_query": "",
+                "osm_result_url": "",
+                "osm_search_query": "",
             }
-            if self.debug_wikipedia:
-                base_enrichment["wikipedia_search_query"] = ""  # todo expects bool.
-            if self.debug_wikidata:
-                base_enrichment["wikidata_search_query"] = ""  # todo expects bool.
-            if self.debug_osm:
-                base_enrichment["osm_search_query"] = ""  # todo expects bool.
 
             enriched_facility.update(base_enrichment)
 
@@ -55,52 +54,43 @@ class ExternalDataEnricher(object):
             # Wikipedia search # todo refactor to method
             try:
                 wiki_result = self._search_wikipedia(facility_name)
-                if isinstance(wiki_result, dict):  # Debug mode returns dict
-                    enriched_facility["wikipedia_page_url"] = wiki_result["url"] if wiki_result["url"] else False
-                    if self.debug_wikipedia:
-                        enriched_facility["wikipedia_search_query"] = wiki_result["search_query"]
-                else:
-                    enriched_facility["wikipedia_page_url"] = wiki_result if wiki_result else False
+                enriched_facility["wikipedia_page_url"] = wiki_result.get("url", "")
+                if self.debug_wikipedia:
+                    enriched_facility["wikipedia_search_query"] = wiki_result.get("search_query", "")
                 time.sleep(WIKIPEDIA_DELAY)
             except Exception as e:
                 logger.error(" Wikipedia search error: %s", e)
-                enriched_facility["wikipedia_page_url"] = False
+                enriched_facility["wikipedia_page_url"] = ""
                 if self.debug_wikipedia:
                     enriched_facility["wikipedia_search_query"] = f"ERROR: {str(e)}"
 
             # Wikidata search # todo refactor to method
             try:
                 wikidata_result = self._search_wikidata(facility_name)
-                if isinstance(wikidata_result, dict):  # debug returns dict with url and title
-                    enriched_facility["wikidata_page_url"] = wikidata_result.get("url", False)
-                    if self.debug_wikidata:
-                        enriched_facility["wikidata_search_query"] = wikidata_result.get("title", "")
-                else:
-                    enriched_facility["wikidata_page_url"] = wikidata_result if wikidata_result else False
+                enriched_facility["wikidata_page_url"] = wikidata_result.get("url", "")
+                if self.debug_wikidata:
+                    enriched_facility["wikidata_search_query"] = wikidata_result.get("title", "")
                 time.sleep(WIKIDATA_DELAY)
             except Exception as e:
                 logger.error(" Wikidata search error: %s", e)
-                enriched_facility["wikidata_page_url"] = False
+                enriched_facility["wikidata_page_url"] = ""
                 if self.debug_wikidata:
                     enriched_facility["wikidata_search_query"] = f"ERROR: {str(e)}"
 
             # OpenStreetMap search # todo refactor to method
             try:
                 osm_result = self._search_openstreetmap(facility_name, facility.get("full_address", ""))
-                if isinstance(osm_result, dict):  # debug returns dict with url and title
-                    enriched_facility["osm_result_url"] = osm_result.get("url", False)
-                    if self.debug_osm:
-                        enriched_facility["osm_search_query"] = osm_result.get("title", "")
-                else:
-                    enriched_facility["osm_result_url"] = osm_result if osm_result else False
+                enriched_facility["osm_result_url"] = osm_result.get("url", "")
+                if self.debug_osm:
+                    enriched_facility["osm_search_query"] = osm_result.get("title", "")
                 time.sleep(NOMINATIM_DELAY)
             except Exception as e:
                 logger.error(" OSM search error: %s", e)
-                enriched_facility["osm_result_url"] = False
+                enriched_facility["osm_result_url"] = ""
                 if self.debug_osm:
                     enriched_facility["osm_search_query"] = f"ERROR: {str(e)}"
 
-            enriched_data.append(enriched_facility)
+            enriched_data["facilities"].append(enriched_facility)
 
             # do we need the "progress bar" if we show the count in the beginning message?
             # if (i + 1) % 10 == 0:
@@ -109,17 +99,17 @@ class ExternalDataEnricher(object):
         logger.info("Data enrichment completed!")
         return enriched_data
 
-    def _search_wikipedia(self, facility_name):
+    def _search_wikipedia(self, facility_name: str) -> dict:
         """Search Wikipedia for facility and return final URL after redirects"""
         # Clean facility name for search
-        search_name = self._clean_facility_name(facility_name)
+        search_name: str = self._clean_facility_name(facility_name)
 
         # Store original and cleaned names for debug
         debug_info = {
             "original_name": facility_name,
             "cleaned_name": search_name,
-            "search_query": search_name,
-            "url": None,
+            "search_query": str(search_name),
+            "url": {},
             "method": "none",
         }
 
@@ -171,7 +161,9 @@ class ExternalDataEnricher(object):
                     return response.url
                 else:
                     if self.debug_wikipedia:
-                        debug_info["search_query"] += " [REJECTED: false_positive or no_facility_context]"
+                        debug_info["search_query"] = (
+                            f"{debug_info['search_query']} [REJECTED: false_positive or no_facility_context]"
+                        )
 
             # If direct access fails, try Wikipedia search API with original name first
             search_queries = [
@@ -284,15 +276,15 @@ class ExternalDataEnricher(object):
 
                 # If this search query didn't work, try the next one
                 if query_attempt < len(search_queries) - 1:
-                    debug_info["search_query"] += " [no_relevant_results] -> "
+                    debug_info["search_query"] = f"{debug_info['search_query']} [no_relevant_results] -> "
 
             # No results found
-            debug_info["search_query"] += " [no_results_found]"
+            debug_info["search_query"] = f"{debug_info['search_query']} [no_results_found]"
             debug_info["method"] = "failed"
 
             if self.debug_wikipedia:
                 return debug_info
-            return None
+            return {}
 
         except Exception as e:
             error_msg = f"ERROR: {str(e)}"
@@ -304,9 +296,9 @@ class ExternalDataEnricher(object):
                     "method": "error",
                 }
             logger.error("    Wikipedia search error for '%s': %s", facility_name, e)
-            return None
+            return {}
 
-    def _minimal_clean_facility_name(self, name):
+    def _minimal_clean_facility_name(self, name: str) -> str:
         """Minimal cleaning that preserves important context like 'County Jail'"""
         cleaned = name
 
@@ -331,7 +323,7 @@ class ExternalDataEnricher(object):
 
         return cleaned
 
-    def _search_wikidata(self, facility_name):
+    def _search_wikidata(self, facility_name: str) -> dict:
         # Fetches 3 results based on _clean_facility_name (not exact name). todo: needs adjustment.
         # Falls back to first result (usually truncated, eg. county)
         search_name = self._clean_facility_name(facility_name)
@@ -345,43 +337,50 @@ class ExternalDataEnricher(object):
         }
         try:
             response = self.session.get(search_url, params=params, timeout=10)
-            data = response.json()
-            if data.get("search"):
-                for result in data["search"]:
-                    description = result.get("description", "").lower()
-                    if any(
-                        term in description
-                        for term in [
-                            "prison",
-                            "detention",
-                            "correctional",
-                            "jail",
-                            "facility",
-                            "processing",
-                        ]
-                    ):
-                        if self.debug_wikidata:
-                            return {
-                                "url": f"https://www.wikidata.org/wiki/{result['id']}",
-                                "title": result.get("label", ""),
-                            }
-                        return f"https://www.wikidata.org/wiki/{result['id']}"
-                # fallback to first result
-                first = data["search"][0]
-                if self.debug_wikidata:
-                    return {
-                        "url": f"https://www.wikidata.org/wiki/{first['id']}",
-                        "title": first.get("label", ""),
-                    }
-                return f"https://www.wikidata.org/wiki/{first['id']}"
-            return None
+            response.raise_for_status()
         except Exception as e:
             logger.error(" Wikidata search error for '%s': %s", facility_name, e)
             if self.debug_wikidata:
                 return {"url": None, "title": f"ERROR: {str(e)}"}
-            return None
+            return {}
+        data = response.json()
+        if not data.get("search"):
+            return {}
+        for result in data["search"]:
+            description = result.get("description", "").lower()
+            if any(
+                term in description
+                for term in [
+                    "prison",
+                    "detention",
+                    "correctional",
+                    "jail",
+                    "facility",
+                    "processing",
+                ]
+            ):
+                if self.debug_wikidata:
+                    return {
+                        "url": f"https://www.wikidata.org/wiki/{result['id']}",
+                        "title": result.get("label", ""),
+                    }
+                return {
+                    "url": f"https://www.wikidata.org/wiki/{result['id']}",
+                    "title": "",
+                }
+        # fallback to first result
+        first = data["search"][0]
+        if self.debug_wikidata:
+            return {
+                "url": f"https://www.wikidata.org/wiki/{first['id']}",
+                "title": first.get("label", ""),
+            }
+        return {
+            "url": f"https://www.wikidata.org/wiki/{first['id']}",
+            "title": "",
+        }
 
-    def _search_openstreetmap(self, facility_name, address):
+    def _search_openstreetmap(self, facility_name: str, address: str) -> dict:
         # when the URL result is a "way" this is usually correct.
         # checks top five results.
         search_name = self._clean_facility_name(facility_name)
@@ -399,46 +398,56 @@ class ExternalDataEnricher(object):
         }
         try:
             response = self.session.get(search_url, params=params, timeout=15)
-            if response.status_code == 200:
-                data = response.json()
-                if data:
-                    for result in data:
-                        osm_type = result.get("type", "").lower()
-                        display_name = result.get("display_name", "").lower()
-                        if any(term in osm_type for term in ["prison", "detention", "correctional"]) or any(
-                            term in display_name for term in ["prison", "detention", "correctional", "jail"]
-                        ):
-                            # todo courthouse could be added, or other tags such as "prison:for=migrant" as a clear positive search result.
-                            osm_id = result.get("osm_id")
-                            osm_type_prefix = result.get("osm_type", "")
-                            title = result.get("display_name", "")
-                            if osm_id and osm_type_prefix:
-                                if self.debug_osm:
-                                    return {
-                                        "url": f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}",
-                                        "title": title,
-                                    }
-                                return f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}"
-                    # fallback to first result
-                    first_result = data[0]
-                    lat = first_result.get("lat")
-                    lon = first_result.get("lon")
-                    title = first_result.get("display_name", "")
-                    if lat and lon:
-                        if self.debug_osm:
-                            return {
-                                "url": f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15",
-                                "title": title,
-                            }
-                        return f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
-            return None
+            response.raise_for_status()
         except Exception as e:
             logger.error(" OSM search error for '%s': %s", facility_name, e)
             if self.debug_osm:
                 return {"url": None, "title": f"ERROR: {str(e)}"}
-            return None
+            return {}
+        if response.status_code != 200:
+            return {}
+        data = response.json()
+        if not data:
+            return {}
+        for result in data:
+            osm_type = result.get("type", "").lower()
+            display_name = result.get("display_name", "").lower()
+            if any(term in osm_type for term in ["prison", "detention", "correctional"]) or any(
+                term in display_name for term in ["prison", "detention", "correctional", "jail"]
+            ):
+                # todo courthouse could be added, or other tags such as "prison:for=migrant" as a clear positive search result.
+                osm_id = result.get("osm_id")
+                osm_type_prefix = result.get("osm_type", "")
+                title = result.get("display_name", "")
+                if osm_id and osm_type_prefix:
+                    if self.debug_osm:
+                        return {
+                            "url": f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}",
+                            "title": title,
+                        }
+                    return {
+                        "url": f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}",
+                        "title": "",
+                    }
+        # fallback to first result
+        first_result = data[0]
+        lat = first_result.get("lat")
+        lon = first_result.get("lon")
+        title = first_result.get("display_name", "")
+        if lat and lon:
+            if self.debug_osm:
+                return {
+                    "url": f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15",
+                    "title": title,
+                }
+            return {
+                "url": f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15",
+                "title": "",
+            }
+        else:
+            return {}
 
-    def _clean_facility_name(self, name):
+    def _clean_facility_name(self, name: str) -> str:
         """Clean facility name for better search results"""
         # Remove common suffixes and prefixes that might interfere with search
         # This function may not be helpful - may be counterproductive.

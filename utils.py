@@ -1,10 +1,16 @@
 # For general helpers, regexes, or shared logic (e.g. phone/address parsing functions).
-
+import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
+
+facilities_schema = {
+    "scraped_date": datetime.datetime.utcnow(),
+    "page_updated_date": datetime.datetime.utcnow(),
+    "facilities": [],
+}
 
 facility_schema = {
     "address": "",

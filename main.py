@@ -24,9 +24,10 @@ Requirements:
 """
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+import copy
 import logging
 from file_utils import export_to_file, print_summary
-from data_loader import load_existing_data
+import default_data
 from enricher import ExternalDataEnricher
 from scraper import ICEFacilityScraper
 from utils import logger
@@ -81,7 +82,7 @@ def main() -> None:
         parser.print_help()
         return
 
-    facilities_data = []
+    facilities_data = {}
 
     if args.scrape and args.load_existing:
         logger.error("Can't scrape and load existing data!")
@@ -91,8 +92,10 @@ def main() -> None:
         scraper = ICEFacilityScraper()
         facilities_data = scraper.scrape_facilities()
     elif args.load_existing:
-        facilities_data = load_existing_data()
-        logger.info(f"Loaded {len(facilities_data)} existing facilities from local data. (Not scraping ICE.gov)")
+        facilities_data = copy.deepcopy(default_data.facilities_data)
+        logger.info(
+            "Loaded %s existing facilities from local data. (Not scraping ICE.gov)", len(facilities_data["facilities"])
+        )
 
     if args.enrich:
         if not facilities_data:
@@ -108,8 +111,7 @@ def main() -> None:
     if facilities_data:
         output_filename = args.output_file_name
         if args.enrich and not output_filename.endswith("_enriched"):
-            base_name = output_filename.replace(".csv", "")
-            output_filename = f"{base_name}_enriched"
+            output_filename = f"{output_filename}_enriched"
         export_to_file(facilities_data, output_filename, args.file_type)
         print_summary(facilities_data)
     else:

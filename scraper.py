@@ -2,12 +2,14 @@
 import base64
 from bs4 import BeautifulSoup
 import copy
+import datetime
 import re
 import requests
 from requests.adapters import HTTPAdapter
 import time
 import urllib3
 from utils import (
+    facilities_schema,
     facility_schema,
     logger,
 )
@@ -18,7 +20,7 @@ class ICEFacilityScraper(object):
 
     def __init__(self):
         self.base_url = "https://www.ice.gov/detention-facilities"
-        self.facilities_data = []
+        self.facilities_data = copy.deepcopy(facilities_schema)
         _retry_strategy = urllib3.Retry(
             total=4,
             backoff_factor=1,
@@ -33,6 +35,8 @@ class ICEFacilityScraper(object):
         """Scrape all ICE detention facility data from all 6 pages"""
         logger.info("Starting to scrape ICE detention facilities...")
 
+        self.facilities_data["scraped_date"] = datetime.datetime.utcnow()
+        self.facilities_data["page_updated_date"] = self._scrape_updated(self.base_url)
         # URLs for all pages
         urls = [f"{self.base_url}?exposed_form_display=1&page={i}" for i in range(6)]
 
@@ -40,99 +44,114 @@ class ICEFacilityScraper(object):
             logger.info("Scraping page %s/6...", page_num + 1)
             try:
                 facilities = self._scrape_page(url)
-                self.facilities_data.extend(facilities)
-                logger.debug("Found %s facilities on page %s", len(facilities), page_num + 1)
-                time.sleep(1)  # Be respectful to the server
             except Exception as e:
                 logger.error("Error scraping page %s: %s", page_num + 1, e)
+            self.facilities_data["facilities"].extend(facilities)
+            logger.debug("Found %s facilities on page %s", len(facilities), page_num + 1)
+            time.sleep(1)  # Be respectful to the server
 
         # self.facilities_data = all_facilities
-        logger.info("Total facilities scraped: %s", len(self.facilities_data))
+        logger.info("Total facilities scraped: %s", len(self.facilities_data["facilities"]))
         return self.facilities_data
 
-    def _scrape_page(self, url):
+    def _scrape_updated(self, url: str):
+        """Scrape first page to get "last updated" time"""
+        default_timestamp = "1970-01-01T00:00:00-+0000"
+        timestamp_format = "%Y-%m-%dT%H:%M:%S-%z"
+        logger.debug("  Fetching: %s", url)
+        try:
+            response = self.session.get(url, timeout=30)
+            response.raise_for_status()
+        except Exception as e:
+            logger.error("  Error parsing %s: %s", url, e)
+            return []
+        soup = BeautifulSoup(response.content, "html.parser")
+        times = soup.findAll("time")
+        if not times:
+            logger.error("Could not find a time block! Guessing wildly!")
+            return datetime.datetime.strptime(default_timestamp, timestamp_format)
+        # RFC8601 "UTC offset in the form ±HH:MM[:SS[.ffffff]]" is not supported (2025-09-04) in python's strptime implementation
+        timestamp = times[0].get("datetime", default_timestamp)
+        timestamp, tz = timestamp.rsplit("-", 1)
+        tz = tz.replace(":", "")
+        # another hack...we'll assume a US timestamp here...
+        timestamp = f"{timestamp}-+{tz}"
+        return datetime.datetime.strptime(timestamp, timestamp_format)
+
+    def _scrape_page(self, url: str) -> list:
         """Scrape a single page of facilities using BeautifulSoup"""
         logger.debug("  Fetching: %s", url)
         try:
             response = self.session.get(url, timeout=30)
             response.raise_for_status()
-
-            # Parse HTML with BeautifulSoup
-            soup = BeautifulSoup(response.content, "html.parser")
-
-            # Extract facilities from the parsed HTML
-            facilities = self._extract_facilities_from_html(soup, url)
-
-            return facilities
-        except requests.RequestException as e:
-            logger.error("  Error fetching %s: %s", url, e)
-            return []
         except Exception as e:
             logger.error("  Error parsing %s: %s", url, e)
             return []
 
-    def _extract_facilities_from_html(self, soup, page_url):
+        # Parse HTML with BeautifulSoup
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Extract facilities from the parsed HTML
+        return self._extract_facilities_from_html(soup, url)
+
+    def _extract_facilities_from_html(self, soup, page_url: str) -> list:
         """Extract facility data from BeautifulSoup parsed HTML"""
         facilities = []
 
+        # Look for the main content area - ICE uses different possible containers
+        content_selectors = [
+            "div.view-content",  # Primary content container
+            "div.views-rows",  # Alternative container
+            "ul.views-rows",  # List-based container
+            "div.region-content",  # Region content
+            "main",  # HTML5 main element
+            "div.content",  # Generic content
+        ]
+        content_container = None
         logger.debug("Searching %s for content", page_url)
-        try:
-            # Look for the main content area - ICE uses different possible containers
-            content_selectors = [
-                "div.view-content",  # Primary content container
-                "div.views-rows",  # Alternative container
-                "ul.views-rows",  # List-based container
-                "div.region-content",  # Region content
-                "main",  # HTML5 main element
-                "div.content",  # Generic content
-            ]
-            content_container = None
-            for selector in content_selectors:
-                content_container = soup.select_one(selector)
-                if content_container:
-                    logger.debug("  Found content using selector: %s", selector)
-                    break
+        for selector in content_selectors:
+            content_container = soup.select_one(selector)
+            if content_container:
+                logger.debug("  Found content using selector: %s", selector)
+                break
 
-            if not content_container:
-                logger.warning("  Warning: Could not find content container, searching entire page")
-                content_container = soup
+        if not content_container:
+            logger.warning("  Warning: Could not find content container, searching entire page")
+            content_container = soup
 
-            # Look for facility entries - try multiple patterns
-            facility_selectors = [
-                "li.grid",  # List items with grid class
-                "div.views-row",  # View rows
-                "li.views-row",  # List-based view rows
-                "div.facility-item",  # Custom facility items
-                "article",  # Article elements
-                "div.node",  # Drupal node containers
-            ]
-            facility_elements = []
-            for selector in facility_selectors:
-                elements = content_container.select(selector)
-                if elements:
-                    facility_elements = elements
-                    logger.debug(
-                        "  Found %s facility elements using selector: %s",
-                        len(elements),
-                        selector,
-                    )
-                    break
+        # Look for facility entries - try multiple patterns
+        facility_selectors = [
+            "li.grid",  # List items with grid class
+            "div.views-row",  # View rows
+            "li.views-row",  # List-based view rows
+            "div.facility-item",  # Custom facility items
+            "article",  # Article elements
+            "div.node",  # Drupal node containers
+        ]
+        facility_elements = []
+        for selector in facility_selectors:
+            elements = content_container.select(selector)
+            if elements:
+                facility_elements = elements
+                logger.debug(
+                    "  Found %s facility elements using selector: %s",
+                    len(elements),
+                    selector,
+                )
+                break
 
-            if not facility_elements:
-                # Fallback: look for any element containing facility-like text patterns
-                logger.warning("  Using fallback: searching for facility patterns in text")
-                facility_elements = self._find_facility_patterns(content_container)
+        if not facility_elements:
+            # Fallback: look for any element containing facility-like text patterns
+            logger.warning("  Using fallback: searching for facility patterns in text")
+            facility_elements = self._find_facility_patterns(content_container)
 
-            # Extract data from each facility element
-            for element in facility_elements:
-                facility_data = self._extract_single_facility(element, page_url)
-                if facility_data and facility_data.get("name"):
-                    facilities.append(facility_data)
+        # Extract data from each facility element
+        for element in facility_elements:
+            facility_data = self._extract_single_facility(element, page_url)
+            if facility_data and facility_data.get("name"):
+                facilities.append(facility_data)
 
-            logger.info("  Extracted %s facilities from page", len(facilities))
-
-        except Exception as e:
-            logger.error("  Error extracting facilities from HTML: %s", e)
+        logger.info("  Extracted %s facilities from page", len(facilities))
 
         return facilities
 
