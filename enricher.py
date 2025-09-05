@@ -63,7 +63,7 @@ class ExternalDataEnricher(object):
             try:
                 wikidata_result = self._search_wikidata(facility_name)
                 enriched_facility["wikidata_page_url"] = wikidata_result.get("url", "")
-                enriched_facility["wikidata_search_query"] = wikidata_result.get("title", "")
+                enriched_facility["wikidata_search_query"] = wikidata_result.get("search_query", "")
                 time.sleep(WIKIDATA_DELAY)
             except Exception as e:
                 logger.error(" Wikidata search error: %s", e)
@@ -74,7 +74,7 @@ class ExternalDataEnricher(object):
             try:
                 osm_result = self._search_openstreetmap(facility_name, facility.get("full_address", ""))
                 enriched_facility["osm_result_url"] = osm_result.get("url", "")
-                enriched_facility["osm_search_query"] = osm_result.get("title", "")
+                enriched_facility["osm_search_query"] = osm_result.get("search_query", "")
                 time.sleep(NOMINATIM_DELAY)
             except Exception as e:
                 logger.error(" OSM search error: %s", e)
