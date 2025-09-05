@@ -9,6 +9,8 @@ logger.addHandler(logging.StreamHandler())
 facilities_schema = {
     "scraped_date": datetime.datetime.utcnow(),
     "page_updated_date": datetime.datetime.utcnow(),
+    "scrape_runtime": 0,
+    "enrich_runtime": 0,
     "facilities": [],
 }
 

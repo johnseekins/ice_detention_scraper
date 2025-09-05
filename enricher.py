@@ -4,7 +4,7 @@ from requests.adapters import HTTPAdapter
 import time
 from urllib.parse import quote
 import urllib3
-from utils import logger
+from utils import logger, facilities_schema
 
 # ExternalDataEnricher class for enrichment logic
 
@@ -27,14 +27,14 @@ class ExternalDataEnricher(object):
         self.session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
 
     def enrich_facility_data(self, facilities_data: dict) -> dict:
+        start_time = time.time()
         logger.info("Starting data enrichment with external sources...")
-        enriched_data = copy.deepcopy(facilities_data)
-        enriched_data["facilities"] = []
+        enriched_data = copy.deepcopy(facilities_schema)
         total = len(facilities_data["facilities"])
 
         for i, facility in enumerate(facilities_data["facilities"]):
             logger.info("Processing facility %s/%s: %s...", i + 1, total, facility["name"])
-            enriched_facility = facility.copy()
+            enriched_facility = copy.deepcopy(facility)
             base_enrichment = {
                 "wikipedia_page_url": "",
                 "wikipedia_search_query": "",
@@ -81,13 +81,11 @@ class ExternalDataEnricher(object):
                 enriched_facility["osm_result_url"] = ""
                 enriched_facility["osm_search_query"] = str(e)
 
-            enriched_data["facilities"].append(enriched_facility)
-
-            # do we need the "progress bar" if we show the count in the beginning message?
-            # if (i + 1) % 10 == 0:
-            #     logger.info(" Progress: %s/%s facilities processed", i + 1, total)
+            enriched_data["facilities"].append(enriched_facility)  # type: ignore [attr-defined]
 
         logger.info("Data enrichment completed!")
+        enriched_data["enrich_runtime"] = time.time() - start_time
+        logger.info(" Completed in %s seconds", enriched_data["enrich_runtime"])
         return enriched_data
 
     def _search_wikipedia(self, facility_name: str) -> dict:

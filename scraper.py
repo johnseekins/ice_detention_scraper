@@ -33,6 +33,7 @@ class ICEFacilityScraper(object):
 
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
+        start_time = time.time()
         logger.info("Starting to scrape ICE detention facilities...")
 
         self.facilities_data["scraped_date"] = datetime.datetime.utcnow()
@@ -51,7 +52,9 @@ class ICEFacilityScraper(object):
             time.sleep(1)  # Be respectful to the server
 
         # self.facilities_data = all_facilities
+        self.facilities_data["scrape_runtime"] = time.time() - start_time
         logger.info("Total facilities scraped: %s", len(self.facilities_data["facilities"]))
+        logger.info(" Completed in %s seconds", self.facilities_data["scrape_runtime"])
         return self.facilities_data
 
     def _scrape_updated(self, url: str):
