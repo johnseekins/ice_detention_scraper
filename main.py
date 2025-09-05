@@ -11,16 +11,11 @@ Usage:
     python main.py --scrape --enrich # Do both operations
     python main.py --help            # Show help
 
-    # Enable Wikipedia debugging
-    python main.py --load-existing --enrich --debug-wikipedia
+    # Enable debugging
+    python main.py --load-existing --enrich --debug
 
     # With custom output file
-    python main.py --load-existing --enrich --debug-wikipedia -o debug_facilities.csv
-
-Requirements:
-    pip install requests beautifulsoup4 lxml
-    or for globally managed environments, (e.g. Debian and Ubuntu)
-    sudo apt install python3-requests python3-bs4 python3-lxml
+    python main.py --load-existing --enrich --debug -o debug_facilities.csv
 """
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -66,16 +61,10 @@ def main() -> None:
         help="The file we'll write data out to (excluding the suffix)",
     )
     parser.add_argument("--debug", action="store_true", help="Full debug information and logging")
-    parser.add_argument("--debug-wikipedia", action="store_true", help="debug wikipedia enrichment")
-    parser.add_argument("--debug-wikidata", action="store_true", help="debug wikidata enrichment")
-    parser.add_argument("--debug-osm", action="store_true", help="debug OpenStreetMap enrichment")
 
     args = parser.parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)
-        args.debug_wikipedia = True
-        args.debug_wikidata = True
-        args.debug_osm = True
     logger.info("ICE Detention Facilities Scraper by the Open Security Mapping Project. MIT License.")
 
     if not any([args.scrape, args.enrich, args.load_existing]):
@@ -101,11 +90,7 @@ def main() -> None:
         if not facilities_data:
             logger.warning("No facility data available for enrichment.")
             return
-        enricher = ExternalDataEnricher(
-            debug_wikipedia=args.debug_wikipedia,
-            debug_wikidata=args.debug_wikidata,
-            debug_osm=args.debug_osm,
-        )
+        enricher = ExternalDataEnricher()
         facilities_data = enricher.enrich_facility_data(facilities_data)
 
     if facilities_data:

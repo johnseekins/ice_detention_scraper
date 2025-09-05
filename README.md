@@ -14,8 +14,11 @@ which will help with documenting the facilities appropriately. As these entries 
 your CSV results change almost immediately.
 
 You can also use `--load-existing` to leverage an existing
-scrape of the data from ICE.gov. This is stored in data_loader.py and includes the official current addresses of facilities.
+scrape of the data from ICE.gov. This is stored in default_data.py and includes the official current addresses of facilities.
 (Note ICE has been renaming known "detention center" sites to "processing center", and so on.)
+
+The initial scrape data also keeps a `base64` ecoded string containing the original HTML that was scraped from ice.gov about the
+facility. Keeping this initial data allows us to verify the resulting extracted data if we need to.
 
 It also shows the ICE "field office" managing each detention facility.
 

@@ -15,7 +15,7 @@ WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
 
 
 class ExternalDataEnricher(object):
-    def __init__(self, debug_wikipedia=False, debug_wikidata=False, debug_osm=False):
+    def __init__(self):
         _retry_strategy = urllib3.Retry(
             total=4,
             backoff_factor=1,
@@ -25,9 +25,6 @@ class ExternalDataEnricher(object):
         self.session.mount("https://", _adapter)
         self.session.mount("http://", _adapter)
         self.session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
-        self.debug_wikipedia = debug_wikipedia
-        self.debug_wikidata = debug_wikidata
-        self.debug_osm = debug_osm
 
     def enrich_facility_data(self, facilities_data: dict) -> dict:
         logger.info("Starting data enrichment with external sources...")
@@ -55,40 +52,34 @@ class ExternalDataEnricher(object):
             try:
                 wiki_result = self._search_wikipedia(facility_name)
                 enriched_facility["wikipedia_page_url"] = wiki_result.get("url", "")
-                if self.debug_wikipedia:
-                    enriched_facility["wikipedia_search_query"] = wiki_result.get("search_query", "")
+                enriched_facility["wikipedia_search_query"] = wiki_result.get("search_query", "")
                 time.sleep(WIKIPEDIA_DELAY)
             except Exception as e:
                 logger.error(" Wikipedia search error: %s", e)
                 enriched_facility["wikipedia_page_url"] = ""
-                if self.debug_wikipedia:
-                    enriched_facility["wikipedia_search_query"] = f"ERROR: {str(e)}"
+                enriched_facility["wikipedia_search_query"] = str(e)
 
             # Wikidata search # todo refactor to method
             try:
                 wikidata_result = self._search_wikidata(facility_name)
                 enriched_facility["wikidata_page_url"] = wikidata_result.get("url", "")
-                if self.debug_wikidata:
-                    enriched_facility["wikidata_search_query"] = wikidata_result.get("title", "")
+                enriched_facility["wikidata_search_query"] = wikidata_result.get("title", "")
                 time.sleep(WIKIDATA_DELAY)
             except Exception as e:
                 logger.error(" Wikidata search error: %s", e)
                 enriched_facility["wikidata_page_url"] = ""
-                if self.debug_wikidata:
-                    enriched_facility["wikidata_search_query"] = f"ERROR: {str(e)}"
+                enriched_facility["wikidata_search_query"] = str(e)
 
             # OpenStreetMap search # todo refactor to method
             try:
                 osm_result = self._search_openstreetmap(facility_name, facility.get("full_address", ""))
                 enriched_facility["osm_result_url"] = osm_result.get("url", "")
-                if self.debug_osm:
-                    enriched_facility["osm_search_query"] = osm_result.get("title", "")
+                enriched_facility["osm_search_query"] = osm_result.get("title", "")
                 time.sleep(NOMINATIM_DELAY)
             except Exception as e:
                 logger.error(" OSM search error: %s", e)
                 enriched_facility["osm_result_url"] = ""
-                if self.debug_osm:
-                    enriched_facility["osm_search_query"] = f"ERROR: {str(e)}"
+                enriched_facility["osm_search_query"] = str(e)
 
             enriched_data["facilities"].append(enriched_facility)
 
@@ -101,202 +92,191 @@ class ExternalDataEnricher(object):
 
     def _search_wikipedia(self, facility_name: str) -> dict:
         """Search Wikipedia for facility and return final URL after redirects"""
+        facility_terms = [
+            "detention",
+            "prison",
+            "jail",
+            "correctional",
+            "penitentiary",
+            "facility",
+            "center",
+            "complex",
+            "insitution",
+            "processing",
+        ]
         # Clean facility name for search
         search_name: str = self._clean_facility_name(facility_name)
 
-        # Store original and cleaned names for debug
-        debug_info = {
+        # Store original and cleaned names for response
+        resp_info = {
             "original_name": facility_name,
             "cleaned_name": search_name,
-            "search_query": str(search_name),
+            "search_query": "",
             "url": {},
             "method": "none",
         }
-
+        logger.debug("Searching Wikipedia for %s", facility_name)
         # Try direct page access first (replace space with underscores is the only change)
-        wiki_url = f"https://en.wikipedia.org/wiki/{quote(search_name.replace(' ', '_'))}"
+        wiki_url = f"https://en.wikipedia.org/wiki/{quote(facility_name.replace(' ', '_').replace('|', '_'))}"
+        resp_info["search_query"] = wiki_url
+        initial_response = False
         try:
             response = self.session.get(wiki_url, allow_redirects=True, timeout=10)
+            response.raise_for_status()
+            initial_response = True
+        except Exception as e:
+            logger.debug("  Wikipedia search error for '%s': %s", wiki_url, e)
+            resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
+        if response.status_code != 200:
+            wiki_url = f"https://en.wikipedia.org/wiki/{quote(facility_name.replace(' ', '_').replace('|', '_'))}"
+            resp_info["search_query"] = wiki_url
+            try:
+                response = self.session.get(wiki_url, allow_redirects=True, timeout=10)
+                response.raise_for_status()
+                initial_response = True
+            except Exception as e:
+                logger.debug("  Wikipedia search error for '%s': %s", wiki_url, e)
+                resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
 
-            if response.status_code == 200:
-                # Check if we got a real article (not a disambiguation or search page)
-                page_text = response.text.lower()
+        if initial_response:
+            # Check if we got a real article (not a disambiguation or search page)
+            page_text = response.text.lower()
 
-                # Enhanced false positive detection
-                false_positive_indicators = [
-                    "may refer to:",  # Disambiguation page
-                    "did you mean",  # Search suggestion
-                    "disambiguation)",  # Disambiguation in title
-                    "is a disambiguation",  # Disambiguation description
-                    "this article is about",  # Generic topic page
-                    "for other uses",  # Disambiguation header
-                ]
-
-                # Additional check: ensure result is actually about a detention facility
-                facility_indicators = [
-                    "detention",
-                    "prison",
-                    "jail",
-                    "correctional",
-                    "penitentiary",
-                    "facility",
-                    "center",
-                    "complex",
-                    "institution",
-                    "processing",
-                ]
-
-                is_false_positive = any(indicator in page_text for indicator in false_positive_indicators)
-                has_facility_context = any(indicator in page_text for indicator in facility_indicators)
-
-                # Only accept if it's not a false positive AND has facility context
-                # OR if the cleaned name still contains facility-related terms
-                facility_terms_in_name = any(term in search_name.lower() for term in facility_indicators)
-
-                if not is_false_positive and (has_facility_context or facility_terms_in_name):
-                    debug_info["url"] = response.url
-                    debug_info["method"] = "direct_access"
-                    if self.debug_wikipedia:
-                        return debug_info
-                    return response.url
-                else:
-                    if self.debug_wikipedia:
-                        debug_info["search_query"] = (
-                            f"{debug_info['search_query']} [REJECTED: false_positive or no_facility_context]"
-                        )
-
-            # If direct access fails, try Wikipedia search API with original name first
-            search_queries = [
-                facility_name,  # Original full name
-                search_name,  # Cleaned name
+            # Enhanced false positive detection
+            false_positive_indicators = [
+                "may refer to:",  # Disambiguation page
+                "did you mean",  # Search suggestion
+                "disambiguation)",  # Disambiguation in title
+                "is a disambiguation",  # Disambiguation description
+                "this article is about",  # Generic topic page
+                "for other uses",  # Disambiguation header
             ]
 
-            # Add variations if the name contains common facility types
-            if any(term in facility_name.lower() for term in ["county", "parish"]):
-                # For county facilities, try with facility type intact
-                minimal_clean = self._minimal_clean_facility_name(facility_name)
-                if minimal_clean != search_name:
-                    search_queries.append(minimal_clean)
+            # Additional check: ensure result is actually about a detention facility
+            is_false_positive = any(indicator in page_text for indicator in false_positive_indicators)
+            has_facility_context = any(indicator in page_text for indicator in facility_terms)
 
-            for query_attempt, search_query in enumerate(search_queries):
-                debug_info["search_query"] = search_query
+            # Only accept if it's not a false positive AND has facility context
+            # OR if the cleaned name still contains facility-related terms
+            facility_terms_in_name = any(term in search_name.lower() for term in facility_terms)
 
-                search_url = "https://en.wikipedia.org/w/api.php"
-                params = {
-                    "action": "query",
-                    "list": "search",
-                    "srsearch": search_query,
-                    "format": "json",
-                    "srlimit": 5,
-                }
+            if not is_false_positive and (has_facility_context or facility_terms_in_name):
+                resp_info["url"] = response.url
+                resp_info["method"] = "direct_access"
+                return resp_info
+            else:
+                resp_info["search_query"] = (
+                    f"{resp_info['search_query']} [REJECTED: false_positive or no_facility_context]"
+                )
 
+        logger.debug("  Falling back to Wikipedia API searches for %s and %s", facility_name, search_name)
+        # If direct access fails, try Wikipedia search API with original name first
+        search_queries = [
+            facility_name,  # Original full name
+            search_name,  # Cleaned name
+        ]
+
+        # Add variations if the name contains common facility types
+        if any(term in facility_name.lower() for term in ["county", "parish"]):
+            # For county facilities, try with facility type intact
+            minimal_clean = self._minimal_clean_facility_name(facility_name)
+            if minimal_clean != search_name:
+                search_queries.append(minimal_clean)
+
+        for query_attempt, search_query in enumerate(search_queries):
+            resp_info["search_query"] = search_query
+
+            search_url = "https://en.wikipedia.org/w/api.php"
+            params = {
+                "action": "query",
+                "list": "search",
+                "srsearch": search_query,
+                "format": "json",
+                "srlimit": 5,
+            }
+
+            try:
                 response = self.session.get(search_url, params=params, timeout=10)
+                response.raise_for_status()
                 data = response.json()
+            except Exception as e:
+                logger.debug("   Wikipedia search for %s failed: %s", search_url, e)
+                resp_info["search_query"] = f"{resp_info['search_query']} (Failed: {search_query} -> {e})"
+                continue
 
-                if data.get("query", {}).get("search"):
-                    # Examine each result for relevance
-                    # Arbitrary but sort of useful.
-                    for result in data["query"]["search"]:
-                        page_title = result["title"]
-                        snippet = result.get("snippet", "").lower()
+            if data.get("query", {}).get("search"):
+                # Examine each result for relevance
+                # Arbitrary but sort of useful.
+                for result in data["query"]["search"]:
+                    page_title = result["title"]
+                    snippet = result.get("snippet", "").lower()
 
-                        # Enhanced relevance scoring
-                        relevance_score = 0
+                    # Enhanced relevance scoring
+                    relevance_score = 0
 
-                        # Check if title contains facility-related terms
-                        title_lower = page_title.lower()
-                        facility_terms = [
-                            "detention",
-                            "prison",
-                            "jail",
-                            "correctional",
-                            "penitentiary",
-                            "facility",
-                            "center",
-                            "complex",
-                            "processing",
-                        ]
+                    # Check if title contains facility-related terms
+                    title_lower = page_title.lower()
 
-                        for term in facility_terms:
-                            if term in title_lower:
-                                relevance_score += 2
+                    for term in facility_terms:
+                        if term in title_lower:
+                            relevance_score += 2
 
-                        # Check if snippet mentions detention/prison context
-                        detention_context = [
-                            "detention",
-                            "prison",
-                            "jail",
-                            "correctional",
-                            "inmates",
-                            "custody",
-                            "incarceration",
-                            "processing",
-                        ]
-                        for term in detention_context:
-                            if term in snippet:
-                                relevance_score += 1
+                    # Check if snippet mentions detention/prison context
+                    detention_context = [
+                        "detention",
+                        "prison",
+                        "jail",
+                        "correctional",
+                        "inmates",
+                        "custody",
+                        "incarceration",
+                        "processing",
+                    ]
+                    for term in detention_context:
+                        if term in snippet:
+                            relevance_score += 1
 
-                        # Penalize generic location pages without facility context
-                        generic_indicators = [
-                            "county",
-                            "city",
-                            "town",
-                            "village",
-                            "township",
-                        ]
-                        if any(term in title_lower for term in generic_indicators) and not any(
-                            term in title_lower for term in facility_terms
-                        ):
-                            relevance_score -= 3
+                    # Penalize generic location pages without facility context
+                    generic_indicators = ["county", "city", "town", "village", "township"]
+                    if any(term in title_lower for term in generic_indicators) and not any(
+                        term in title_lower for term in facility_terms
+                    ):
+                        relevance_score -= 3
 
-                        # Check name similarity (basic heuristic)
-                        original_tokens = set(facility_name.lower().split())
-                        title_tokens = set(page_title.lower().split())
-                        common_tokens = original_tokens.intersection(title_tokens)
+                    # Check name similarity (basic heuristic)
+                    original_tokens = set(facility_name.lower().split())
+                    title_tokens = set(page_title.lower().split())
+                    common_tokens = original_tokens.intersection(title_tokens)
 
-                        if len(common_tokens) >= 2:
-                            relevance_score += len(common_tokens)
+                    if len(common_tokens) >= 2:
+                        relevance_score += len(common_tokens)
 
-                        # Only accept results with positive relevance score
-                        if relevance_score > 0:
-                            final_url = f"https://en.wikipedia.org/wiki/{quote(page_title.replace(' ', '_'))}"
+                    # Only accept results with positive relevance score
+                    if relevance_score > 0:
+                        final_url = f"https://en.wikipedia.org/wiki/{quote(page_title.replace(' ', '_'))}"
 
-                            # Verify the page exists and isn't a redirect to something unrelated
+                        # Verify the page exists and isn't a redirect to something unrelated
+                        try:
                             verify_response = self.session.get(final_url, allow_redirects=True, timeout=10)
-                            if verify_response.status_code == 200:
-                                debug_info["url"] = verify_response.url
-                                debug_info["method"] = f"api_search_attempt_{query_attempt + 1}_score_{relevance_score}"
-                                debug_info["search_query"] = (
-                                    f"{search_query} -> {page_title} (score: {relevance_score})"
-                                )
+                            verify_response.raise_for_status()
+                        except Exception as e:
+                            logger.debug("    Wikipedia query for %s failed: %s", final_url, e)
+                            resp_info["search_query"] = f"{resp_info['search_query']} {final_url}"
+                        else:
+                            resp_info["url"] = verify_response.url
+                            resp_info["method"] = f"api_search_attempt_{query_attempt + 1}_score_{relevance_score}"
+                            resp_info["search_query"] = f"{search_query} -> {page_title} (score: {relevance_score})"
+                            return resp_info
 
-                                if self.debug_wikipedia:
-                                    return debug_info
-                                return verify_response.url
+            # If this search query didn't work, try the next one
+            if query_attempt < len(search_queries) - 1:
+                resp_info["search_query"] = f"{resp_info['search_query']} [no_relevant_results] -> "
 
-                # If this search query didn't work, try the next one
-                if query_attempt < len(search_queries) - 1:
-                    debug_info["search_query"] = f"{debug_info['search_query']} [no_relevant_results] -> "
+        # No results found
+        resp_info["search_query"] = f"{resp_info['search_query']} [no_results_found]"
+        resp_info["method"] = "failed"
 
-            # No results found
-            debug_info["search_query"] = f"{debug_info['search_query']} [no_results_found]"
-            debug_info["method"] = "failed"
-
-            if self.debug_wikipedia:
-                return debug_info
-            return {}
-
-        except Exception as e:
-            error_msg = f"ERROR: {str(e)}"
-            if self.debug_wikipedia:
-                return {
-                    "original_name": facility_name,
-                    "search_query": error_msg,
-                    "url": None,
-                    "method": "error",
-                }
-            logger.error("    Wikipedia search error for '%s': %s", facility_name, e)
-            return {}
+        return resp_info
 
     def _minimal_clean_facility_name(self, name: str) -> str:
         """Minimal cleaning that preserves important context like 'County Jail'"""
@@ -326,59 +306,55 @@ class ExternalDataEnricher(object):
     def _search_wikidata(self, facility_name: str) -> dict:
         # Fetches 3 results based on _clean_facility_name (not exact name). todo: needs adjustment.
         # Falls back to first result (usually truncated, eg. county)
-        search_name = self._clean_facility_name(facility_name)
+        search_name_fallback = self._clean_facility_name(facility_name)
+        logger.debug("Searching wikidata for %s and %s", facility_name, search_name_fallback)
         search_url = "https://www.wikidata.org/w/api.php"
         params = {
             "action": "wbsearchentities",
-            "search": search_name,
+            "search": facility_name,
             "language": "en",
             "format": "json",
             "limit": 3,
         }
+        resp_info = {
+            "search_query": f"{search_url} {facility_name}",
+            "method": "none",
+            "url": "",
+            "title": "",
+        }
+        data = {}
         try:
             response = self.session.get(search_url, params=params, timeout=10)
             response.raise_for_status()
+            data = response.json()
         except Exception as e:
-            logger.error(" Wikidata search error for '%s': %s", facility_name, e)
-            if self.debug_wikidata:
-                return {"url": None, "title": f"ERROR: {str(e)}"}
-            return {}
-        data = response.json()
+            logger.debug("  Wikidata search error for '%s': %s", facility_name, e)
+            resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
         if not data.get("search"):
-            return {}
+            params["search"] = search_name_fallback
+            resp_info["search_query"] = f"{resp_info['search_query']} {search_name_fallback}"
+            try:
+                response = self.session.get(search_url, params=params, timeout=10)
+                response.raise_for_status()
+                data = response.json()
+            except Exception as e:
+                logger.debug("  Wikidata search error for '%s': %s", facility_name, e)
+                resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
+        if not data.get("search"):
+            return resp_info
+        match_terms = ["prison", "detention", "correctional", "jail", "facility", "processing"]
         for result in data["search"]:
             description = result.get("description", "").lower()
-            if any(
-                term in description
-                for term in [
-                    "prison",
-                    "detention",
-                    "correctional",
-                    "jail",
-                    "facility",
-                    "processing",
-                ]
-            ):
-                if self.debug_wikidata:
-                    return {
-                        "url": f"https://www.wikidata.org/wiki/{result['id']}",
-                        "title": result.get("label", ""),
-                    }
-                return {
-                    "url": f"https://www.wikidata.org/wiki/{result['id']}",
-                    "title": "",
-                }
+            if any(term in description for term in match_terms):
+                resp_info["url"] = f"https://www.wikidata.org/wiki/{result['id']}"
+                resp_info["title"] = result.get("label", "")
+                return resp_info
         # fallback to first result
         first = data["search"][0]
-        if self.debug_wikidata:
-            return {
-                "url": f"https://www.wikidata.org/wiki/{first['id']}",
-                "title": first.get("label", ""),
-            }
-        return {
-            "url": f"https://www.wikidata.org/wiki/{first['id']}",
-            "title": "",
-        }
+        logger.debug("   Closer matching failed, falling back to first result %s", first)
+        resp_info["url"] = f"https://www.wikidata.org/wiki/{result['id']}"
+        resp_info["title"] = result.get("label", "")
+        return resp_info
 
     def _search_openstreetmap(self, facility_name: str, address: str) -> dict:
         # when the URL result is a "way" this is usually correct.
@@ -389,63 +365,57 @@ class ExternalDataEnricher(object):
             parts = address.split(", ")  # todo the address between the number and street name should not have a comma.
             if len(parts) >= 3:
                 location_context = f", {parts[-3]}, {parts[-2].split()[0]}"
+            else:
+                location_context = str(address)
         search_url = "https://nominatim.openstreetmap.org/search"
         params = {
-            "q": f"{search_name}{location_context}",
+            "q": f"{search_name} {location_context}",
             "format": "json",
             "limit": 5,
             "dedupe": 1,
         }
+        resp_info = {
+            "search_query": f"{search_url} {facility_name}",
+            "method": "none",
+            "url": "",
+            "title": "",
+        }
+        data = []
+        logger.debug("Searching OSM for %s", params["q"])
         try:
             response = self.session.get(search_url, params=params, timeout=15)
             response.raise_for_status()
+            data = response.json()
         except Exception as e:
-            logger.error(" OSM search error for '%s': %s", facility_name, e)
-            if self.debug_osm:
-                return {"url": None, "title": f"ERROR: {str(e)}"}
-            return {}
-        if response.status_code != 200:
-            return {}
-        data = response.json()
-        if not data:
-            return {}
+            logger.debug(" OSM search error for '%s': %s", facility_name, e)
+            resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
+            return resp_info
+        match_terms = ["prison", "detention", "correctional", "jail"]
         for result in data:
             osm_type = result.get("type", "").lower()
             display_name = result.get("display_name", "").lower()
-            if any(term in osm_type for term in ["prison", "detention", "correctional"]) or any(
-                term in display_name for term in ["prison", "detention", "correctional", "jail"]
-            ):
+            if any(term in osm_type for term in match_terms) or any(term in display_name for term in match_terms):
                 # todo courthouse could be added, or other tags such as "prison:for=migrant" as a clear positive search result.
-                osm_id = result.get("osm_id")
+                osm_id = result.get("osm_id", "")
                 osm_type_prefix = result.get("osm_type", "")
                 title = result.get("display_name", "")
                 if osm_id and osm_type_prefix:
-                    if self.debug_osm:
-                        return {
-                            "url": f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}",
-                            "title": title,
-                        }
-                    return {
-                        "url": f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}",
-                        "title": "",
-                    }
+                    resp_info["url"] = f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}"
+                    resp_info["title"] = title
+                    return resp_info
+        if not data:
+            resp_info["search_query"] = f"{resp_info['search_query']} No results found"
+            return resp_info
         # fallback to first result
         first_result = data[0]
+        logger.debug("%s didn't directly find anything, just using the first result %s", location_context, first_result)
         lat = first_result.get("lat")
         lon = first_result.get("lon")
         title = first_result.get("display_name", "")
         if lat and lon:
-            if self.debug_osm:
-                return {
-                    "url": f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15",
-                    "title": title,
-                }
-            return {
-                "url": f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15",
-                "title": "",
-            }
-        else:
-            return {}
+            resp_info["url"] = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+            resp_info["title"] = title
+        return resp_info
 
     def _clean_facility_name(self, name: str) -> str:
         """Clean facility name for better search results"""
