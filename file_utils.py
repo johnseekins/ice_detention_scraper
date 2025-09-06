@@ -1,11 +1,11 @@
 import csv
 import json
-from utils import (
+from schemas import (
     debug_schema,
     facility_schema,
     enrichment_schema,
-    logger,
 )
+from utils import logger
 
 
 def export_to_file(

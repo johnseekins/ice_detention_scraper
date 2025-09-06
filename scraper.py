@@ -6,13 +6,13 @@ import datetime
 import re
 import requests
 from requests.adapters import HTTPAdapter
-import time
-import urllib3
-from utils import (
+from schemas import (
     facilities_schema,
     facility_schema,
-    logger,
 )
+import time
+import urllib3
+from utils import logger
 
 
 class ICEFacilityScraper(object):

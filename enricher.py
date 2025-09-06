@@ -1,10 +1,11 @@
 import copy
 import requests
 from requests.adapters import HTTPAdapter
+from schemas import facilities_schema
 import time
 from urllib.parse import quote
 import urllib3
-from utils import logger, facilities_schema
+from utils import logger
 
 # ExternalDataEnricher class for enrichment logic
 
