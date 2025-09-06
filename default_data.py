@@ -3,8 +3,8 @@
 
 
 facilities_data = {
+    "enrich_runtime": 0,
     "facilities": [
-        # page 0
         {
             "address": "508 Waterworks Road",
             "administrative_area": "VA",
@@ -305,7 +305,6 @@ facilities_data = {
             "raw_scrape": "PGxpIGNsYXNzPSJncmlkIj48ZGl2IGNsYXNzPSJncmlkX19jb250ZW50Ij48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1pbWFnZS1maWxlIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48aW1nIGFsdD0iIiBzcmM9Ii9hc3NldHMvcGFnZXMvZGV0ZW50aW9uL2ZhY2lsaXRpZXMvY2hpcHBld2FDb0NvcnJGYWMucG5nIi8+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0idmlld3MtZmllbGQgdmlld3MtZmllbGQtdGl0bGUiPjxzcGFuIGNsYXNzPSJmaWVsZC1jb250ZW50Ij5DaGlwcGV3YSBDb3VudHkgQ29ycmVjdGlvbmFsIEZhY2lsaXR5PC9zcGFuPjwvZGl2PjxkaXYgY2xhc3M9InZpZXdzLWZpZWxkIHZpZXdzLWZpZWxkLWZpZWxkLWZpZWxkLW9mZmljZS1uYW1lIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij5EZXRyb2l0IEZpZWxkIE9mZmljZTwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InZpZXdzLWZpZWxkIHZpZXdzLWZpZWxkLWZpZWxkLWRldGVudGlvbi1mYWNpbGl0eS1sb2NhdGlvIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48cCBjbGFzcz0iYWRkcmVzcyIgdHJhbnNsYXRlPSJubyI+PHNwYW4gY2xhc3M9ImFkZHJlc3MtbGluZTEiPjMyNSBDb3VydCBTdHJlZXQ8L3NwYW4+PGJyLz4KPHNwYW4gY2xhc3M9ImxvY2FsaXR5Ij5TYXVsdCBTdGUuIE1hcmllPC9zcGFuPiwgPHNwYW4gY2xhc3M9ImFkbWluaXN0cmF0aXZlLWFyZWEiPk1JPC9zcGFuPiA8c3BhbiBjbGFzcz0icG9zdGFsLWNvZGUiPjQ5NzgzPC9zcGFuPjxici8+CjxzcGFuIGNsYXNzPSJjb3VudHJ5Ij5Vbml0ZWQgU3RhdGVzPC9zcGFuPjxici8+PHNwYW4gY2xhc3M9ImN0LWFkZHIiPjwvc3Bhbj48L3A+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0idmlld3MtZmllbGQgdmlld3MtZmllbGQtdGl0bGUtMSI+PHNwYW4gY2xhc3M9ImZpZWxkLWNvbnRlbnQiPjxhIGhyZWY9Ii9kZXRhaW4vZGV0ZW50aW9uLWZhY2lsaXRpZXMvY2hpcHBld2EtY291bnR5LWNvcnJlY3Rpb25hbC1mYWNpbGl0eSIgaHJlZmxhbmc9ImVuIj5DaGlwcGV3YSBDb3VudHkgQ29ycmVjdGlvbmFsIEZhY2lsaXR5PC9hPjwvc3Bhbj48L2Rpdj48L2Rpdj4KPC9saT4=",
             "source_url": "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=0",
         },
-        # page 1
         {
             "address": "2000 Cibola Loop",
             "administrative_area": "NM",
@@ -606,7 +605,6 @@ facilities_data = {
             "raw_scrape": "PGxpIGNsYXNzPSJncmlkIj48ZGl2IGNsYXNzPSJncmlkX19jb250ZW50Ij48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1pbWFnZS1maWxlIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48aW1nIGFsdD0iIiBzcmM9Ii9zaXRlcy9kZWZhdWx0L2ZpbGVzL2ltYWdlcy9kZXRlbnRpb24vc2EtZWguanBnIi8+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0idmlld3MtZmllbGQgdmlld3MtZmllbGQtdGl0bGUiPjxzcGFuIGNsYXNzPSJmaWVsZC1jb250ZW50Ij5FYXN0IEhpZGFsZ28gRGV0ZW50aW9uIENlbnRlcjwvc3Bhbj48L2Rpdj48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1maWVsZC1vZmZpY2UtbmFtZSI+PGRpdiBjbGFzcz0iZmllbGQtY29udGVudCI+SGFybGluZ2VuIEZpZWxkIE9mZmljZTwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InZpZXdzLWZpZWxkIHZpZXdzLWZpZWxkLWZpZWxkLWRldGVudGlvbi1mYWNpbGl0eS1sb2NhdGlvIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48cCBjbGFzcz0iYWRkcmVzcyIgdHJhbnNsYXRlPSJubyI+PHNwYW4gY2xhc3M9ImFkZHJlc3MtbGluZTEiPjEzMDAgRSBId3kgMTA3PC9zcGFuPjxici8+CjxzcGFuIGNsYXNzPSJsb2NhbGl0eSI+TGEgVmlsbGE8L3NwYW4+LCA8c3BhbiBjbGFzcz0iYWRtaW5pc3RyYXRpdmUtYXJlYSI+VFg8L3NwYW4+IDxzcGFuIGNsYXNzPSJwb3N0YWwtY29kZSI+Nzg1NjI8L3NwYW4+PGJyLz4KPHNwYW4gY2xhc3M9ImNvdW50cnkiPlVuaXRlZCBTdGF0ZXM8L3NwYW4+PGJyLz48c3BhbiBjbGFzcz0iY3QtYWRkciI+PC9zcGFuPjwvcD48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC10aXRsZS0xIj48c3BhbiBjbGFzcz0iZmllbGQtY29udGVudCI+PGEgaHJlZj0iL2RldGFpbi9kZXRlbnRpb24tZmFjaWxpdGllcy9lYXN0LWhpZGFsZ28tZGV0ZW50aW9uLWNlbnRlciIgaHJlZmxhbmc9ImVuIj5FYXN0IEhpZGFsZ28gRGV0ZW50aW9uIENlbnRlcjwvYT48L3NwYW4+PC9kaXY+PC9kaXY+CjwvbGk+",
             "source_url": "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=1",
         },
-        # page 2
         {
             "address": "704 E Broadway Street",
             "administrative_area": "TX",
@@ -907,7 +905,6 @@ facilities_data = {
             "raw_scrape": "PGxpIGNsYXNzPSJncmlkIj48ZGl2IGNsYXNzPSJncmlkX19jb250ZW50Ij48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1pbWFnZS1maWxlIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48aW1nIGFsdD0iIiBzcmM9Ii9hc3NldHMvcGFnZXMvZGV0ZW50aW9uL2ZhY2lsaXRpZXMvZ3JhbmRGb3Jrc0NDLmpwZyIvPjwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InZpZXdzLWZpZWxkIHZpZXdzLWZpZWxkLXRpdGxlIj48c3BhbiBjbGFzcz0iZmllbGQtY29udGVudCI+R3JhbmQgRm9ya3MgQ291bnR5IENvcnJlY3Rpb25hbCBDZW50ZXI8L3NwYW4+PC9kaXY+PGRpdiBjbGFzcz0idmlld3MtZmllbGQgdmlld3MtZmllbGQtZmllbGQtZmllbGQtb2ZmaWNlLW5hbWUiPjxkaXYgY2xhc3M9ImZpZWxkLWNvbnRlbnQiPlN0LiBQYXVsIEZpZWxkIE9mZmljZTwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InZpZXdzLWZpZWxkIHZpZXdzLWZpZWxkLWZpZWxkLWRldGVudGlvbi1mYWNpbGl0eS1sb2NhdGlvIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48cCBjbGFzcz0iYWRkcmVzcyIgdHJhbnNsYXRlPSJubyI+PHNwYW4gY2xhc3M9ImFkZHJlc3MtbGluZTEiPjE3MDEgTm9ydGggV2FzaGluZ3Rvbjwvc3Bhbj48YnIvPgo8c3BhbiBjbGFzcz0ibG9jYWxpdHkiPkdyYW5kIEZvcmtzPC9zcGFuPiwgPHNwYW4gY2xhc3M9ImFkbWluaXN0cmF0aXZlLWFyZWEiPk5EPC9zcGFuPiA8c3BhbiBjbGFzcz0icG9zdGFsLWNvZGUiPjU4MjAzPC9zcGFuPjxici8+CjxzcGFuIGNsYXNzPSJjb3VudHJ5Ij5Vbml0ZWQgU3RhdGVzPC9zcGFuPjxici8+PHNwYW4gY2xhc3M9ImN0LWFkZHIiPjwvc3Bhbj48L3A+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0idmlld3MtZmllbGQgdmlld3MtZmllbGQtdGl0bGUtMSI+PHNwYW4gY2xhc3M9ImZpZWxkLWNvbnRlbnQiPjxhIGhyZWY9Ii9kZXRhaW4vZGV0ZW50aW9uLWZhY2lsaXRpZXMvZ3JhbmQtZm9ya3MtY291bnR5LWNvcnJlY3Rpb25hbC1jZW50ZXIiIGhyZWZsYW5nPSJlbiI+R3JhbmQgRm9ya3MgQ291bnR5IENvcnJlY3Rpb25hbCBDZW50ZXI8L2E+PC9zcGFuPjwvZGl2PjwvZGl2Pgo8L2xpPg==",
             "source_url": "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=2",
         },
-        # page 3
         {
             "address": "320 Shaw Station Road",
             "administrative_area": "KY",
@@ -1208,7 +1205,6 @@ facilities_data = {
             "raw_scrape": "PGxpIGNsYXNzPSJncmlkIj48ZGl2IGNsYXNzPSJncmlkX19jb250ZW50Ij48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1pbWFnZS1maWxlIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48aW1nIGFsdD0iIiBzcmM9Ii9zaXRlcy9kZWZhdWx0L2ZpbGVzL2ltYWdlcy9kZXRlbnRpb24vbW9ucm9taS5qcGciLz48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC10aXRsZSI+PHNwYW4gY2xhc3M9ImZpZWxkLWNvbnRlbnQiPk1vbnJvZSBDb3VudHkgSmFpbDwvc3Bhbj48L2Rpdj48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1maWVsZC1vZmZpY2UtbmFtZSI+PGRpdiBjbGFzcz0iZmllbGQtY29udGVudCI+RGV0cm9pdCBGaWVsZCBPZmZpY2U8L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1kZXRlbnRpb24tZmFjaWxpdHktbG9jYXRpbyI+PGRpdiBjbGFzcz0iZmllbGQtY29udGVudCI+PHAgY2xhc3M9ImFkZHJlc3MiIHRyYW5zbGF0ZT0ibm8iPjxzcGFuIGNsYXNzPSJhZGRyZXNzLWxpbmUxIj43MDAwIEVhc3QgRHVuYmFyIFJvYWQ8L3NwYW4+PGJyLz4KPHNwYW4gY2xhc3M9ImxvY2FsaXR5Ij5Nb25yb2U8L3NwYW4+LCA8c3BhbiBjbGFzcz0iYWRtaW5pc3RyYXRpdmUtYXJlYSI+TUk8L3NwYW4+IDxzcGFuIGNsYXNzPSJwb3N0YWwtY29kZSI+NDgxNjE8L3NwYW4+PGJyLz4KPHNwYW4gY2xhc3M9ImNvdW50cnkiPlVuaXRlZCBTdGF0ZXM8L3NwYW4+PGJyLz48c3BhbiBjbGFzcz0iY3QtYWRkciI+PC9zcGFuPjwvcD48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC10aXRsZS0xIj48c3BhbiBjbGFzcz0iZmllbGQtY29udGVudCI+PGEgaHJlZj0iL2RldGFpbi9kZXRlbnRpb24tZmFjaWxpdGllcy9tb25yb2UtY291bnR5LWphaWwiIGhyZWZsYW5nPSJlbiI+TW9ucm9lIENvdW50eSBKYWlsPC9hPjwvc3Bhbj48L2Rpdj48L2Rpdj4KPC9saT4=",
             "source_url": "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=3",
         },
-        # page 4
         {
             "address": "806 Hilbig Road",
             "administrative_area": "TX",
@@ -1509,7 +1505,6 @@ facilities_data = {
             "raw_scrape": "PGxpIGNsYXNzPSJncmlkIj48ZGl2IGNsYXNzPSJncmlkX19jb250ZW50Ij48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC1maWVsZC1pbWFnZS1maWxlIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48aW1nIGFsdD0iIiBzcmM9Ii9hc3NldHMvcGFnZXMvZGV0ZW50aW9uL2ZhY2lsaXRpZXMvcG90dGF3YXR0YW1pZUNvSmFpbC5qcGciLz48L2Rpdj48L2Rpdj48ZGl2IGNsYXNzPSJ2aWV3cy1maWVsZCB2aWV3cy1maWVsZC10aXRsZSI+PHNwYW4gY2xhc3M9ImZpZWxkLWNvbnRlbnQiPlBvdHRhd2F0dGFtaWUgQ291bnR5IEphaWw8L3NwYW4+PC9kaXY+PGRpdiBjbGFzcz0idmlld3MtZmllbGQgdmlld3MtZmllbGQtZmllbGQtZmllbGQtb2ZmaWNlLW5hbWUiPjxkaXYgY2xhc3M9ImZpZWxkLWNvbnRlbnQiPlN0LiBQYXVsIEZpZWxkIE9mZmljZTwvZGl2PjwvZGl2PjxkaXYgY2xhc3M9InZpZXdzLWZpZWxkIHZpZXdzLWZpZWxkLWZpZWxkLWRldGVudGlvbi1mYWNpbGl0eS1sb2NhdGlvIj48ZGl2IGNsYXNzPSJmaWVsZC1jb250ZW50Ij48cCBjbGFzcz0iYWRkcmVzcyIgdHJhbnNsYXRlPSJubyI+PHNwYW4gY2xhc3M9ImFkZHJlc3MtbGluZTEiPjE0MDAgQmlnIExha2UgUm9hZDwvc3Bhbj48YnIvPgo8c3BhbiBjbGFzcz0ibG9jYWxpdHkiPkNvdW5jaWwgQmx1ZmZzPC9zcGFuPiwgPHNwYW4gY2xhc3M9ImFkbWluaXN0cmF0aXZlLWFyZWEiPklBPC9zcGFuPiA8c3BhbiBjbGFzcz0icG9zdGFsLWNvZGUiPjUxNTAxPC9zcGFuPjxici8+CjxzcGFuIGNsYXNzPSJjb3VudHJ5Ij5Vbml0ZWQgU3RhdGVzPC9zcGFuPjxici8+PHNwYW4gY2xhc3M9ImN0LWFkZHIiPjwvc3Bhbj48L3A+PC9kaXY+PC9kaXY+PGRpdiBjbGFzcz0idmlld3MtZmllbGQgdmlld3MtZmllbGQtdGl0bGUtMSI+PHNwYW4gY2xhc3M9ImZpZWxkLWNvbnRlbnQiPjxhIGhyZWY9Ii9kZXRhaW4vZGV0ZW50aW9uLWZhY2lsaXRpZXMvcG90dGF3YXR0YW1pZS1jb3VudHktamFpbCIgaHJlZmxhbmc9ImVuIj5Qb3R0YXdhdHRhbWllIENvdW50eSBKYWlsPC9hPjwvc3Bhbj48L2Rpdj48L2Rpdj4KPC9saT4=",
             "source_url": "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=4",
         },
-        # page 5
         {
             "address": "1209 Sunflower Lane",
             "administrative_area": "TX",
@@ -1812,5 +1807,6 @@ facilities_data = {
         },
     ],
     "page_updated_date": "2025-06-25 16:24:52+04:00",
-    "scraped_date": "2025-09-05 04:44:30.465238",
+    "scrape_runtime": 11.679505586624146,
+    "scraped_date": "2025-09-06 00:05:12.188087",
 }
