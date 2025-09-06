@@ -9,17 +9,18 @@ facilities_schema = {
 }
 
 facility_schema = {
-    "address": "",
-    "administrative_area": "",
-    "country": "",
+    "address": {
+        "street": "",
+        "administrative_area": "",
+        "country": "",
+        "locality": "",
+        "postal_code": "",
+    },
     "facility_url": "",
     "field_office": "",
-    "full_address": "",
     "image_url": "",
-    "locality": "",
     "name": "",
     "phone": "",
-    "postal_code": "",
     "raw_scrape": "",
     "source_url": "",
 }
@@ -28,8 +29,18 @@ enrichment_schema = [
     "wikidata_page_url",
     "osm_result_url",
 ]
+
 debug_schema = [
     "wikipedia_search_query",
     "wikidata_search_query",
     "osm_search_query",
 ]
+
+# enrichment response object
+resp_info_schema = {
+    "original_name": "",
+    "cleaned_name": "",
+    "search_query_steps": [],
+    "url": "",
+    "method": "none",
+}

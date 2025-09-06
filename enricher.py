@@ -1,11 +1,14 @@
 import copy
-import requests
-from requests.adapters import HTTPAdapter
-from schemas import facilities_schema
+from schemas import (
+    facilities_schema,
+    resp_info_schema,
+)
 import time
 from urllib.parse import quote
-import urllib3
-from utils import logger
+from utils import (
+    logger,
+    session,
+)
 
 # ExternalDataEnricher class for enrichment logic
 
@@ -17,15 +20,7 @@ WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
 
 class ExternalDataEnricher(object):
     def __init__(self):
-        _retry_strategy = urllib3.Retry(
-            total=4,
-            backoff_factor=1,
-        )
-        _adapter = HTTPAdapter(max_retries=_retry_strategy)
-        self.session = requests.Session()
-        self.session.mount("https://", _adapter)
-        self.session.mount("http://", _adapter)
-        self.session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
+        pass
 
     def enrich_facility_data(self, facilities_data: dict) -> dict:
         start_time = time.time()
@@ -53,7 +48,7 @@ class ExternalDataEnricher(object):
             try:
                 wiki_result = self._search_wikipedia(facility_name)
                 enriched_facility["wikipedia_page_url"] = wiki_result.get("url", "")
-                enriched_facility["wikipedia_search_query"] = wiki_result.get("search_query", "")
+                enriched_facility["wikipedia_search_query"] = " ".join(wiki_result.get("search_query_steps", []))
                 time.sleep(WIKIPEDIA_DELAY)
             except Exception as e:
                 logger.error(" Wikipedia search error: %s", e)
@@ -64,7 +59,7 @@ class ExternalDataEnricher(object):
             try:
                 wikidata_result = self._search_wikidata(facility_name)
                 enriched_facility["wikidata_page_url"] = wikidata_result.get("url", "")
-                enriched_facility["wikidata_search_query"] = wikidata_result.get("search_query", "")
+                enriched_facility["wikidata_search_query"] = " ".join(wikidata_result.get("search_query_steps", []))
                 time.sleep(WIKIDATA_DELAY)
             except Exception as e:
                 logger.error(" Wikidata search error: %s", e)
@@ -73,9 +68,9 @@ class ExternalDataEnricher(object):
 
             # OpenStreetMap search # todo refactor to method
             try:
-                osm_result = self._search_openstreetmap(facility_name, facility.get("full_address", ""))
+                osm_result = self._search_openstreetmap(facility_name, facility.get("address", {}))
                 enriched_facility["osm_result_url"] = osm_result.get("url", "")
-                enriched_facility["osm_search_query"] = osm_result.get("search_query", "")
+                enriched_facility["osm_search_query"] = " ".join(osm_result.get("search_query_steps", []))
                 time.sleep(NOMINATIM_DELAY)
             except Exception as e:
                 logger.error(" OSM search error: %s", e)
@@ -103,39 +98,31 @@ class ExternalDataEnricher(object):
             "insitution",
             "processing",
         ]
+        resp_info = copy.deepcopy(resp_info_schema)
         # Clean facility name for search
         search_name: str = self._clean_facility_name(facility_name)
-
-        # Store original and cleaned names for response
-        resp_info = {
-            "original_name": facility_name,
-            "cleaned_name": search_name,
-            "search_query": "",
-            "url": {},
-            "method": "none",
-        }
         logger.debug("Searching Wikipedia for %s", facility_name)
         # Try direct page access first (replace space with underscores is the only change)
         wiki_url = f"https://en.wikipedia.org/wiki/{quote(facility_name.replace(' ', '_').replace('|', '_'))}"
-        resp_info["search_query"] = wiki_url
+        resp_info["search_query_steps"].append(wiki_url)  # type: ignore [attr-defined]
         initial_response = False
         try:
-            response = self.session.get(wiki_url, allow_redirects=True, timeout=10)
+            response = session.get(wiki_url, allow_redirects=True, timeout=10)
             response.raise_for_status()
             initial_response = True
         except Exception as e:
             logger.debug("  Wikipedia search error for '%s': %s", wiki_url, e)
-            resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
+            resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
         if response.status_code != 200:
             wiki_url = f"https://en.wikipedia.org/wiki/{quote(facility_name.replace(' ', '_').replace('|', '_'))}"
-            resp_info["search_query"] = wiki_url
+            resp_info["search_query_steps"].append(wiki_url)  # type: ignore [attr-defined]
             try:
-                response = self.session.get(wiki_url, allow_redirects=True, timeout=10)
+                response = session.get(wiki_url, allow_redirects=True, timeout=10)
                 response.raise_for_status()
                 initial_response = True
             except Exception as e:
                 logger.debug("  Wikipedia search error for '%s': %s", wiki_url, e)
-                resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
+                resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
 
         if initial_response:
             # Check if we got a real article (not a disambiguation or search page)
@@ -164,9 +151,7 @@ class ExternalDataEnricher(object):
                 resp_info["method"] = "direct_access"
                 return resp_info
             else:
-                resp_info["search_query"] = (
-                    f"{resp_info['search_query']} [REJECTED: false_positive or no_facility_context]"
-                )
+                resp_info["search_query_steps"].append("[REJECTED: false_positive or no_facility_context]")  # type: ignore [attr-defined]
 
         logger.debug("  Falling back to Wikipedia API searches for %s and %s", facility_name, search_name)
         # If direct access fails, try Wikipedia search API with original name first
@@ -183,7 +168,7 @@ class ExternalDataEnricher(object):
                 search_queries.append(minimal_clean)
 
         for query_attempt, search_query in enumerate(search_queries):
-            resp_info["search_query"] = search_query
+            resp_info["search_query_steps"].append(search_query)  # type: ignore [attr-defined]
 
             search_url = "https://en.wikipedia.org/w/api.php"
             params = {
@@ -195,12 +180,12 @@ class ExternalDataEnricher(object):
             }
 
             try:
-                response = self.session.get(search_url, params=params, timeout=10)
+                response = session.get(search_url, params=params, timeout=10)  # type: ignore [arg-type]
                 response.raise_for_status()
                 data = response.json()
             except Exception as e:
                 logger.debug("   Wikipedia search for %s failed: %s", search_url, e)
-                resp_info["search_query"] = f"{resp_info['search_query']} (Failed: {search_query} -> {e})"
+                resp_info["search_query_steps"].append(f"(Failed: {search_query} -> {e})")  # type: ignore [attr-defined]
                 continue
 
             if data.get("query", {}).get("search"):
@@ -256,23 +241,23 @@ class ExternalDataEnricher(object):
 
                         # Verify the page exists and isn't a redirect to something unrelated
                         try:
-                            verify_response = self.session.get(final_url, allow_redirects=True, timeout=10)
+                            verify_response = session.get(final_url, allow_redirects=True, timeout=10)
                             verify_response.raise_for_status()
                         except Exception as e:
                             logger.debug("    Wikipedia query for %s failed: %s", final_url, e)
-                            resp_info["search_query"] = f"{resp_info['search_query']} {final_url}"
+                            resp_info["search_query_steps"].append(final_url)  # type: ignore [attr-defined]
                         else:
                             resp_info["url"] = verify_response.url
                             resp_info["method"] = f"api_search_attempt_{query_attempt + 1}_score_{relevance_score}"
-                            resp_info["search_query"] = f"{search_query} -> {page_title} (score: {relevance_score})"
+                            resp_info["search_query_steps"].append(f"-> {page_title} (score: {relevance_score})")  # type: ignore [attr-defined]
                             return resp_info
 
             # If this search query didn't work, try the next one
             if query_attempt < len(search_queries) - 1:
-                resp_info["search_query"] = f"{resp_info['search_query']} [no_relevant_results] -> "
+                resp_info["search_query_steps"].append("[no_relevant_results] ->")  # type: ignore [attr-defined]
 
         # No results found
-        resp_info["search_query"] = f"{resp_info['search_query']} [no_results_found]"
+        resp_info["search_query_steps"].append("[no_results_found]")  # type: ignore [attr-defined]
         resp_info["method"] = "failed"
 
         return resp_info
@@ -315,30 +300,25 @@ class ExternalDataEnricher(object):
             "format": "json",
             "limit": 3,
         }
-        resp_info = {
-            "search_query": f"{search_url} {facility_name}",
-            "method": "none",
-            "url": "",
-            "title": "",
-        }
+        resp_info = copy.deepcopy(resp_info_schema)
         data = {}
         try:
-            response = self.session.get(search_url, params=params, timeout=10)
+            response = session.get(search_url, params=params, timeout=10)  # type: ignore [arg-type]
             response.raise_for_status()
             data = response.json()
         except Exception as e:
             logger.debug("  Wikidata search error for '%s': %s", facility_name, e)
-            resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
+            resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
         if not data.get("search"):
             params["search"] = search_name_fallback
-            resp_info["search_query"] = f"{resp_info['search_query']} {search_name_fallback}"
+            resp_info["search_query_steps"].append(search_name_fallback)  # type: ignore [attr-defined]
             try:
-                response = self.session.get(search_url, params=params, timeout=10)
+                response = session.get(search_url, params=params, timeout=10)  # type: ignore [arg-type]
                 response.raise_for_status()
                 data = response.json()
             except Exception as e:
                 logger.debug("  Wikidata search error for '%s': %s", facility_name, e)
-                resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
+                resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
         if not data.get("search"):
             return resp_info
         match_terms = ["prison", "detention", "correctional", "jail", "facility", "processing"]
@@ -355,40 +335,74 @@ class ExternalDataEnricher(object):
         resp_info["title"] = result.get("label", "")
         return resp_info
 
-    def _search_openstreetmap(self, facility_name: str, address: str) -> dict:
+    def _search_openstreetmap(self, facility_name: str, address: dict) -> dict:
+        search_name = self._clean_facility_name(facility_name)
+        search_url = "https://nominatim.openstreetmap.org/search"
+        resp_info = copy.deepcopy(resp_info_schema)
+        data = []
+        if not address:
+            logger.debug("No address for %s, simply searching for name", facility_name)
+            params = {
+                "q": search_name,
+                "format": "json",
+                "limit": 5,
+                "dedupe": 1,
+            }
+            logger.debug("Searching OSM for %s", search_name)
+            resp_info["search_query_steps"].append(search_name)  # type: ignore [attr-defined]
+            try:
+                response = session.get(search_url, params=params, timeout=15)  # type: ignore [arg-type]
+                response.raise_for_status()
+                data = response.json()
+            except Exception as e:
+                logger.debug(" OSM search error for '%s': %s", facility_name, e)
+                resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
+                return resp_info
+        else:
+            full_address = (
+                f"{address['street']} {address['locality']}, {address['administrative_area']} {address['postal_code']}"
+            )
+            locality = f"{address['locality']}, {address['administrative_area']} {address['postal_code']}"
+            search_url = "https://nominatim.openstreetmap.org/search"
+            search_params = {
+                "facility_name": {
+                    "q": f"{search_name} {full_address}",
+                    "format": "json",
+                    "limit": 5,
+                    "dedupe": 1,
+                },
+                "street_address": {
+                    "q": f"{full_address}",
+                    "format": "json",
+                    "limit": 5,
+                    "dedupe": 1,
+                },
+                "locality": {
+                    "q": f"{locality}",
+                    "format": "json",
+                    "limit": 5,
+                    "dedupe": 1,
+                },
+            }
+            for search_name, params in search_params.items():
+                logger.debug("Searching OSM for %s", params["q"])
+                resp_info["search_query_steps"].append(params["q"])  # type: ignore [attr-defined]
+                try:
+                    response = session.get(search_url, params=params, timeout=15)  # type: ignore [arg-type]
+                    response.raise_for_status()
+                    data = response.json()
+                except Exception as e:
+                    logger.debug(" OSM search error for '%s': %s", facility_name, e)
+                    resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
+                    continue
+                if data:
+                    break
+                time.sleep(NOMINATIM_DELAY)
+            if not data:
+                resp_info["search_query_steps"].append("No results found")  # type: ignore [attr-defined]
+                return resp_info
         # when the URL result is a "way" this is usually correct.
         # checks top five results.
-        search_name = self._clean_facility_name(facility_name)
-        location_context = ""
-        if address:
-            parts = address.split(", ")  # todo the address between the number and street name should not have a comma.
-            if len(parts) >= 3:
-                location_context = f", {parts[-3]}, {parts[-2].split()[0]}"
-            else:
-                location_context = str(address)
-        search_url = "https://nominatim.openstreetmap.org/search"
-        params = {
-            "q": f"{search_name} {location_context}",
-            "format": "json",
-            "limit": 5,
-            "dedupe": 1,
-        }
-        resp_info = {
-            "search_query": f"{search_url} {facility_name}",
-            "method": "none",
-            "url": "",
-            "title": "",
-        }
-        data = []
-        logger.debug("Searching OSM for %s", params["q"])
-        try:
-            response = self.session.get(search_url, params=params, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-        except Exception as e:
-            logger.debug(" OSM search error for '%s': %s", facility_name, e)
-            resp_info["search_query"] = f"{resp_info['search_query']} (Failed -> {e})"
-            return resp_info
         match_terms = ["prison", "detention", "correctional", "jail"]
         for result in data:
             osm_type = result.get("type", "").lower()
@@ -402,15 +416,14 @@ class ExternalDataEnricher(object):
                     resp_info["url"] = f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}"
                     resp_info["title"] = title
                     return resp_info
-        if not data:
-            resp_info["search_query"] = f"{resp_info['search_query']} No results found"
-            return resp_info
         # fallback to first result
         first_result = data[0]
-        logger.debug("%s didn't directly find anything, just using the first result %s", location_context, first_result)
-        lat = first_result.get("lat")
-        lon = first_result.get("lon")
+        logger.debug("Address searches didn't directly find anything, just using the first result: %s", first_result)
+        # default to Washington, D.C.?
+        lat = first_result.get("lat", "38.89511000")
+        lon = first_result.get("lon", "-77.03637000")
         title = first_result.get("display_name", "")
+        resp_info["search_query_steps"].append(f"{lat}&{lon}")  # type: ignore [attr-defined]
         if lat and lon:
             resp_info["url"] = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
             resp_info["title"] = title

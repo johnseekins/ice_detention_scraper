@@ -4,15 +4,15 @@ from bs4 import BeautifulSoup
 import copy
 import datetime
 import re
-import requests
-from requests.adapters import HTTPAdapter
 from schemas import (
     facilities_schema,
     facility_schema,
 )
 import time
-import urllib3
-from utils import logger
+from utils import (
+    logger,
+    session,
+)
 
 
 class ICEFacilityScraper(object):
@@ -21,15 +21,6 @@ class ICEFacilityScraper(object):
     def __init__(self):
         self.base_url = "https://www.ice.gov/detention-facilities"
         self.facilities_data = copy.deepcopy(facilities_schema)
-        _retry_strategy = urllib3.Retry(
-            total=4,
-            backoff_factor=1,
-        )
-        _adapter = HTTPAdapter(max_retries=_retry_strategy)
-        self.session = requests.Session()
-        self.session.mount("https://", _adapter)
-        self.session.mount("http://", _adapter)
-        self.session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
 
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
@@ -63,7 +54,7 @@ class ICEFacilityScraper(object):
         timestamp_format = "%Y-%m-%dT%H:%M:%S-%z"
         logger.debug("  Fetching: %s", url)
         try:
-            response = self.session.get(url, timeout=30)
+            response = session.get(url, timeout=30)
             response.raise_for_status()
         except Exception as e:
             logger.error("  Error parsing %s: %s", url, e)
@@ -85,7 +76,7 @@ class ICEFacilityScraper(object):
         """Scrape a single page of facilities using BeautifulSoup"""
         logger.debug("  Fetching: %s", url)
         try:
-            response = self.session.get(url, timeout=30)
+            response = session.get(url, timeout=30)
             response.raise_for_status()
         except Exception as e:
             logger.error("  Error parsing %s: %s", url, e)
@@ -206,25 +197,22 @@ class ICEFacilityScraper(object):
             facility["field_office"] = field_office.text
         address = element.select_one(".address-line1")
         if address:
-            facility["address"] = address.text
+            facility["address"]["street"] = address.text
         locality = element.select_one(".locality")
         if locality:
-            facility["locality"] = locality.text
+            facility["address"]["locality"] = locality.text
         administrative_area = element.select_one(".administrative-area")
         if administrative_area:
-            facility["administrative_area"] = administrative_area.text
+            facility["address"]["administrative_area"] = administrative_area.text
         postal_code = element.select_one(".postal-code")
         if postal_code:
-            facility["postal_code"] = postal_code.text
+            facility["address"]["postal_code"] = postal_code.text
         country = element.select_one(".country")
         if country:
-            facility["country"] = country.text
+            facility["address"]["country"] = country.text
         phone = element.select_one(".ct-addr")
         if phone:
             facility["phone"] = phone.text
-        facility["full_address"] = (
-            f"{facility['address']} {facility['locality']} {facility['administrative_area']}, {facility['postal_code']} {facility['country']}"
-        )
 
         # Method 2: If structured extraction failed, parse the text content
         if not facility["name"] or not facility["field_office"]:
