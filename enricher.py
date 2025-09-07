@@ -28,21 +28,10 @@ class ExternalDataEnricher(object):
         enriched_data = copy.deepcopy(facilities_schema)
         total = len(facilities_data["facilities"])
 
-        for i, facility in enumerate(facilities_data["facilities"]):
-            logger.info("Processing facility %s/%s: %s...", i + 1, total, facility["name"])
-            enriched_facility = copy.deepcopy(facility)
-            base_enrichment = {
-                "wikipedia_page_url": "",
-                "wikipedia_search_query": "",
-                "wikidata_page_url": "",
-                "wikidata_search_query": "",
-                "osm_result_url": "",
-                "osm_search_query": "",
-            }
-
-            enriched_facility.update(base_enrichment)
-
+        for index, facility in enumerate(facilities_data["facilities"]):
             facility_name = facility["name"]
+            logger.info("Processing facility %s/%s: %s...", index + 1, total, facility_name)
+            enriched_facility = copy.deepcopy(facility)
 
             # Wikipedia search # todo refactor to method
             try:

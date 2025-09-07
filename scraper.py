@@ -15,7 +15,7 @@ from utils import (
 )
 
 
-class ICEFacilityScraper(object):
+class ICEGovFacilityScraper(object):
     # All methods for scraping ICE websites
 
     def __init__(self):
@@ -72,24 +72,19 @@ class ICEFacilityScraper(object):
         timestamp = f"{timestamp}-+{tz}"
         return datetime.datetime.strptime(timestamp, timestamp_format)
 
-    def _scrape_page(self, url: str) -> list:
+    def _scrape_page(self, page_url: str) -> list:
         """Scrape a single page of facilities using BeautifulSoup"""
-        logger.debug("  Fetching: %s", url)
+        logger.debug("  Fetching: %s", page_url)
         try:
-            response = session.get(url, timeout=30)
+            response = session.get(page_url, timeout=30)
             response.raise_for_status()
         except Exception as e:
-            logger.error("  Error parsing %s: %s", url, e)
+            logger.error("  Error parsing %s: %s", page_url, e)
             return []
 
         # Parse HTML with BeautifulSoup
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # Extract facilities from the parsed HTML
-        return self._extract_facilities_from_html(soup, url)
-
-    def _extract_facilities_from_html(self, soup, page_url: str) -> list:
-        """Extract facility data from BeautifulSoup parsed HTML"""
         facilities = []
 
         # Look for the main content area - ICE uses different possible containers
@@ -122,7 +117,7 @@ class ICEFacilityScraper(object):
             "article",  # Article elements
             "div.node",  # Drupal node containers
         ]
-        facility_elements = []
+        facility_elements: list = []
         for selector in facility_selectors:
             elements = content_container.select(selector)
             if elements:

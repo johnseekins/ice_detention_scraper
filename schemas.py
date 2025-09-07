@@ -23,18 +23,13 @@ facility_schema = {
     "phone": "",
     "raw_scrape": "",
     "source_url": "",
+    "wikipedia_page_url": "",
+    "wikidata_page_url": "",
+    "osm_result_url": "",
+    "wikipedia_search_query": "",
+    "wikidata_search_query": "",
+    "osm_search_query": "",
 }
-enrichment_schema = [
-    "wikipedia_page_url",
-    "wikidata_page_url",
-    "osm_result_url",
-]
-
-debug_schema = [
-    "wikipedia_search_query",
-    "wikidata_search_query",
-    "osm_search_query",
-]
 
 # enrichment response object
 resp_info_schema = {
@@ -43,4 +38,11 @@ resp_info_schema = {
     "search_query_steps": [],
     "url": "",
     "method": "none",
+}
+
+# enrichment print details
+enrichment_print_schema = {
+    "wiki_found": 0,
+    "wikidata_found": 0,
+    "osm_found": 0,
 }

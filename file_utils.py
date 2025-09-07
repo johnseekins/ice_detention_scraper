@@ -1,10 +1,8 @@
+import copy
 import csv
+import flatdict  # type: ignore [import-untyped]
 import json
-from schemas import (
-    debug_schema,
-    facility_schema,
-    enrichment_schema,
-)
+from schemas import enrichment_print_schema
 from utils import logger
 
 
@@ -18,22 +16,17 @@ def export_to_file(
         return ""
 
     full_name = f"{filename}.{file_type}"
+    csv_filtered_keys = ["raw_scrape", "wikipedia_search_query", "wikidata_search_query", "osm_search_query"]
     try:
         with open(full_name, "w", newline="", encoding="utf-8") as f_out:
             if file_type == "csv":
-                base_fields: list = list(facility_schema.keys())
-                fieldnames: list = base_fields.copy()
-
-                if any(field in facilities_data["facilities"][0] for field in enrichment_schema):
-                    fieldnames.extend(enrichment_schema)
-
-                if any(field in facilities_data["facilities"][0] for field in debug_schema):
-                    fieldnames.extend(debug_schema)
+                flatdata = [flatdict.FlatDict(f, delimiter=".") for f in facilities_data["facilities"]]
+                fieldnames = [k for k in flatdata[0].keys() if k not in csv_filtered_keys]
 
                 writer = csv.DictWriter(f_out, fieldnames=fieldnames)
                 writer.writeheader()
-                for facility in facilities_data["facilities"]:
-                    row_data = {field: facility.get(field, "") for field in fieldnames}
+                for facility in flatdata:
+                    row_data = {field: facility.get(field, None) for field in fieldnames}
                     writer.writerow(row_data)
             elif file_type == "json":
                 json.dump(facilities_data, f_out, indent=2, sort_keys=True, default=str)
@@ -75,37 +68,34 @@ def print_summary(facilities_data: dict) -> None:
         logger.info("  %s: %s", office, count)
 
     # Check enrichment data if available
-    if "wikipedia_page_url" in facilities_data["facilities"][0]:
-        wiki_found = sum(
-            1 for f in facilities_data["facilities"] if f.get("wikipedia_page_url") and f["wikipedia_page_url"]
-        )
-        wikidata_found = sum(
-            1 for f in facilities_data["facilities"] if f.get("wikidata_page_url") and f["wikidata_page_url"]
-        )
-        osm_found = sum(1 for f in facilities_data["facilities"] if f.get("osm_result_url") and f["osm_result_url"])
+    enrich_data = copy.deepcopy(enrichment_print_schema)
+    enrich_data["wiki_found"] = sum(1 for f in facilities_data["facilities"] if f.get("wikipedia_page_url", None))
+    enrich_data["wikidata_found"] = sum(1 for f in facilities_data["facilities"] if f.get("wikidata_page_url", None))
+    enrich_data["osm_found"] = sum(1 for f in facilities_data["facilities"] if f.get("osm_result_url", None))
 
+    if any(v > 0 for v in enrich_data.values()):
         logger.info("\n=== External Data Enrichment Results ===")
         logger.info(
             "Wikipedia pages found: %s/%s (%s%%)",
-            wiki_found,
+            enrich_data["wiki_found"],
             total_facilities,
-            wiki_found / total_facilities * 100,
+            enrich_data["wiki_found"] / total_facilities * 100,
         )
         logger.info(
             "Wikidata entries found: %s/%s (%s%%)",
-            wikidata_found,
+            enrich_data["wikidata_found"],
             total_facilities,
-            wikidata_found / total_facilities * 100,
+            enrich_data["wikidata_found"] / total_facilities * 100,
         )
         logger.info(
             "OpenStreetMap results found: %s/%s (%s%%)",
-            osm_found,
+            enrich_data["osm_found"],
             total_facilities,
-            osm_found / total_facilities * 100,
+            enrich_data["osm_found"] / total_facilities * 100,
         )
 
         # Debug information if available
-        if "wikipedia_search_query" in facilities_data["facilities"][0]:
+        if facilities_data["facilities"][0].get("wikipedia_search_query", None):
             logger.info("\n=== Wikipedia Debug Information ===")
             false_positives = 0
             errors = 0
@@ -120,10 +110,10 @@ def print_summary(facilities_data: dict) -> None:
             logger.info("Search errors encountered: %s", errors)
             logger.info("Note: Review 'wikipedia_search_query' column for detailed search information")
 
-        if "wikidata_search_query" in facilities_data["facilities"][0]:
+        if facilities_data["facilities"][0].get("wikidata_search_query", None):
             logger.warning("Note: Review 'wikidata_search_query' column for detailed search information")
 
-        if "osm_search_query" in facilities_data["facilities"][0]:
+        if facilities_data["facilities"][0].get("osm_search_query", None):
             logger.warning("Note: Review 'osm_search_query' column for detailed search information")
 
     logger.info("\n=== ICE Detention Facilities Scraper: Run completed ===")

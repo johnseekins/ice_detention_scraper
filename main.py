@@ -24,7 +24,7 @@ import logging
 from file_utils import export_to_file, print_summary
 import default_data
 from enricher import ExternalDataEnricher
-from scraper import ICEFacilityScraper
+from scraper import ICEGovFacilityScraper
 from utils import logger
 
 # CLI, argument parsing, script orchestration
@@ -78,7 +78,7 @@ def main() -> None:
         exit(1)
 
     if args.scrape:
-        scraper = ICEFacilityScraper()
+        scraper = ICEGovFacilityScraper()
         facilities_data = scraper.scrape_facilities()
     elif args.load_existing:
         facilities_data = copy.deepcopy(default_data.facilities_data)
