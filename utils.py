@@ -17,3 +17,15 @@ session = requests.Session()
 session.mount("https://", _adapter)
 session.mount("http://", _adapter)
 session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
+
+
+def _flatdict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
+    """flatten a nested dictionary for nicer printing in CSV"""
+    items: list = []
+    for k, v in d.items():
+        new_key = parent_key + sep + str(k) if parent_key else str(k)
+        if isinstance(v, dict):
+            items.extend(_flatdict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)

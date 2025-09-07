@@ -1,9 +1,11 @@
 import copy
 import csv
-import flatdict  # type: ignore [import-untyped]
 import json
 from schemas import enrichment_print_schema
-from utils import logger
+from utils import (
+    _flatdict,
+    logger,
+)
 
 
 def export_to_file(
@@ -20,7 +22,7 @@ def export_to_file(
     try:
         with open(full_name, "w", newline="", encoding="utf-8") as f_out:
             if file_type == "csv":
-                flatdata = [flatdict.FlatDict(f, delimiter=".") for f in facilities_data["facilities"]]
+                flatdata = [_flatdict(f) for f in facilities_data["facilities"]]
                 fieldnames = [k for k in flatdata[0].keys() if k not in csv_filtered_keys]
 
                 writer = csv.DictWriter(f_out, fieldnames=fieldnames)
