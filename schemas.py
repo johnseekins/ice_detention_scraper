@@ -1,7 +1,7 @@
 import datetime
 
 facilities_schema = {
-    "scraped_date": datetime.datetime.utcnow(),
+    "scraped_date": datetime.datetime.now(datetime.UTC),
     "scrape_runtime": 0,
     "enrich_runtime": 0,
     "facilities": [],

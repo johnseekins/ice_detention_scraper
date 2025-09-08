@@ -28,7 +28,7 @@ class ICEGovFacilityScraper(object):
         start_time = time.time()
         logger.info("Starting to scrape ICE.gov detention facilities...")
 
-        self.facilities_data["scraped_date"] = datetime.datetime.utcnow()
+        self.facilities_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
         # URLs for all pages
         urls = [f"{self.base_url}?exposed_form_display=1&page={i}" for i in range(6)]
 
