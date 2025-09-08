@@ -22,7 +22,7 @@ def export_to_file(
     try:
         with open(full_name, "w", newline="", encoding="utf-8") as f_out:
             if file_type == "csv":
-                flatdata = [_flatdict(f) for f in facilities_data["facilities"]]
+                flatdata = [_flatdict(f) for _, f in facilities_data["facilities"].items()]
                 fieldnames = [k for k in flatdata[0].keys() if k not in csv_filtered_keys]
 
                 writer = csv.DictWriter(f_out, fieldnames=fieldnames)
@@ -60,7 +60,7 @@ def print_summary(facilities_data: dict) -> None:
 
     # Count by field office
     field_offices: dict = {}
-    for facility in facilities_data["facilities"]:
+    for facility_id, facility in facilities_data["facilities"].items():
         office = facility.get("field_office", "Unknown")
         field_offices[office] = field_offices.get(office, 0) + 1
 
@@ -70,9 +70,13 @@ def print_summary(facilities_data: dict) -> None:
 
     # Check enrichment data if available
     enrich_data = copy.deepcopy(enrichment_print_schema)
-    enrich_data["wiki_found"] = sum(1 for f in facilities_data["facilities"] if f.get("wikipedia_page_url", None))
-    enrich_data["wikidata_found"] = sum(1 for f in facilities_data["facilities"] if f.get("wikidata_page_url", None))
-    enrich_data["osm_found"] = sum(1 for f in facilities_data["facilities"] if f.get("osm_result_url", None))
+    enrich_data["wiki_found"] = sum(
+        1 for f in facilities_data["facilities"].values() if f.get("wikipedia_page_url", None)
+    )
+    enrich_data["wikidata_found"] = sum(
+        1 for f in facilities_data["facilities"].values() if f.get("wikidata_page_url", None)
+    )
+    enrich_data["osm_found"] = sum(1 for f in facilities_data["facilities"].values() if f.get("osm_result_url", None))
 
     if any(v > 0 for v in enrich_data.values()):
         logger.info("\n=== External Data Enrichment Results ===")
@@ -96,25 +100,17 @@ def print_summary(facilities_data: dict) -> None:
         )
 
         # Debug information if available
-        if facilities_data["facilities"][0].get("wikipedia_search_query", None):
-            logger.info("\n=== Wikipedia Debug Information ===")
-            false_positives = 0
-            errors = 0
-            for facility in facilities_data["facilities"]:
-                query = facility.get("wikipedia_search_query", "")
-                if "REJECTED" in query:
-                    false_positives += 1
-                elif "ERROR" in query:
-                    errors += 1
+        logger.info("\n=== Wikipedia Debug Information ===")
+        false_positives = 0
+        errors = 0
+        for facility in facilities_data["facilities"].values():
+            query = facility.get("wikipedia_search_query", "")
+            if "REJECTED" in query:
+                false_positives += 1
+            elif "ERROR" in query:
+                errors += 1
 
             logger.info("False positives detected and rejected: %s", false_positives)
             logger.info("Search errors encountered: %s", errors)
-            logger.info("Note: Review 'wikipedia_search_query' column for detailed search information")
-
-        if facilities_data["facilities"][0].get("wikidata_search_query", None):
-            logger.warning("Note: Review 'wikidata_search_query' column for detailed search information")
-
-        if facilities_data["facilities"][0].get("osm_search_query", None):
-            logger.warning("Note: Review 'osm_search_query' column for detailed search information")
 
     logger.info("\n=== ICE Detention Facilities Scraper: Run completed ===")

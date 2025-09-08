@@ -3,32 +3,182 @@ import base64
 from bs4 import BeautifulSoup
 import copy
 import datetime
+import os
+import polars
 import re
 from schemas import (
     facilities_schema,
     facility_schema,
 )
 import time
+from typing import Tuple
 from utils import (
     default_timestamp,
+    facility_sheet_header,
     logger,
     session,
     timestamp_format,
 )
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+
 
 class ICEGovFacilityScraper(object):
+    base_url = "https://www.ice.gov/detention-facilities"
+    sheet_url = "https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"
+
     # All methods for scraping ice.gov websites
     def __init__(self):
-        self.base_url = "https://www.ice.gov/detention-facilities"
         self.facilities_data = copy.deepcopy(facilities_schema)
+        self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
+
+    def _download_sheet(self) -> None:
+        if not os.path.isfile(self.filename) or os.path.getsize(self.filename) < 1:
+            logger.info("Downloading sheet from %s", self.sheet_url)
+            resp = session.get(self.sheet_url, timeout=120)
+            with open(self.filename, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
+
+    def _clean_street(self, street: str, locality: str = "") -> Tuple[str, bool]:
+        """Generally, we'll let the spreadsheet win arguments just to be consistent"""
+        street_filters = [
+            {"match": "'s", "replace": "", "locality": ""},
+            {"match": ".", "replace": "", "locality": ""},
+            {"match": ",", "replace": "", "locality": ""},
+            # address mismatch between site and spreadsheet
+            {"match": "80 29th Street", "replace": "100 29th Street", "locality": "Brooklyn"},
+            {"match": "2250 Laffoon Trl", "replace": "2250 Lafoon Trail", "locality": "Madisonville"},
+            {"match": "560 Gum Springs Road", "replace": "560 Gum Spring Road", "locality": "Winnfield"},
+            {
+                "match": "Vincente Taman Building",
+                "replace": "Vicente T Seman Bldg Civic Center",
+                "locality": "Susupe, Saipan",
+            },
+            {"match": "209 County Road A049", "replace": "209 County Road 49", "locality": "Estancia"},
+            {
+                "match": "50140 US Highway 191 South",
+                "replace": "50140 UNITED STATES HIGHWAY 191 SOUTH",
+                "locality": "Rock Springs",
+            },
+            {"match": "5 Basler Drive", "replace": "5 BASLER DR", "locality": "Ste. Genevieve"},
+            {"match": "3843 Stagg Ave", "replace": "3843 Stagg Avenue", "locality": "Basile"},
+            {
+                "match": "13880 Business Center Drive NW",
+                "replace": "13880 Business Center Drive",
+                "locality": "Elk River",
+            },
+            {"match": "3040 South State Route 100", "replace": "3040 SOUTH STATE HIGHWAY 100", "locality": "Tiffin"},
+            {"match": "1001 San Rio Blvd", "replace": "1001 San Rio Boulevard", "locality": "Laredo"},
+            {"match": "1209 Sunflower Lane", "replace": "1209 Sunflower Ln", "locality": "Alvarado"},
+            {"match": "27991 Buena Vista Blvd.", "replace": "27991 BUENA VISTA BOULEVARD", "locality": "Los Fresnos"},
+            {"match": "175 Pike County Blvd.", "replace": "175 PIKE COUNTY BOULEVARD", "locality": "Lords Valley"},
+            {"match": "500 W. 2nd Street", "replace": "301 W. 2nd", "locality": "Rolla"},
+            {"match": "307 Saint Joseph St", "replace": "300 KANSAS CITY STREET NONE", "locality": "Rapid City"},
+            {"match": "3405 West Highway 146", "replace": "3405 W HWY 146", "locality": "La Grange"},
+            # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
+            {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
+        ]
+        stripped_street = street
+        cleaned = False
+        if any(f["match"] in stripped_street for f in street_filters):
+            cleaned = True
+        for f in street_filters:
+            if (f["match"] in stripped_street) and ((f["locality"] and f["locality"] == locality) or not f["locality"]):
+                stripped_street = stripped_street.replace(f["match"], f["replace"])
+                cleaned = True
+        return stripped_street, cleaned
+
+    def _repair_zip(self, zip_code: int, locality: str) -> Tuple[str, bool]:
+        """Excel does a cool thing where it strips leading 0s"""
+        zcode = str(zip_code)
+        cleaned = False
+        if len(zcode) == 4:
+            zcode = f"0{zcode}"
+            cleaned = True
+        # This address is an absolute mess
+        if zcode == "89512" and locality == "Reno":
+            zcode = "89506"
+            cleaned = True
+        if zcode == "82901" and locality == "Rock Springs":
+            zcode = "82935"
+            cleaned = True
+        return zcode, cleaned
+
+    def _repair_locality(self, locality: str, administrative_area: str) -> Tuple[str, bool]:
+        """
+        There is no consistency with any address.
+        How the post office ever successfully delivered a letter is beyond me
+        """
+        cleaned = False
+        if locality == "LaGrange" and administrative_area == "KY":
+            locality = "La Grange"
+            cleaned = True
+        return locality, cleaned
+
+    def _load_sheet(self) -> dict:
+        """Convert the detentionstats sheet data into something we can update our facilities with"""
+        self._download_sheet()
+        df = polars.read_excel(
+            drop_empty_rows=True,
+            has_header=False,
+            # because we're manually defining the header...
+            read_options={"skip_rows": 7, "column_names": facility_sheet_header},
+            sheet_name="Facilities FY25",
+            source=open(self.filename, "rb"),
+        )
+        results: dict = {}
+        # occassionally a phone number shows up in weird places in the spreadsheet.
+        # let's capture it
+        phone_re = re.compile(r".+(\d{3}\s\d{3}\s\d{4})$")
+        for row in df.iter_rows(named=True):
+            details = copy.deepcopy(facility_schema)
+            zcode, cleaned = self._repair_zip(row["Zip"], row["City"])
+            if cleaned:
+                details["_repaired_record"] = True
+            street, cleaned = self._clean_street(row["Address"], row["City"])
+            if cleaned:
+                details["_repaired_record"] = True
+            match = phone_re.search(row["Address"])
+            if match:
+                details["phone"] = match.group(1)
+                details["_repaired_record"] = True
+            full_address = ",".join([street, row["City"], row["State"], zcode]).upper()
+            details["address"]["administrative_area"] = row["State"]
+            locality, cleaned = self._repair_locality(row["City"], row["State"])
+            if cleaned:
+                details["_repaired_record"] = True
+            details["address"]["locality"] = row["City"]
+            details["address"]["postal_code"] = row["Zip"]
+            details["address"]["street"] = row["Address"]
+            details["name"] = row["Name"]
+            details["population"]["male"]["criminal"] = row["Male Crim"]
+            details["population"]["male"]["non_criminal"] = row["Male Non-Crim"]
+            details["population"]["female"]["criminal"] = row["Female Crim"]
+            details["population"]["female"]["non_criminal"] = row["Female Non-Crim"]
+            if row["Male/Female"]:
+                if "/" in row["Male/Female"]:
+                    details["population"]["female"]["allowed"] = True
+                    details["population"]["male"]["allowed"] = True
+                elif "Female" in row["Male/Female"]:
+                    details["population"]["female"]["allowed"] = True
+                else:
+                    details["population"]["male"]["allowed"] = True
+
+            details["facility_type"] = row["Type Detailed"]
+            details["avg_stay_length"] = row["FY25 ALOS"]
+            details["inspection_date"] = row["Last Inspection End Date"]
+            results[full_address] = details
+        return results
 
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
         start_time = time.time()
         logger.info("Starting to scrape ICE.gov detention facilities...")
-
         self.facilities_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
+        self.facilities_data["facilities"] = self._load_sheet()
+
         # URLs for all pages
         urls = [f"{self.base_url}?exposed_form_display=1&page={i}" for i in range(6)]
 
@@ -38,11 +188,29 @@ class ICEGovFacilityScraper(object):
                 facilities = self._scrape_page(url)
             except Exception as e:
                 logger.error("Error scraping page %s: %s", page_num + 1, e)
-            self.facilities_data["facilities"].extend(facilities)
             logger.debug("Found %s facilities on page %s", len(facilities), page_num + 1)
             time.sleep(1)  # Be respectful to the server
+            for facility in facilities:
+                addr = facility["address"]
+                street, cleaned = self._clean_street(addr["street"], addr["locality"])
+                if cleaned:
+                    facility["_repaired_record"] = True
+                zcode, cleaned = self._repair_zip(addr["postal_code"], addr["locality"])
+                if cleaned:
+                    facility["_repaired_record"] = True
+                locality, cleaned = self._repair_locality(addr["locality"], addr["administrative_area"])
+                if cleaned:
+                    facility["_repaired_record"] = True
+                full_address = ",".join([street, locality, addr["administrative_area"], zcode]).upper()
+                if full_address in self.facilities_data["facilities"].keys():
+                    for key, value in facility.items():
+                        if self.facilities_data["facilities"][full_address].get(key, None):
+                            continue
+                        self.facilities_data["facilities"][full_address][key] = value
+                # this is likely to produce _some_ duplicates, but it's a reasonable starting place
+                else:
+                    self.facilities_data["facilities"][facility["name"]] = facility
 
-        # self.facilities_data = all_facilities
         self.facilities_data["scrape_runtime"] = time.time() - start_time
         logger.info("Total facilities scraped: %s", len(self.facilities_data["facilities"]))
         logger.info(" Completed in %s seconds", self.facilities_data["scrape_runtime"])
@@ -298,5 +466,3 @@ class ICEGovFacilityScraper(object):
                 facility["address"] = ", ".join(address_lines)
             facility["phone"] = phone
         return facility
-
-    pass

@@ -4,7 +4,7 @@ facilities_schema = {
     "scraped_date": datetime.datetime.now(datetime.UTC),
     "scrape_runtime": 0,
     "enrich_runtime": 0,
-    "facilities": [],
+    "facilities": {},
 }
 
 # default keys to "false"-y values so we can merge easier
@@ -16,6 +16,7 @@ facility_schema: dict = {
         "postal_code": "",
         "street": "",
     },
+    "_repaired_record": False,
     "facility_url": "",
     "field_office": "",
     "image_url": "",
