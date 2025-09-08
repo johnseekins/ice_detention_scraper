@@ -89,14 +89,15 @@ class ExternalDataEnricher(object):
             if full_address in self.adp_sheet_data:
                 row = self.adp_sheet_data[full_address]
                 logger.debug("Found additional data in the ADP sheet for %s", facility_name)
-                facility = self._update_from_sheet(facility, row)
+                enriched_facility = self._update_from_sheet(facility, row)
             else:
                 logger.debug("Just making sure no other facilities match...")
                 for sheet_row in self.adp_sheet_data.values():
                     if facility_name.upper() == sheet_row["Name"].upper():
                         logger.debug("Matching facility for %s", facility_name)
-                        facility = self._update_from_sheet(facility, sheet_row)
+                        enriched_facility = self._update_from_sheet(facility, sheet_row)
                         break
+
             # Wikipedia search # todo refactor to method
             try:
                 wiki_result = self._search_wikipedia(facility_name)
