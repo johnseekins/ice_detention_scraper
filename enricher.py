@@ -149,7 +149,7 @@ class ExternalDataEnricher(object):
             "facility",
             "center",
             "complex",
-            "insitution",
+            "institution",
             "processing",
         ]
         resp_info = copy.deepcopy(resp_info_schema)
