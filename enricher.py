@@ -1,4 +1,6 @@
 import copy
+import os
+import polars
 from schemas import (
     facilities_schema,
     resp_info_schema,
@@ -9,18 +11,97 @@ from utils import (
     logger,
     session,
 )
-
 # ExternalDataEnricher class for enrichment logic
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 # Rate limiting for API calls
 NOMINATIM_DELAY = 1.0  # 1 second between requests as per OSM policy
 WIKIPEDIA_DELAY = 0.5  # Be respectful to Wikipedia
 WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
 
+# extracted ADP sheet header list 2025-09-07
+facility_sheet_header = [
+    "Name",
+    "Address",
+    "City",
+    "State",
+    "Zip",
+    "AOR",
+    "Type Detailed",
+    "Male/Female",
+    "FY25 ALOS",
+    "Level A",
+    "Level B",
+    "Level C",
+    "Level D",
+    "Male Crim",
+    "Male Non-Crim",
+    "Female Crim",
+    "Female Non-Crim",
+    "ICE Threat Level 1",
+    "ICE Threat Level 2",
+    "ICE Threat Level 3",
+    "No ICE Threat Level",
+    "Mandatory",
+    "Guaranteed Minimum",
+    "Last Inspection Type",
+    "Last Inspection End Date",
+    "Pending FY25 Inspection",
+    "Last Inspection Standard",
+    "Last Final Rating",
+]
+
 
 class ExternalDataEnricher(object):
     def __init__(self):
-        pass
+        self.sheet_url = "https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"
+        self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
+        self.adp_sheet_data = self._load_sheet()
+
+    def _download_sheet(self) -> None:
+        if not os.path.isfile(self.filename) or os.path.getsize(self.filename) < 1:
+            logger.info("Downloading sheet from %s", self.sheet_url)
+            resp = session.get(self.sheet_url, timeout=120)
+            with open(self.filename, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
+
+    def _load_sheet(self) -> polars.DataFrame:
+        """Convert the detentionstats sheet data into something we can update our facilities with"""
+        self._download_sheet()
+        df = polars.read_excel(
+            drop_empty_rows=True,
+            has_header=False,
+            # because we're manually defining the header...
+            read_options={"skip_rows": 7, "column_names": facility_sheet_header},
+            sheet_name="Facilities FY25",
+            source=open(self.filename, "rb"),
+        )
+        results: dict = {}
+        for row in df.iter_rows(named=True):
+            full_address = f"{row['Address']} {row['City']}, {row['State']} {row['Zip']}".upper()
+            results[full_address] = row
+        return results
+
+    def _update_from_sheet(self, base: dict, row: dict) -> dict:
+        base["population"]["male"]["criminal"] = row["Male Crim"]
+        base["population"]["male"]["non_criminal"] = row["Male Non-Crim"]
+        base["population"]["female"]["criminal"] = row["Female Crim"]
+        base["population"]["female"]["non_criminal"] = row["Female Non-Crim"]
+        if "/" in row["Male/Female"]:
+            base["population"]["female"]["allowed"] = True
+            base["population"]["male"]["allowed"] = True
+        elif "Female" in row["Male/Female"]:
+            base["population"]["female"]["allowed"] = True
+        else:
+            base["population"]["male"]["allowed"] = True
+
+        base["base_type"] = row["Type Detailed"]
+        base["avg_stay_length"] = row["FY25 ALOS"]
+        base["inspection_date"] = row["Last Inspection End Date"]
+        logger.debug("Updated facility: %s", base)
+        return base
 
     def enrich_facility_data(self, facilities_data: dict) -> dict:
         start_time = time.time()
@@ -32,7 +113,21 @@ class ExternalDataEnricher(object):
             facility_name = facility["name"]
             logger.info("Processing facility %s/%s: %s...", index + 1, total, facility_name)
             enriched_facility = copy.deepcopy(facility)
-
+            addr = facility["address"]
+            full_address = (
+                f"{addr['street']} {addr['locality']}, {addr['administrative_area']} {addr['postal_code']}".upper()
+            )
+            if full_address in self.adp_sheet_data:
+                row = self.adp_sheet_data[full_address]
+                logger.debug("Found additional data in the ADP sheet for %s", facility_name)
+                facility = self._update_from_sheet(facility, row)
+            else:
+                logger.debug("Just making sure no other facilities match...")
+                for sheet_row in self.adp_sheet_data.values():
+                    if facility_name.upper() == sheet_row["Name"].upper():
+                        logger.debug("Matching facility for %s", facility_name)
+                        facility = self._update_from_sheet(facility, sheet_row)
+                        break
             # Wikipedia search # todo refactor to method
             try:
                 wiki_result = self._search_wikipedia(facility_name)

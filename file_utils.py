@@ -1,11 +1,14 @@
 import copy
 import csv
 import json
+import os
 from schemas import enrichment_print_schema
 from utils import (
     _flatdict,
     logger,
 )
+
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def export_to_file(
@@ -17,7 +20,7 @@ def export_to_file(
         logger.warning("No data to export!")
         return ""
 
-    full_name = f"{filename}.{file_type}"
+    full_name = f"{SCRIPT_DIR}{os.sep}{filename}.{file_type}"
     csv_filtered_keys = ["raw_scrape", "wikipedia_search_query", "wikidata_search_query", "osm_search_query"]
     try:
         with open(full_name, "w", newline="", encoding="utf-8") as f_out:
@@ -56,7 +59,6 @@ def print_summary(facilities_data: dict) -> None:
     total_facilities = len(facilities_data["facilities"])
     logger.info("\n=== ICE Detention Facilities Scraper Summary ===")
     logger.info("Scraped data at %s", facilities_data["scraped_date"])
-    logger.info("ice.gov data updated at %s", facilities_data["page_updated_date"])
     logger.info("Total facilities: %s", total_facilities)
 
     # Count by field office

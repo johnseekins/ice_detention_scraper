@@ -26,7 +26,6 @@ import default_data
 from enricher import ExternalDataEnricher
 from scraper import ICEGovFacilityScraper
 from utils import logger
-
 # CLI, argument parsing, script orchestration
 
 
@@ -82,9 +81,7 @@ def main() -> None:
         facilities_data = scraper.scrape_facilities()
     elif args.load_existing:
         facilities_data = copy.deepcopy(default_data.facilities_data)
-        logger.info(
-            "Loaded %s existing facilities from local data. (Not scraping ICE.gov)", len(facilities_data["facilities"])
-        )
+        logger.info("Loaded %s existing facilities from local data. (Not scraping)", len(facilities_data["facilities"]))
 
     if args.enrich:
         if not facilities_data:

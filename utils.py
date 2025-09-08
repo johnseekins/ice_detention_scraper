@@ -18,6 +18,9 @@ session.mount("https://", _adapter)
 session.mount("http://", _adapter)
 session.headers.update({"User-Agent": "ICE-Facilities-Research/1.0 (Educational Research Purpose)"})
 
+default_timestamp = "1970-01-01T00:00:00-+0000"
+timestamp_format = "%Y-%m-%dT%H:%M:%S-%z"
+
 
 def _flatdict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
     """flatten a nested dictionary for nicer printing in CSV"""

@@ -10,14 +10,15 @@ from schemas import (
 )
 import time
 from utils import (
+    default_timestamp,
     logger,
     session,
+    timestamp_format,
 )
 
 
 class ICEGovFacilityScraper(object):
-    # All methods for scraping ICE websites
-
+    # All methods for scraping ice.gov websites
     def __init__(self):
         self.base_url = "https://www.ice.gov/detention-facilities"
         self.facilities_data = copy.deepcopy(facilities_schema)
@@ -25,10 +26,9 @@ class ICEGovFacilityScraper(object):
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
         start_time = time.time()
-        logger.info("Starting to scrape ICE detention facilities...")
+        logger.info("Starting to scrape ICE.gov detention facilities...")
 
         self.facilities_data["scraped_date"] = datetime.datetime.utcnow()
-        self.facilities_data["page_updated_date"] = self._scrape_updated(self.base_url)
         # URLs for all pages
         urls = [f"{self.base_url}?exposed_form_display=1&page={i}" for i in range(6)]
 
@@ -50,8 +50,9 @@ class ICEGovFacilityScraper(object):
 
     def _scrape_updated(self, url: str):
         """Scrape first page to get "last updated" time"""
-        default_timestamp = "1970-01-01T00:00:00-+0000"
-        timestamp_format = "%Y-%m-%dT%H:%M:%S-%z"
+        if not url:
+            logger.error("Could not find a time block! Guessing wildly!")
+            return datetime.datetime.strptime(default_timestamp, timestamp_format)
         logger.debug("  Fetching: %s", url)
         try:
             response = session.get(url, timeout=30)
@@ -181,7 +182,7 @@ class ICEGovFacilityScraper(object):
         facility = copy.deepcopy(facility_schema)
         raw_scrape = str(element)
         facility["raw_scrape"] = base64.b64encode(raw_scrape.encode("utf-8")).decode("utf-8")
-        facility["source_url"] = page_url
+        facility["source_urls"].append(page_url)
         logger.debug("Trying to get facility data from %s", element)
         # Method 1: Try structured extraction if element has proper HTML structure
         name = element.select_one(".views-field-title")
@@ -221,6 +222,7 @@ class ICEGovFacilityScraper(object):
         facility_url_element = element.findAll("a")
         if facility_url_element:
             facility["facility_url"] = f"https://www.ice.gov{facility_url_element[0]['href']}"
+        facility["page_updated_date"] = self._scrape_updated(facility.get("facility_url", ""))
         # Clean up extracted data
         facility = self._clean_facility_data(facility)
 
