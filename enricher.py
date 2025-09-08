@@ -8,6 +8,7 @@ from schemas import (
 import time
 from urllib.parse import quote
 from utils import (
+    facility_sheet_header,
     logger,
     session,
 )
@@ -18,38 +19,6 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 NOMINATIM_DELAY = 1.0  # 1 second between requests as per OSM policy
 WIKIPEDIA_DELAY = 0.5  # Be respectful to Wikipedia
 WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
-
-# extracted ADP sheet header list 2025-09-07
-facility_sheet_header = [
-    "Name",
-    "Address",
-    "City",
-    "State",
-    "Zip",
-    "AOR",
-    "Type Detailed",
-    "Male/Female",
-    "FY25 ALOS",
-    "Level A",
-    "Level B",
-    "Level C",
-    "Level D",
-    "Male Crim",
-    "Male Non-Crim",
-    "Female Crim",
-    "Female Non-Crim",
-    "ICE Threat Level 1",
-    "ICE Threat Level 2",
-    "ICE Threat Level 3",
-    "No ICE Threat Level",
-    "Mandatory",
-    "Guaranteed Minimum",
-    "Last Inspection Type",
-    "Last Inspection End Date",
-    "Pending FY25 Inspection",
-    "Last Inspection Standard",
-    "Last Final Rating",
-]
 
 
 class ExternalDataEnricher(object):
@@ -67,7 +36,7 @@ class ExternalDataEnricher(object):
                     if chunk:
                         f.write(chunk)
 
-    def _load_sheet(self) -> polars.DataFrame:
+    def _load_sheet(self) -> dict:
         """Convert the detentionstats sheet data into something we can update our facilities with"""
         self._download_sheet()
         df = polars.read_excel(

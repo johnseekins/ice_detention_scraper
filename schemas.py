@@ -8,7 +8,7 @@ facilities_schema = {
 }
 
 # default keys to "false"-y values so we can merge easier
-facility_schema = {
+facility_schema: dict = {
     "address": {
         "administrative_area": "",
         "country": "",
