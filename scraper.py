@@ -289,7 +289,14 @@ class ICEGovFacilityScraper(object):
                     self.facilities_data["facilities"][full_address] = self._update_facility(
                         self.facilities_data["facilities"][full_address], facility
                     )
+                    # update to the frequently nicer address from ice.gov
                     self.facilities_data["facilities"][full_address]["address"] = addr
+                    # add scraped urls
+                    for url in facility["source_urls"]:
+                        # no dupes
+                        if url in self.facilities_data["facilities"][full_address]["source_urls"]:
+                            continue
+                        self.facilities_data["facilities"][full_address]["source_urls"].append(url)
                 # this is likely to produce _some_ duplicates, but it's a reasonable starting place
                 else:
                     self.facilities_data["facilities"][facility["name"]] = facility
