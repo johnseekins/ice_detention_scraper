@@ -77,6 +77,7 @@ class ICEGovFacilityScraper(object):
             {"match": "1623 E J Street, Suite 2", "replace": "1623 E. J STREET", "locality": "Tacoma"},
             {"match": "1805 W 32nd Street", "replace": "1805 W 32ND ST", "locality": "Baldwin"},
             {"match": "500 Hilbig Road", "replace": "500 HILBIG RD", "locality": "Conroe"},
+            {"match": "806 Hilbig Road", "replace": "806 HILBIG RD", "locality": "Conroe"},
             {"match": "425 Golden State Avenue", "replace": "425 Golden State Ave", "locality": "Bakersfield"},
             {"match": "832 East Texas HWY 44", "replace": "832 EAST TEXAS STATE HIGHWAY 44", "locality": "Encinal"},
             {"match": "18201 SW 12th Street", "replace": "18201 SW 12TH ST", "locality": "Miami"},
@@ -88,7 +89,7 @@ class ICEGovFacilityScraper(object):
             {"match": "1701 North Washington", "replace": "1701 NORTH WASHINGTON ST", "locality": "Grand Forks"},
             {"match": "611 Frontage Road", "replace": "611 FRONTAGE RD", "locality": "McFarland"},
             {"match": "12450 Merritt Road", "replace": "12450 MERRITT DR", "locality": "Chardon"},
-            {"match": "411 S. Broadway Avenue", "replace": "411 SOUTH BROADWAY AVENUE", "locality": "Chardon"},
+            {"match": "411 S. Broadway Avenue", "replace": "411 SOUTH BROADWAY AVENUE", "locality": "Albert Lea"},
             {"match": "3424 Hwy 252 E", "replace": "3424 HIGHWAY 252 EAST", "locality": "Folkston"},
             # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
             {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
@@ -141,6 +142,9 @@ class ICEGovFacilityScraper(object):
             cleaned = True
         if locality == "Leachfield" and administrative_area == "KY":
             locality = "LEITCHFIELD"
+            cleaned = True
+        if locality == "Susupe, Saipan" and administrative_area == "MP":
+            locality = "SAIPAN"
             cleaned = True
         return locality, cleaned
 
@@ -199,6 +203,14 @@ class ICEGovFacilityScraper(object):
             results[full_address] = details
         return results
 
+    def _update_facility(self, old: dict, new: dict) -> dict:
+        for k, v in new.items():
+            if isinstance(v, dict):
+                old[k] = self._update_facility(old[k], new[k])
+            if not old.get(k, None):
+                old[k] = v
+        return old
+
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
         start_time = time.time()
@@ -230,10 +242,9 @@ class ICEGovFacilityScraper(object):
                     facility["_repaired_record"] = True
                 full_address = ",".join([street, locality, addr["administrative_area"], zcode]).upper()
                 if full_address in self.facilities_data["facilities"].keys():
-                    for key, value in facility.items():
-                        if self.facilities_data["facilities"][full_address].get(key, None):
-                            continue
-                        self.facilities_data["facilities"][full_address][key] = value
+                    self.facilities_data["facilities"][full_address] = self._update_facility(
+                        self.facilities_data["facilities"][full_address], facility
+                    )
                 # this is likely to produce _some_ duplicates, but it's a reasonable starting place
                 else:
                     self.facilities_data["facilities"][facility["name"]] = facility
