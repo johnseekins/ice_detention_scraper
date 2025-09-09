@@ -17,7 +17,6 @@ facility_schema: dict = {
         "street": "",
     },
     "_repaired_record": False,
-    "facility_url": "",
     "field_office": "",
     "image_url": "",
     "name": "",

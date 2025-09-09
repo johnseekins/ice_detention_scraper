@@ -115,7 +115,6 @@ class ICEGovFacilityScraper(object):
             {"match": "601 Central Avenue", "replace": "601 CENTRAL AVE", "locality": "Newport"},
             {"match": "501 E Court Avenue", "replace": "501 EAST COURT AVE", "locality": "Jeffersonville"},
             {"match": "3200 S. Kings Hwy", "replace": "3700 S KINGS HWY", "locality": "Cushing"},
-            {"match": "325 Court Street", "replace": "325 COURT STREET", "locality": "Sault Ste. Marie"},
             {"match": "301 South Walnut", "replace": "301 SOUTH WALNUT STREET", "locality": "Cottonwood Falls"},
             {"match": "830 Pine Hill Road", "replace": "830 PINEHILL ROAD", "locality": "Jena"},
             {
@@ -123,6 +122,7 @@ class ICEGovFacilityScraper(object):
                 "replace": "11093 SW LEWIS MEMORIAL DRIVE",
                 "locality": "Bowling Green",
             },
+            {"match": "58 Pine Mountain Road", "replace": "58 PINE MOUNTAIN RD", "locality": "McElhattan"},
             # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
             {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
             # default matches should come last
@@ -186,6 +186,9 @@ class ICEGovFacilityScraper(object):
         if locality == "Cottonwood Falls" and administrative_area == "KS":
             locality = "COTTONWOOD FALL"
             cleaned = True
+        if locality == "Sault Ste. Marie" and administrative_area == "MI":
+            locality = "SAULT STE MARIE"
+            cleaned = True
         return locality, cleaned
 
     def _load_sheet(self) -> dict:
@@ -240,6 +243,7 @@ class ICEGovFacilityScraper(object):
             details["facility_type"] = row["Type Detailed"]
             details["avg_stay_length"] = row["FY25 ALOS"]
             details["inspection_date"] = row["Last Inspection End Date"]
+            details["source_urls"].append(self.sheet_url)
             results[full_address] = details
         return results
 
@@ -285,6 +289,7 @@ class ICEGovFacilityScraper(object):
                     self.facilities_data["facilities"][full_address] = self._update_facility(
                         self.facilities_data["facilities"][full_address], facility
                     )
+                    self.facilities_data["facilities"][full_address]["address"] = addr
                 # this is likely to produce _some_ duplicates, but it's a reasonable starting place
                 else:
                     self.facilities_data["facilities"][facility["name"]] = facility
@@ -466,9 +471,12 @@ class ICEGovFacilityScraper(object):
         if image_element:
             facility["image_url"] = f"https://www.ice.gov{image_element[0]['src']}"
         facility_url_element = element.findAll("a")
+        facility_url = ""
         if facility_url_element:
-            facility["facility_url"] = f"https://www.ice.gov{facility_url_element[0]['href']}"
-        facility["page_updated_date"] = self._scrape_updated(facility.get("facility_url", ""))
+            facility_url = f"https://www.ice.gov{facility_url_element[0]['href']}"
+            facility["source_urls"].append(facility_url)
+        if facility_url:
+            facility["page_updated_date"] = self._scrape_updated(facility_url)
         # Clean up extracted data
         facility = self._clean_facility_data(facility)
 
