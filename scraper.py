@@ -44,9 +44,6 @@ class ICEGovFacilityScraper(object):
     def _clean_street(self, street: str, locality: str = "") -> Tuple[str, bool]:
         """Generally, we'll let the spreadsheet win arguments just to be consistent"""
         street_filters = [
-            {"match": "'s", "replace": "", "locality": ""},
-            {"match": ".", "replace": "", "locality": ""},
-            {"match": ",", "replace": "", "locality": ""},
             # address mismatch between site and spreadsheet
             {"match": "80 29th Street", "replace": "100 29th Street", "locality": "Brooklyn"},
             {"match": "2250 Laffoon Trl", "replace": "2250 Lafoon Trail", "locality": "Madisonville"},
@@ -76,9 +73,29 @@ class ICEGovFacilityScraper(object):
             {"match": "175 Pike County Blvd.", "replace": "175 PIKE COUNTY BOULEVARD", "locality": "Lords Valley"},
             {"match": "500 W. 2nd Street", "replace": "301 W. 2nd", "locality": "Rolla"},
             {"match": "307 Saint Joseph St", "replace": "300 KANSAS CITY STREET NONE", "locality": "Rapid City"},
-            {"match": "3405 West Highway 146", "replace": "3405 W HWY 146", "locality": "La Grange"},
+            {"match": "3405 West Highway 146", "replace": "3405 W HWY 146", "locality": "LaGrange"},
+            {"match": "1623 E J Street, Suite 2", "replace": "1623 E. J STREET", "locality": "Tacoma"},
+            {"match": "1805 W 32nd Street", "replace": "1805 W 32ND ST", "locality": "Baldwin"},
+            {"match": "500 Hilbig Road", "replace": "500 HILBIG RD", "locality": "Conroe"},
+            {"match": "425 Golden State Avenue", "replace": "425 Golden State Ave", "locality": "Bakersfield"},
+            {"match": "832 East Texas HWY 44", "replace": "832 EAST TEXAS STATE HIGHWAY 44", "locality": "Encinal"},
+            {"match": "18201 SW 12th Street", "replace": "18201 SW 12TH ST", "locality": "Miami"},
+            {"match": "2190 E Mesquite Avenue", "replace": "2190 EAST MESQUITE AVENUE", "locality": "Pahrump"},
+            {"match": "287 Industrial Drive", "replace": "327 INDUSTRIAL DRIVE", "locality": "Jonesboro"},
+            {"match": "1572 Gateway Road", "replace": "1572 GATEWAY", "locality": "Calexico"},
+            {"match": "203 Aspinall Avenue", "replace": "203 ASPINAL AVE. PO BOX 3236", "locality": "Hagatna"},
+            {"match": "1199 N Haseltine Road", "replace": "1199 N HASELTINE RD", "locality": "Springfield"},
+            {"match": "1701 North Washington", "replace": "1701 NORTH WASHINGTON ST", "locality": "Grand Forks"},
+            {"match": "611 Frontage Road", "replace": "611 FRONTAGE RD", "locality": "McFarland"},
+            {"match": "12450 Merritt Road", "replace": "12450 MERRITT DR", "locality": "Chardon"},
+            {"match": "411 S. Broadway Avenue", "replace": "411 SOUTH BROADWAY AVENUE", "locality": "Chardon"},
+            {"match": "3424 Hwy 252 E", "replace": "3424 HIGHWAY 252 EAST", "locality": "Folkston"},
             # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
             {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
+            # default matches should come last
+            {"match": "'s", "replace": "", "locality": ""},
+            {"match": ".", "replace": "", "locality": ""},
+            {"match": ",", "replace": "", "locality": ""},
         ]
         stripped_street = street
         cleaned = False
@@ -91,7 +108,10 @@ class ICEGovFacilityScraper(object):
         return stripped_street, cleaned
 
     def _repair_zip(self, zip_code: int, locality: str) -> Tuple[str, bool]:
-        """Excel does a cool thing where it strips leading 0s"""
+        """
+        Excel does a cool thing where it strips leading 0s
+        Also, many zip codes are mysteriously discordant
+        """
         zcode = str(zip_code)
         cleaned = False
         if len(zcode) == 4:
@@ -104,6 +124,10 @@ class ICEGovFacilityScraper(object):
         if zcode == "82901" and locality == "Rock Springs":
             zcode = "82935"
             cleaned = True
+        if zcode == "98421-1615" and locality == "Tacoma":
+            zcode = "98421"
+        if zcode == "89048" and locality == "Pahrump":
+            zcode = "89060"
         return zcode, cleaned
 
     def _repair_locality(self, locality: str, administrative_area: str) -> Tuple[str, bool]:
@@ -114,6 +138,9 @@ class ICEGovFacilityScraper(object):
         cleaned = False
         if locality == "LaGrange" and administrative_area == "KY":
             locality = "La Grange"
+            cleaned = True
+        if locality == "Leachfield" and administrative_area == "KY":
+            locality = "LEITCHFIELD"
             cleaned = True
         return locality, cleaned
 
