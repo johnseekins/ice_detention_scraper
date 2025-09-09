@@ -95,6 +95,34 @@ class ICEGovFacilityScraper(object):
             {"match": "351 Elliott Street", "replace": "351 ELLIOTT ST", "locality": "Honolulu"},
             {"match": "1 Success Loop Rd", "replace": "1 SUCCESS LOOP DR", "locality": "Berlin"},
             {"match": "700 Arch Street", "replace": "700 ARCH ST", "locality": "Philadelphia"},
+            {"match": "33 NE 4th Street", "replace": "33 NE 4 STREET", "locality": "Miami"},
+            {"match": "1300 Metropolitan", "replace": "1300 METROPOLITAN AVE", "locality": "Leavenworth"},
+            {"match": "601 McDonough Blvd SE", "replace": "601 MCDONOUGH BOULEVARD SE", "locality": "Atlanta"},
+            {"match": "1705 E Hanna Rd", "replace": "1705 EAST HANNA RD", "locality": "Eloy"},
+            {"match": "2255 East 8th North", "replace": "2255 E 8TH NORTH", "locality": "Mountain Home"},
+            {"match": "8915 Montana Avenue", "replace": "8915 MONTANA AVE", "locality": "El Paso"},
+            {"match": "704 E Broadway Street", "replace": "702 E BROADWAY ST", "locality": "Eden"},
+            {"match": "1300 E Hwy 107", "replace": "1330 HIGHWAY 107", "locality": "La Villa"},
+            {"match": "216 W. Center Street", "replace": "215 WEST CENTRAL STREET", "locality": "Juneau"},
+            {"match": "300 El Racho Way ", "replace": "300 EL RANCHO WAY", "locality": "Dilley"},
+            {"match": "3130 North Oakland Street", "replace": "3130 OAKLAND ST", "locality": "Aurora"},
+            {"match": "03151 Co. Rd. 24.2", "replace": "3151 ROAD 2425 ROUTE 1", "locality": "Stryker"},
+            {"match": "20 Hobo Forks Road", "replace": "20 HOBO FORK RD", "locality": "Natchez"},
+            {"match": "7340 Highway 26 W", "replace": "7340 HIGHWAY 26 WEST", "locality": "Oberlin"},
+            {"match": "1400 E Fourth Ave", "replace": "1400 E 4TH AVE", "locality": "Anchorage"},
+            {"match": "3900 N. Powerline Road", "replace": "3900 NORTH POWERLINE ROAD", "locality": "Pompano Beach"},
+            {"match": "185 E. Michigan Street", "replace": "185 EAST MICHIGAN AVENUE", "locality": "Battle Creek"},
+            {"match": "601 Central Avenue", "replace": "601 CENTRAL AVE", "locality": "Newport"},
+            {"match": "501 E Court Avenue", "replace": "501 EAST COURT AVE", "locality": "Jeffersonville"},
+            {"match": "3200 S. Kings Hwy", "replace": "3700 S KINGS HWY", "locality": "Cushing"},
+            {"match": "325 Court Street", "replace": "325 COURT STREET", "locality": "Sault Ste. Marie"},
+            {"match": "301 South Walnut", "replace": "301 SOUTH WALNUT STREET", "locality": "Cottonwood Falls"},
+            {"match": "830 Pine Hill Road", "replace": "830 PINEHILL ROAD", "locality": "Jena"},
+            {
+                "match": "11093 SW Lewis Memorial Dr",
+                "replace": "11093 SW LEWIS MEMORIAL DRIVE",
+                "locality": "Bowling Green",
+            },
             # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
             {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
             # default matches should come last
@@ -154,6 +182,9 @@ class ICEGovFacilityScraper(object):
             cleaned = True
         if locality == "Susupe, Saipan" and administrative_area == "MP":
             locality = "SAIPAN"
+            cleaned = True
+        if locality == "Cottonwood Falls" and administrative_area == "KS":
+            locality = "COTTONWOOD FALL"
             cleaned = True
         return locality, cleaned
 
