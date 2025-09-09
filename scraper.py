@@ -91,6 +91,10 @@ class ICEGovFacilityScraper(object):
             {"match": "12450 Merritt Road", "replace": "12450 MERRITT DR", "locality": "Chardon"},
             {"match": "411 S. Broadway Avenue", "replace": "411 SOUTH BROADWAY AVENUE", "locality": "Albert Lea"},
             {"match": "3424 Hwy 252 E", "replace": "3424 HIGHWAY 252 EAST", "locality": "Folkston"},
+            {"match": "3250 N. Pinal Parkway", "replace": "3250 NORTH PINAL PARKWAY", "locality": "Florence"},
+            {"match": "351 Elliott Street", "replace": "351 ELLIOTT ST", "locality": "Honolulu"},
+            {"match": "1 Success Loop Rd", "replace": "1 SUCCESS LOOP DR", "locality": "Berlin"},
+            {"match": "700 Arch Street", "replace": "700 ARCH ST", "locality": "Philadelphia"},
             # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
             {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
             # default matches should come last
@@ -127,8 +131,13 @@ class ICEGovFacilityScraper(object):
             cleaned = True
         if zcode == "98421-1615" and locality == "Tacoma":
             zcode = "98421"
+            cleaned = True
         if zcode == "89048" and locality == "Pahrump":
             zcode = "89060"
+            cleaned = True
+        if zcode == "85132" and locality == "Florence":
+            zcode = "85232"
+            cleaned = True
         return zcode, cleaned
 
     def _repair_locality(self, locality: str, administrative_area: str) -> Tuple[str, bool]:
