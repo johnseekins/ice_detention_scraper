@@ -42,6 +42,7 @@ directory.
 
 ```bash
     uv run python main.py --scrape          # Scrape fresh data from ICE website
+    uv run python main.py --scrape --debug  # Verbose debug output. Includes HTML snippets.
     uv run python main.py --enrich          # Enrich existing data with external sources
     uv run python main.py --scrape --enrich # Do both operations
     uv run python main.py --help            # Show help
@@ -60,6 +61,8 @@ directory.
 * Install [and enable mise](https://mise.jdx.dev/getting-started.html)
 * Install dependencies
 * ensure local pre-commit hooks are properly triggered
+
+We are using `mise` and `uv` to manage our python environment. ([More on uv](https://github.com/astral-sh/uv))
 
 Examples of the full setup for some OSes are below:
 
@@ -102,6 +105,13 @@ You can change this in scraper.py and enricher.py.
 seems wrong.
 * The remote query rate limiting is (I think) done in series but would go faster with parallel/async processing.
 * This is only targeted at English (EN) Wikipedia currently, but  multi-lingual page checks would help a wider audience.
+* `uv run python main.py --load-existing` kicks errors. It doesn't know what to do.
+
+## Contributing & code standards
+
+We have a [.pre-commit-config.yaml](.pre-commit-config.yaml) file which enforces some linting / formatting rules.
+
+Pull requests and reviews are welcome on the main repo.
 
 ## Credit
 
