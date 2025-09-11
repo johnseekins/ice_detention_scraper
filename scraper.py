@@ -24,8 +24,8 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class ICEGovFacilityScraper(object):
-    base_url = "https://www.ice.gov/detention-facilities"
-    sheet_url = "https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"
+    base_scrape_url = "https://www.ice.gov/detention-facilities"
+    base_xlsx_url = "https://www.ice.gov/detain/detention-management"
 
     # All methods for scraping ice.gov websites
     def __init__(self):
@@ -33,8 +33,13 @@ class ICEGovFacilityScraper(object):
         self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
 
     def _download_sheet(self) -> None:
+        logger.info("Finding and Downloading detention stats sheet from %s", self.base_xlsx_url)
+        resp = session.get(self.base_xlsx_url, timeout=120)
+        soup = BeautifulSoup(resp.content, "html.parser")
+        links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
+        # quick solution is first result
+        self.sheet_url = links[0]["href"]
         if not os.path.isfile(self.filename) or os.path.getsize(self.filename) < 1:
-            logger.info("Downloading sheet from %s", self.sheet_url)
             resp = session.get(self.sheet_url, timeout=120)
             with open(self.filename, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=1024):
@@ -263,7 +268,7 @@ class ICEGovFacilityScraper(object):
         self.facilities_data["facilities"] = self._load_sheet()
 
         # URLs for all pages
-        urls = [f"{self.base_url}?exposed_form_display=1&page={i}" for i in range(6)]
+        urls = [f"{self.base_scrape_url}?exposed_form_display=1&page={i}" for i in range(6)]
 
         for page_num, url in enumerate(urls):
             logger.info("Scraping page %s/6...", page_num + 1)
