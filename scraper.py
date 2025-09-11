@@ -33,13 +33,13 @@ class ICEGovFacilityScraper(object):
         self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
 
     def _download_sheet(self) -> None:
-        logger.info("Finding and Downloading detention stats sheet from %s", self.base_xlsx_url)
         resp = session.get(self.base_xlsx_url, timeout=120)
         soup = BeautifulSoup(resp.content, "html.parser")
         links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
         # quick solution is first result
         self.sheet_url = links[0]["href"]
         if not os.path.isfile(self.filename) or os.path.getsize(self.filename) < 1:
+            logger.info("Downloading detention stats sheet from %s", self.sheet_url)
             resp = session.get(self.sheet_url, timeout=120)
             with open(self.filename, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=1024):
