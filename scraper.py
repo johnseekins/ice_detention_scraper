@@ -36,8 +36,23 @@ class ICEGovFacilityScraper(object):
         resp = session.get(self.base_xlsx_url, timeout=120)
         soup = BeautifulSoup(resp.content, "html.parser")
         links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
-        # quick solution is first result
-        self.sheet_url = links[0]["href"]
+        if not links:
+            raise Exception(f"Could not find any XLSX files on {self.base_xlsx_url}")
+        fy_re = re.compile(r".+FY(\d{2}).+")
+        actual_link = links[0]["href"]
+        cur_year = int(datetime.datetime.now().strftime("%y"))
+        # try to find the most recent
+        for link in links:
+            match = fy_re.match(link["href"])
+            if not match:
+                continue
+            year = int(match.group(1))
+            if year >= cur_year:
+                actual_link = link["href"]
+                cur_year = year
+
+        logger.debug("Found sheet at: %s", actual_link)
+        self.sheet_url = actual_link
         now = time.time()
         # one day in seconds is 86400
         if (
