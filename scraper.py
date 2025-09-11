@@ -38,13 +38,21 @@ class ICEGovFacilityScraper(object):
         links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
         # quick solution is first result
         self.sheet_url = links[0]["href"]
-        if not os.path.isfile(self.filename) or os.path.getsize(self.filename) < 1:
+        now = time.time()
+        # one day in seconds is 86400
+        if (
+            not os.path.isfile(self.filename)
+            or os.path.getsize(self.filename) < 1
+            or now - os.path.getmtime(self.filename) > 86400
+        ):
             logger.info("Downloading detention stats sheet from %s", self.sheet_url)
             resp = session.get(self.sheet_url, timeout=120)
             with open(self.filename, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=1024):
                     if chunk:
                         f.write(chunk)
+        else:
+            logger.info("Using cached detention stats sheet: %s", self.filename)
 
     def _clean_street(self, street: str, locality: str = "") -> Tuple[str, bool]:
         """Generally, we'll let the spreadsheet win arguments just to be consistent"""
