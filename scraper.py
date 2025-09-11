@@ -24,8 +24,8 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class ICEGovFacilityScraper(object):
-    base_url = "https://www.ice.gov/detention-facilities"
-    sheet_url = "https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"
+    base_scrape_url = "https://www.ice.gov/detention-facilities"
+    base_xlsx_url = "https://www.ice.gov/detain/detention-management"
 
     # All methods for scraping ice.gov websites
     def __init__(self):
@@ -33,13 +33,32 @@ class ICEGovFacilityScraper(object):
         self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
 
     def _download_sheet(self) -> None:
-        if not os.path.isfile(self.filename) or os.path.getsize(self.filename) < 1:
-            logger.info("Downloading sheet from %s", self.sheet_url)
-            resp = session.get(self.sheet_url, timeout=120)
-            with open(self.filename, "wb") as f:
-                for chunk in resp.iter_content(chunk_size=1024):
-                    if chunk:
-                        f.write(chunk)
+        resp = session.get(self.base_xlsx_url, timeout=120)
+        soup = BeautifulSoup(resp.content, "html.parser")
+        links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
+        if not links:
+            raise Exception(f"Could not find any XLSX files on {self.base_xlsx_url}")
+        fy_re = re.compile(r".+FY(\d{2}).+")
+        actual_link = links[0]["href"]
+        cur_year = int(datetime.datetime.now().strftime("%y"))
+        # try to find the most recent
+        for link in links:
+            match = fy_re.match(link["href"])
+            if not match:
+                continue
+            year = int(match.group(1))
+            if year >= cur_year:
+                actual_link = link["href"]
+                cur_year = year
+
+        logger.debug("Found sheet at: %s", actual_link)
+        self.sheet_url = actual_link
+        logger.info("Downloading detention stats sheet from %s", self.sheet_url)
+        resp = session.get(self.sheet_url, timeout=120)
+        with open(self.filename, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
 
     def _clean_street(self, street: str, locality: str = "") -> Tuple[str, bool]:
         """Generally, we'll let the spreadsheet win arguments just to be consistent"""
@@ -263,7 +282,7 @@ class ICEGovFacilityScraper(object):
         self.facilities_data["facilities"] = self._load_sheet()
 
         # URLs for all pages
-        urls = [f"{self.base_url}?exposed_form_display=1&page={i}" for i in range(6)]
+        urls = [f"{self.base_scrape_url}?exposed_form_display=1&page={i}" for i in range(6)]
 
         for page_num, url in enumerate(urls):
             logger.info("Scraping page %s/6...", page_num + 1)
