@@ -6,7 +6,7 @@ from utils import (
     _flatdict,
     logger,
 )
-import xlsxwriter
+import xlsxwriter  # type: ignore [import-untyped]
 
 
 def export_to_file(
