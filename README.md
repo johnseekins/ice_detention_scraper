@@ -65,7 +65,7 @@ directory.
 We are using `mise` and `uv` to manage our python environment. ([More on uv](https://github.com/astral-sh/uv)).
 
 After mise is installed, it is best to open a new terminal window so the bash/zsh shims are available. `mise doctor` can report if
-mise is "activated" and if "shims_on_path" are working. mise needs to be correctly activated so that it can manage the 
+mise is "activated" and if "shims_on_path" are working. mise needs to be correctly activated so that it can manage the
 `pip install` step.
 
 Examples of the full setup for some OSes are below:
