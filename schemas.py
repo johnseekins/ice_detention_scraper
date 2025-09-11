@@ -16,6 +16,7 @@ facility_schema: dict = {
         "postal_code": "",
         "street": "",
     },
+    "address_str": "",
     "_repaired_record": False,
     "field_office": "",
     "image_url": "",

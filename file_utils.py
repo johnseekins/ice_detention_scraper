@@ -1,11 +1,12 @@
 import copy
-import csv
 import json
+import polars
 from schemas import enrichment_print_schema
 from utils import (
     _flatdict,
     logger,
 )
+import xlsxwriter
 
 
 def export_to_file(
@@ -18,23 +19,29 @@ def export_to_file(
         return ""
 
     full_name = f"{filename}.{file_type}"
-    csv_filtered_keys = ["raw_scrape", "wikipedia_search_query", "wikidata_search_query", "osm_search_query"]
-    try:
+    # all values that will only complicate workbook output types
+    flatdata_filtered_keys = [
+        "raw_scrape",
+        "wikipedia_search_query",
+        "wikidata_search_query",
+        "osm_search_query",
+        "source_urls",
+    ]
+    if file_type in ["csv", "xlsx"]:
+        flatdata = [_flatdict(f) for _, f in facilities_data["facilities"].items()]
+        fieldnames = [k for k in flatdata[0].keys() if k not in flatdata_filtered_keys]
+        writer = polars.from_dicts(flatdata, schema=fieldnames)
+        logger.info("Dataframe: %s", writer)
+        logger.info("All header fields: %s", fieldnames)
+        if file_type == "xlsx":
+            with xlsxwriter.Workbook(full_name, {"remove_timezone": True}) as wb:
+                writer.write_excel(workbook=wb, include_header=True, autofit=True)
+        elif file_type == "csv":
+            with open(full_name, "w", newline="", encoding="utf-8") as f_out:
+                writer.write_csv(file=f_out, include_header=True)
+    elif file_type == "json":
         with open(full_name, "w", newline="", encoding="utf-8") as f_out:
-            if file_type == "csv":
-                flatdata = [_flatdict(f) for _, f in facilities_data["facilities"].items()]
-                fieldnames = [k for k in flatdata[0].keys() if k not in csv_filtered_keys]
-
-                writer = csv.DictWriter(f_out, fieldnames=fieldnames)
-                writer.writeheader()
-                for facility in flatdata:
-                    row_data = {field: facility.get(field, None) for field in fieldnames}
-                    writer.writerow(row_data)
-            elif file_type == "json":
-                json.dump(facilities_data, f_out, indent=2, sort_keys=True, default=str)
-    except Exception as e:
-        logger.error("Error writing %s file: %s", file_type, e)
-        return ""
+            json.dump(facilities_data, f_out, indent=2, sort_keys=True, default=str)
 
     logger.info(
         "%s file '%s.%s' created successfully with %s facilities.",
@@ -62,6 +69,8 @@ def print_summary(facilities_data: dict) -> None:
     field_offices: dict = {}
     for facility_id, facility in facilities_data["facilities"].items():
         office = facility.get("field_office", "Unknown")
+        if not office:
+            office = "Unknown"
         field_offices[office] = field_offices.get(office, 0) + 1
 
     logger.info("\nFacilities by Field Office:")

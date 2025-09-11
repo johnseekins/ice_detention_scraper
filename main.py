@@ -50,7 +50,7 @@ def main() -> None:
     parser.add_argument(
         "--file-type",
         default="csv",
-        choices=["csv", "json"],
+        choices=["csv", "json", "xlsx"],
         help="type of file to export",
     )
     parser.add_argument(
