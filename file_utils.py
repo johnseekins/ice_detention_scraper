@@ -31,8 +31,8 @@ def export_to_file(
         flatdata = [_flatdict(f) for _, f in facilities_data["facilities"].items()]
         fieldnames = [k for k in flatdata[0].keys() if k not in flatdata_filtered_keys]
         writer = polars.from_dicts(flatdata, schema=fieldnames)
-        logger.info("Dataframe: %s", writer)
-        logger.info("All header fields: %s", fieldnames)
+        logger.debug("Dataframe: %s", writer)
+        logger.debug("All header fields: %s", fieldnames)
         if file_type == "xlsx":
             with xlsxwriter.Workbook(full_name, {"remove_timezone": True}) as wb:
                 writer.write_excel(workbook=wb, include_header=True, autofit=True)
