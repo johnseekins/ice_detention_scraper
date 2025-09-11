@@ -28,6 +28,9 @@ from scraper import ICEGovFacilityScraper
 from utils import logger
 # CLI, argument parsing, script orchestration
 
+# argparse ArgumentParser converts hyphens to underscores.
+# @see https://docs.python.org/3/library/argparse.html
+
 
 def main() -> None:
     parser = ArgumentParser(
@@ -38,9 +41,14 @@ def main() -> None:
         "--scrape",
         action="store_true",
         default=False,
-        help="Scrape initial facility data",
+        help="Scrape initial facility data from ICE.gov",
     )
-    parser.add_argument("--enrich", action="store_true", default=False, help="enrich collected data")
+    parser.add_argument(
+        "--enrich",
+        action="store_true",
+        default=False,
+        help="enrich collected data",
+    )
     parser.add_argument(
         "--load-existing",
         action="store_true",
@@ -59,16 +67,43 @@ def main() -> None:
         default="ice_detention_facilities",
         help="The file we'll write data out to (excluding the suffix)",
     )
-    parser.add_argument("--debug", action="store_true", help="Full debug information and logging")
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Full debug information and logging",
+    )
+    # todo these need more attention, but should now be accepted as command line options now.
+    parser.add_argument(
+        "--debug-wikipedia",
+        action="store_true",
+        help="Add another column on export for Wikipedia debugging details and redirects",
+    )
+    parser.add_argument(
+        "--debug-wikidata",
+        action="store_true",
+        help="Add another column on export for Wikidata debugging details and redirects",
+    )
+    parser.add_argument(
+        "--debug-osm",
+        action="store_true",
+        help="Add another column on export for OpenStreetMap debugging details and redirects",
+    )
 
     args = parser.parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)
+
     logger.info("ICE Detention Facilities Scraper by the Open Security Mapping Project. MIT License.")
 
     if not any([args.scrape, args.enrich, args.load_existing]):
         parser.print_help()
         return
+
+    # todo. temporary notice for debug arguments.
+    if args.debug_wikipedia or args.debug_wikidata or args.debug_osm:
+        logger.warning(
+            "Warning: --debug-wikipedia, --debug-wikidata and --debug-osm are currently not implemented as command line options."
+        )
 
     facilities_data = {}
 
