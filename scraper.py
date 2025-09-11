@@ -53,21 +53,12 @@ class ICEGovFacilityScraper(object):
 
         logger.debug("Found sheet at: %s", actual_link)
         self.sheet_url = actual_link
-        now = time.time()
-        # one day in seconds is 86400
-        if (
-            not os.path.isfile(self.filename)
-            or os.path.getsize(self.filename) < 1
-            or now - os.path.getmtime(self.filename) > 86400
-        ):
-            logger.info("Downloading detention stats sheet from %s", self.sheet_url)
-            resp = session.get(self.sheet_url, timeout=120)
-            with open(self.filename, "wb") as f:
-                for chunk in resp.iter_content(chunk_size=1024):
-                    if chunk:
-                        f.write(chunk)
-        else:
-            logger.info("Using cached detention stats sheet: %s", self.filename)
+        logger.info("Downloading detention stats sheet from %s", self.sheet_url)
+        resp = session.get(self.sheet_url, timeout=120)
+        with open(self.filename, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
 
     def _clean_street(self, street: str, locality: str = "") -> Tuple[str, bool]:
         """Generally, we'll let the spreadsheet win arguments just to be consistent"""
