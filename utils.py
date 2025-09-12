@@ -1,5 +1,6 @@
 # For general helpers, regexes, or shared logic (e.g. phone/address parsing functions).
 import logging
+import polars
 import requests
 from requests.adapters import HTTPAdapter
 import urllib3
@@ -53,6 +54,15 @@ facility_sheet_header = [
     "Last Final Rating",
 ]
 
+# all values that will only complicate workbook output types
+flatdata_filtered_keys = [
+    "raw_scrape",
+    "wikipedia_search_query",
+    "wikidata_search_query",
+    "osm_search_query",
+    "source_urls",
+]
+
 
 def _flatdict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
     """flatten a nested dictionary for nicer printing to workbooks (excel/csv/etc.)"""
@@ -64,3 +74,14 @@ def _flatdict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
         else:
             items.append((new_key, v))
     return dict(items)
+
+
+def convert_to_dataframe(d: dict) -> polars.DataFrame:
+    """facilities internal dict to dataframe"""
+    flatdata = [_flatdict(f) for _, f in d]
+    fieldnames = [k for k in flatdata[0].keys() if k not in flatdata_filtered_keys]
+    # https://docs.pola.rs/api/python/stable/reference/api/polars.from_dicts.html
+    df = polars.from_dicts(flatdata, schema=fieldnames)
+    logger.debug("Dataframe: %s", df)
+    logger.debug("All header fields: %s", fieldnames)
+    return df

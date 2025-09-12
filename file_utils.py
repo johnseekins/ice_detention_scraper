@@ -1,9 +1,8 @@
 import copy
 import json
-import polars
 from schemas import enrichment_print_schema
 from utils import (
-    _flatdict,
+    convert_to_dataframe,
     logger,
 )
 import xlsxwriter  # type: ignore [import-untyped]
@@ -19,20 +18,8 @@ def export_to_file(
         return ""
 
     full_name = f"{filename}.{file_type}"
-    # all values that will only complicate workbook output types
-    flatdata_filtered_keys = [
-        "raw_scrape",
-        "wikipedia_search_query",
-        "wikidata_search_query",
-        "osm_search_query",
-        "source_urls",
-    ]
     if file_type in ["csv", "xlsx"]:
-        flatdata = [_flatdict(f) for _, f in facilities_data["facilities"].items()]
-        fieldnames = [k for k in flatdata[0].keys() if k not in flatdata_filtered_keys]
-        writer = polars.from_dicts(flatdata, schema=fieldnames)
-        logger.debug("Dataframe: %s", writer)
-        logger.debug("All header fields: %s", fieldnames)
+        writer = convert_to_dataframe(facilities_data["facilities"])
         if file_type == "xlsx":
             with xlsxwriter.Workbook(full_name, {"remove_timezone": True}) as wb:
                 writer.write_excel(workbook=wb, include_header=True, autofit=True)
