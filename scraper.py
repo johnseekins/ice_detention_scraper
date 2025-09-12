@@ -34,6 +34,7 @@ class ICEGovFacilityScraper(object):
 
     def _download_sheet(self) -> None:
         resp = session.get(self.base_xlsx_url, timeout=120)
+        resp.raise_for_status()
         soup = BeautifulSoup(resp.content, "html.parser")
         links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
         if not links:
@@ -274,18 +275,32 @@ class ICEGovFacilityScraper(object):
                 old[k] = v
         return old
 
+    def _get_scrape_pages(self) -> list:
+        """Discover all facility pages"""
+        resp = session.get(self.base_scrape_url, timeout=30)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.content, "html.parser")
+        links = soup.findAll("a", href=re.compile(r"\?page="))
+        if not links:
+            raise Exception(f"{self.base_scrape_url} contains *no* links?!")
+        links = [
+            f"{self.base_scrape_url}{link['href']}&exposed_form_display=1"
+            for link in links
+            if not any(k in link["aria-label"] for k in ["Next", "Last"])
+        ]
+        logger.debug("Pages discovered: %s", links)
+        return links
+
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
         start_time = time.time()
         logger.info("Starting to scrape ICE.gov detention facilities...")
         self.facilities_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
         self.facilities_data["facilities"] = self._load_sheet()
-
-        # URLs for all pages
-        urls = [f"{self.base_scrape_url}?exposed_form_display=1&page={i}" for i in range(6)]
+        urls = self._get_scrape_pages()
 
         for page_num, url in enumerate(urls):
-            logger.info("Scraping page %s/6...", page_num + 1)
+            logger.info("Scraping page %s/%s...", page_num + 1, len(urls))
             try:
                 facilities = self._scrape_page(url)
             except Exception as e:

@@ -32,6 +32,8 @@ class ExternalDataEnricher(object):
             facility_name = facility["name"]
             logger.info("Processing facility %s/%s: %s...", processed + 1, total, facility_name)
             enriched_facility = copy.deepcopy(facility)
+            if not facility["field_office"]:
+                facility["field_office"] = "(Possibly) Not managed by DHS field office"
 
             # Wikipedia search # todo refactor to method
             try:
