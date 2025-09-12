@@ -283,13 +283,13 @@ class ICEGovFacilityScraper(object):
         links = soup.findAll("a", href=re.compile(r"\?page="))
         if not links:
             raise Exception(f"{self.base_scrape_url} contains *no* links?!")
-        links = [
+        pages = [
             f"{self.base_scrape_url}{link['href']}&exposed_form_display=1"
             for link in links
             if not any(k in link["aria-label"] for k in ["Next", "Last"])
         ]
-        logger.debug("Pages discovered: %s", links)
-        return links
+        logger.debug("Pages discovered: %s", pages)
+        return pages
 
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
