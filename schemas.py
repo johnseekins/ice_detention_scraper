@@ -44,6 +44,7 @@ facility_schema: dict = {
         },
     },
     "facility_type": "",
+    "facility_type_detail": {},
     "inspection_date": None,
     "avg_stay_length": 0,
 }
@@ -71,8 +72,12 @@ ice_facility_types = {
         "description": "A facility primarily contracted with the USMS for housing of USMS detainees, in which ICE contracts with the USMS for bed space.",
     },
     "USMSIGA": {
-        "expanded_name": "USMS Intergovernmental Agreement",
+        "expanded_name": "United States Marshal Service Intergovernmental Agreement",
         "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
+    },
+    "USMS CDF": {
+        "expanded_name": "United States Marshal Service Central Detention Facility",
+        "description": "Name guessed at from searching",
     },
 }
 
@@ -91,3 +96,5 @@ enrichment_print_schema = {
     "wikidata_found": 0,
     "osm_found": 0,
 }
+
+default_field_office = "(Possibly) Not managed by DHS field office"

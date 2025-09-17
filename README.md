@@ -110,11 +110,15 @@ seems wrong.
 * The remote query rate limiting is (I think) done in series but would go faster with parallel/async processing.
 * This is only targeted at English (EN) Wikipedia currently, but  multi-lingual page checks would help a wider audience.
 
-## Contributing & code standards
+## Contributing & Code Standards
 
 We have a [.pre-commit-config.yaml](.pre-commit-config.yaml) file which enforces some linting / formatting rules.
 
-Pull requests and reviews are welcome on the main repo.
+Pull requests and reviews are welcome on the main repo. For checking type safety use [mypy](https://github.com/python/mypy):
+
+```bash
+uv run mypy .
+```
 
 ## Credit
 
