@@ -331,9 +331,17 @@ class ICEGovFacilityScraper(object):
                         if url in self.facilities_data["facilities"][full_address]["source_urls"]:
                             continue
                         self.facilities_data["facilities"][full_address]["source_urls"].append(url)
+                    if not self.facilities_data["facilities"][full_address].get("field_office", ""):
+                        self.facilities_data["facilities"][full_address]["field_office"] = (
+                            "(Possibly) Not managed by DHS field office"
+                        )
                 # this is likely to produce _some_ duplicates, but it's a reasonable starting place
                 else:
                     self.facilities_data["facilities"][facility["name"]] = facility
+                    if not self.facilities_data["facilities"][facility["name"]].get("field_office", ""):
+                        self.facilities_data["facilities"][facility["name"]]["field_office"] = (
+                            "(Possibly) Not managed by DHS field office"
+                        )
 
         self.facilities_data["scrape_runtime"] = time.time() - start_time
         logger.info("Total facilities scraped: %s", len(self.facilities_data["facilities"]))
