@@ -19,6 +19,7 @@ def export_to_file(
 
     full_name = f"{filename}.{file_type}"
     csv_filtered_keys = [
+        "_repaired_record",
         "raw_scrape",
         "wikipedia.search_query",
         "wikidata.search_query",
