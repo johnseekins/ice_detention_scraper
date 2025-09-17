@@ -109,7 +109,6 @@ You can change this in scraper.py and enricher.py.
 seems wrong.
 * The remote query rate limiting is (I think) done in series but would go faster with parallel/async processing.
 * This is only targeted at English (EN) Wikipedia currently, but  multi-lingual page checks would help a wider audience.
-* `uv run python main.py --load-existing` kicks errors. It doesn't know what to do.
 
 ## Contributing & code standards
 
