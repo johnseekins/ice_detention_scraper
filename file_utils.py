@@ -18,16 +18,19 @@ def export_to_file(
         return ""
 
     full_name = f"{filename}.{file_type}"
-    if file_type in ["csv", "xlsx"]:
+    if file_type in ["csv", "xlsx", "parquet"]:
         writer = convert_to_dataframe(facilities_data["facilities"])
-        if file_type == "xlsx":
-            with xlsxwriter.Workbook(full_name, {"remove_timezone": True}) as wb:
-                writer.write_excel(workbook=wb, include_header=True, autofit=True)
-        elif file_type == "csv":
-            with open(full_name, "w", newline="", encoding="utf-8") as f_out:
-                writer.write_csv(file=f_out, include_header=True)
+        match file_type:
+            case "xlsx":
+                with xlsxwriter.Workbook(full_name, {"remove_timezone": True}) as wb:
+                    writer.write_excel(workbook=wb, include_header=True, autofit=True)
+            case "csv":
+                with open(full_name, "w", newline="", encoding="utf-8") as f_out:
+                    writer.write_csv(file=f_out, include_header=True)
+            case "parquet":
+                writer.write_parquet(full_name, use_pyarrow=True)
     elif file_type == "json":
-        with open(full_name, "w", newline="", encoding="utf-8") as f_out:
+        with open(full_name, "w", encoding="utf-8") as f_out:
             json.dump(facilities_data, f_out, indent=2, sort_keys=True, default=str)
 
     logger.info(

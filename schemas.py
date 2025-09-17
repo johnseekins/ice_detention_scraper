@@ -106,3 +106,5 @@ enrichment_print_schema = {
 }
 
 default_field_office = "(Possibly) Not managed by DHS field office"
+
+supported_output_types = ["csv", "json", "xlsx", "parquet"]
