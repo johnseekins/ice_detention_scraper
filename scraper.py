@@ -7,8 +7,10 @@ import os
 import polars
 import re
 from schemas import (
+    default_field_office,
     facilities_schema,
     facility_schema,
+    ice_facility_types,
 )
 import time
 from typing import Tuple
@@ -261,9 +263,11 @@ class ICEGovFacilityScraper(object):
                     details["population"]["male"]["allowed"] = True
 
             details["facility_type"] = row["Type Detailed"]
+            details["facility_type_detail"] = ice_facility_types.get(row["Type Detailed"], {})
             details["avg_stay_length"] = row["FY25 ALOS"]
             details["inspection_date"] = row["Last Inspection End Date"]
             details["source_urls"].append(self.sheet_url)
+            details["field_office"] = default_field_office
             results[full_address] = details
         return results
 
@@ -323,6 +327,8 @@ class ICEGovFacilityScraper(object):
                     self.facilities_data["facilities"][full_address] = self._update_facility(
                         self.facilities_data["facilities"][full_address], facility
                     )
+                    if facility["field_office"]:
+                        self.facilities_data["facilities"][full_address]["field_office"] = facility["field_office"]
                     # update to the frequently nicer address from ice.gov
                     self.facilities_data["facilities"][full_address]["address"] = addr
                     # add scraped urls
@@ -331,17 +337,9 @@ class ICEGovFacilityScraper(object):
                         if url in self.facilities_data["facilities"][full_address]["source_urls"]:
                             continue
                         self.facilities_data["facilities"][full_address]["source_urls"].append(url)
-                    if not self.facilities_data["facilities"][full_address].get("field_office", ""):
-                        self.facilities_data["facilities"][full_address]["field_office"] = (
-                            "(Possibly) Not managed by DHS field office"
-                        )
                 # this is likely to produce _some_ duplicates, but it's a reasonable starting place
                 else:
                     self.facilities_data["facilities"][facility["name"]] = facility
-                    if not self.facilities_data["facilities"][facility["name"]].get("field_office", ""):
-                        self.facilities_data["facilities"][facility["name"]]["field_office"] = (
-                            "(Possibly) Not managed by DHS field office"
-                        )
 
         self.facilities_data["scrape_runtime"] = time.time() - start_time
         logger.info("Total facilities scraped: %s", len(self.facilities_data["facilities"]))
