@@ -35,6 +35,7 @@ class ICEGovFacilityScraper(object):
         self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
 
     def _download_sheet(self) -> None:
+        """Download the detention stats sheet from ice.gov"""
         resp = session.get(self.base_xlsx_url, timeout=120)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.content, "html.parser")
@@ -173,19 +174,19 @@ class ICEGovFacilityScraper(object):
             zcode = f"0{zcode}"
             cleaned = True
         # This address is an absolute mess
-        if zcode == "89512" and locality == "Reno":
+        elif zcode == "89512" and locality == "Reno":
             zcode = "89506"
             cleaned = True
-        if zcode == "82901" and locality == "Rock Springs":
+        elif zcode == "82901" and locality == "Rock Springs":
             zcode = "82935"
             cleaned = True
-        if zcode == "98421-1615" and locality == "Tacoma":
+        elif zcode == "98421-1615" and locality == "Tacoma":
             zcode = "98421"
             cleaned = True
-        if zcode == "89048" and locality == "Pahrump":
+        elif zcode == "89048" and locality == "Pahrump":
             zcode = "89060"
             cleaned = True
-        if zcode == "85132" and locality == "Florence":
+        elif zcode == "85132" and locality == "Florence":
             zcode = "85232"
             cleaned = True
         return zcode, cleaned
@@ -199,16 +200,16 @@ class ICEGovFacilityScraper(object):
         if locality == "LaGrange" and administrative_area == "KY":
             locality = "La Grange"
             cleaned = True
-        if locality == "Leachfield" and administrative_area == "KY":
+        elif locality == "Leachfield" and administrative_area == "KY":
             locality = "LEITCHFIELD"
             cleaned = True
-        if locality == "Susupe, Saipan" and administrative_area == "MP":
+        elif locality == "Susupe, Saipan" and administrative_area == "MP":
             locality = "SAIPAN"
             cleaned = True
-        if locality == "Cottonwood Falls" and administrative_area == "KS":
+        elif locality == "Cottonwood Falls" and administrative_area == "KS":
             locality = "COTTONWOOD FALL"
             cleaned = True
-        if locality == "Sault Ste. Marie" and administrative_area == "MI":
+        elif locality == "Sault Ste. Marie" and administrative_area == "MI":
             locality = "SAULT STE MARIE"
             cleaned = True
         return locality, cleaned
@@ -261,9 +262,13 @@ class ICEGovFacilityScraper(object):
                     details["population"]["female"]["allowed"] = True
                 else:
                     details["population"]["male"]["allowed"] = True
-
-            details["facility_type"] = row["Type Detailed"]
-            details["facility_type_detail"] = ice_facility_types.get(row["Type Detailed"], {})
+            details["facility_type"] = {
+                "id": row["Type Detailed"],
+            }
+            ft_details = ice_facility_types.get(row["Type Detailed"], {})
+            if ft_details:
+                details["facility_type"]["description"] = ft_details["description"]
+                details["facility_type"]["expanded_name"] = ft_details["expanded_name"]
             details["avg_stay_length"] = row["FY25 ALOS"]
             details["inspection_date"] = row["Last Inspection End Date"]
             details["source_urls"].append(self.sheet_url)
@@ -272,6 +277,7 @@ class ICEGovFacilityScraper(object):
         return results
 
     def _update_facility(self, old: dict, new: dict) -> dict:
+        """Recursive function to Insert values from new when they are false-y in old"""
         for k, v in new.items():
             if isinstance(v, dict):
                 old[k] = self._update_facility(old[k], new[k])
@@ -315,12 +321,15 @@ class ICEGovFacilityScraper(object):
                 addr = facility["address"]
                 street, cleaned = self._clean_street(addr["street"], addr["locality"])
                 if cleaned:
+                    addr["street"] = street
                     facility["_repaired_record"] = True
                 zcode, cleaned = self._repair_zip(addr["postal_code"], addr["locality"])
                 if cleaned:
+                    facility["postal_code"] = zcode
                     facility["_repaired_record"] = True
                 locality, cleaned = self._repair_locality(addr["locality"], addr["administrative_area"])
                 if cleaned:
+                    facility["locality"] = locality
                     facility["_repaired_record"] = True
                 full_address = ",".join([street, locality, addr["administrative_area"], zcode]).upper()
                 if full_address in self.facilities_data["facilities"].keys():

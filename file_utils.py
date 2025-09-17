@@ -18,7 +18,13 @@ def export_to_file(
         return ""
 
     full_name = f"{filename}.{file_type}"
-    csv_filtered_keys = ["raw_scrape", "wikipedia_search_query", "wikidata_search_query", "osm_search_query"]
+    csv_filtered_keys = [
+        "raw_scrape",
+        "wikipedia.search_query",
+        "wikidata.search_query",
+        "osm.search_query",
+        "source_urls",
+    ]
     try:
         with open(full_name, "w", newline="", encoding="utf-8") as f_out:
             if file_type == "csv":
@@ -71,12 +77,14 @@ def print_summary(facilities_data: dict) -> None:
     # Check enrichment data if available
     enrich_data = copy.deepcopy(enrichment_print_schema)
     enrich_data["wiki_found"] = sum(
-        1 for f in facilities_data["facilities"].values() if f.get("wikipedia_page_url", None)
+        1 for f in facilities_data["facilities"].values() if f.get("wikipedia", {}).get("page_url", None)
     )
     enrich_data["wikidata_found"] = sum(
-        1 for f in facilities_data["facilities"].values() if f.get("wikidata_page_url", None)
+        1 for f in facilities_data["facilities"].values() if f.get("wikidata", {}).get("page_url", None)
     )
-    enrich_data["osm_found"] = sum(1 for f in facilities_data["facilities"].values() if f.get("osm_result_url", None))
+    enrich_data["osm_found"] = sum(
+        1 for f in facilities_data["facilities"].values() if f.get("osm", {}).get("url", None)
+    )
 
     if any(v > 0 for v in enrich_data.values()):
         logger.info("\n=== External Data Enrichment Results ===")
@@ -104,7 +112,7 @@ def print_summary(facilities_data: dict) -> None:
         false_positives = 0
         errors = 0
         for facility in facilities_data["facilities"].values():
-            query = facility.get("wikipedia_search_query", "")
+            query = facility.get("wikipedia", {}).get("search_query", "")
             if "REJECTED" in query:
                 false_positives += 1
             elif "ERROR" in query:
