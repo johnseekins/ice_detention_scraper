@@ -7,8 +7,10 @@ import os
 import polars
 import re
 from schemas import (
+    default_field_office,
     facilities_schema,
     facility_schema,
+    ice_facility_types,
 )
 import time
 from typing import Tuple
@@ -34,6 +36,7 @@ class ICEGovFacilityScraper(object):
 
     def _download_sheet(self) -> None:
         resp = session.get(self.base_xlsx_url, timeout=120)
+        resp.raise_for_status()
         soup = BeautifulSoup(resp.content, "html.parser")
         links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
         if not links:
@@ -260,9 +263,11 @@ class ICEGovFacilityScraper(object):
                     details["population"]["male"]["allowed"] = True
 
             details["facility_type"] = row["Type Detailed"]
+            details["facility_type_detail"] = ice_facility_types.get(row["Type Detailed"], {})
             details["avg_stay_length"] = row["FY25 ALOS"]
             details["inspection_date"] = row["Last Inspection End Date"]
             details["source_urls"].append(self.sheet_url)
+            details["field_office"] = default_field_office
             results[full_address] = details
         return results
 
@@ -274,18 +279,32 @@ class ICEGovFacilityScraper(object):
                 old[k] = v
         return old
 
+    def _get_scrape_pages(self) -> list:
+        """Discover all facility pages"""
+        resp = session.get(self.base_scrape_url, timeout=30)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.content, "html.parser")
+        links = soup.findAll("a", href=re.compile(r"\?page="))
+        if not links:
+            raise Exception(f"{self.base_scrape_url} contains *no* links?!")
+        pages = [
+            f"{self.base_scrape_url}{link['href']}&exposed_form_display=1"
+            for link in links
+            if not any(k in link["aria-label"] for k in ["Next", "Last"])
+        ]
+        logger.debug("Pages discovered: %s", pages)
+        return pages
+
     def scrape_facilities(self):
         """Scrape all ICE detention facility data from all 6 pages"""
         start_time = time.time()
         logger.info("Starting to scrape ICE.gov detention facilities...")
         self.facilities_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
         self.facilities_data["facilities"] = self._load_sheet()
-
-        # URLs for all pages
-        urls = [f"{self.base_scrape_url}?exposed_form_display=1&page={i}" for i in range(6)]
+        urls = self._get_scrape_pages()
 
         for page_num, url in enumerate(urls):
-            logger.info("Scraping page %s/6...", page_num + 1)
+            logger.info("Scraping page %s/%s...", page_num + 1, len(urls))
             try:
                 facilities = self._scrape_page(url)
             except Exception as e:
@@ -308,6 +327,8 @@ class ICEGovFacilityScraper(object):
                     self.facilities_data["facilities"][full_address] = self._update_facility(
                         self.facilities_data["facilities"][full_address], facility
                     )
+                    if facility["field_office"]:
+                        self.facilities_data["facilities"][full_address]["field_office"] = facility["field_office"]
                     # update to the frequently nicer address from ice.gov
                     self.facilities_data["facilities"][full_address]["address"] = addr
                     # add scraped urls
