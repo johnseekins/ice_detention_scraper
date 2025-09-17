@@ -1,10 +1,34 @@
+import copy
 import datetime
 
-facilities_schema = {
+facilities_schema: dict = {
     "scraped_date": datetime.datetime.now(datetime.UTC),
     "scrape_runtime": 0,
     "enrich_runtime": 0,
     "facilities": {},
+}
+
+field_offices_schema: dict = {
+    "field_offices": {},
+    "scraped_date": datetime.datetime.now(datetime.UTC),
+    "scrape_runtime": 0,
+}
+
+field_office_schema: dict = {
+    "name": "",
+    "field_office": "",
+    "address_str": "",
+    "address": {
+        "administrative_area": "",
+        "country": "",
+        "locality": "",
+        "postal_code": "",
+        "street": "",
+    },
+    "aor": "",
+    "email": "",
+    "raw_scrape": "",
+    "source_urls": [],
 }
 
 # default keys to "false"-y values so we can merge easier
@@ -17,7 +41,7 @@ facility_schema: dict = {
         "street": "",
     },
     "_repaired_record": False,
-    "field_office": "",
+    "field_office": copy.deepcopy(field_office_schema),
     "image_url": "",
     "name": "",
     "phone": "",
@@ -80,6 +104,34 @@ ice_facility_types = {
     },
 }
 
+# ICE AOR mappings
+area_of_responsibility = {
+    "ATL": "Atlanta Field Office",
+    "BOS": "Boston Field Office",
+    "BUF": "Buffalo Field Office",
+    "CHI": "Chicago Field Office",
+    "DAL": "Dallas Field Office",
+    "DEN": "Denver Field Office",
+    "DET": "Detroit Field Office",
+    "ELP": "El Paso Field Office",
+    "HLG": "Harlingen Field Office",
+    "HOU": "Houston Field Office",
+    "LOS": "Los Angeles Field Office",
+    "MIA": "Miami Field Office",
+    "NEW": "Newark Field Office",
+    "NOL": "New Orleans Field Office",
+    "NYC": "New York City Field Office",
+    "PHI": "Philadelphia Field Office",
+    "PHO": "Phoenix Field Office",
+    "SEA": "Seattle Field Office",
+    "SFR": "San Francisco Field Office",
+    "SLC": "Salt Lake City Field Office",
+    "SNA": "San Antonio Field Office",
+    "SND": "San Diego Field Office",
+    "SPM": "St Paul Field Office",
+    "WAS": "Washington Field Office",
+}
+
 # enrichment response object
 resp_info_schema = {
     "original_name": "",
@@ -95,5 +147,3 @@ enrichment_print_schema = {
     "wikidata_found": 0,
     "osm_found": 0,
 }
-
-default_field_office = "(Possibly) Not managed by DHS field office"

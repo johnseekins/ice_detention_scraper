@@ -61,7 +61,7 @@ def print_summary(facilities_data: dict) -> None:
     # Count by field office
     field_offices: dict = {}
     for facility_id, facility in facilities_data["facilities"].items():
-        office = facility.get("field_office", "Unknown")
+        office = facility.get("field_office", {}).get("field_office", "Unknown")
         field_offices[office] = field_offices.get(office, 0) + 1
 
     logger.info("\nFacilities by Field Office:")

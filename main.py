@@ -25,6 +25,7 @@ from file_utils import export_to_file, print_summary
 import default_data
 from enricher import ExternalDataEnricher
 from scraper import ICEGovFacilityScraper
+from field_offices import ICEFieldOfficeScraper
 from utils import logger
 # CLI, argument parsing, script orchestration
 
@@ -112,11 +113,16 @@ def main() -> None:
         exit(1)
 
     if args.scrape:
-        scraper = ICEGovFacilityScraper()
+        fo_scraper = ICEFieldOfficeScraper()
+        field_offices = fo_scraper.scrape_field_offices()
+        scraper = ICEGovFacilityScraper(field_offices)
         facilities_data = scraper.scrape_facilities()
     elif args.load_existing:
         facilities_data = copy.deepcopy(default_data.facilities_data)
-        logger.info("Loaded %s existing facilities from local data. (Not scraping)", len(facilities_data["facilities"]))
+        logger.info(
+            "Loaded %s existing facilities from local data. (Not scraping)",
+            len(facilities_data["facilities"].keys()),  # type: ignore [attr-defined]
+        )
 
     if args.enrich:
         if not facilities_data:

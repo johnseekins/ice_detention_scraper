@@ -7,9 +7,10 @@ import os
 import polars
 import re
 from schemas import (
-    default_field_office,
+    area_of_responsibility,
     facilities_schema,
     facility_schema,
+    field_office_schema,
     ice_facility_types,
 )
 import time
@@ -30,9 +31,10 @@ class ICEGovFacilityScraper(object):
     base_xlsx_url = "https://www.ice.gov/detain/detention-management"
 
     # All methods for scraping ice.gov websites
-    def __init__(self):
+    def __init__(self, field_offices: dict = {}):
         self.facilities_data = copy.deepcopy(facilities_schema)
         self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
+        self.field_offices = field_offices
 
     def _download_sheet(self) -> None:
         resp = session.get(self.base_xlsx_url, timeout=120)
@@ -267,7 +269,7 @@ class ICEGovFacilityScraper(object):
             details["avg_stay_length"] = row["FY25 ALOS"]
             details["inspection_date"] = row["Last Inspection End Date"]
             details["source_urls"].append(self.sheet_url)
-            details["field_office"] = default_field_office
+            details["field_office"] = self.field_offices["field_offices"][area_of_responsibility[row["AOR"]]]
             results[full_address] = details
         return results
 
@@ -295,8 +297,8 @@ class ICEGovFacilityScraper(object):
         logger.debug("Pages discovered: %s", pages)
         return pages
 
-    def scrape_facilities(self):
-        """Scrape all ICE detention facility data from all 6 pages"""
+    def scrape_facilities(self) -> dict:
+        """Scrape all ICE detention facility data from all discovered pages"""
         start_time = time.time()
         logger.info("Starting to scrape ICE.gov detention facilities...")
         self.facilities_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
@@ -327,8 +329,6 @@ class ICEGovFacilityScraper(object):
                     self.facilities_data["facilities"][full_address] = self._update_facility(
                         self.facilities_data["facilities"][full_address], facility
                     )
-                    if facility["field_office"]:
-                        self.facilities_data["facilities"][full_address]["field_office"] = facility["field_office"]
                     # update to the frequently nicer address from ice.gov
                     self.facilities_data["facilities"][full_address]["address"] = addr
                     # add scraped urls
@@ -488,7 +488,9 @@ class ICEGovFacilityScraper(object):
             facility["name"] = name.text
         field_office = element.select_one(".views-field-field-field-office-name")
         if field_office:
-            facility["field_office"] = field_office.text
+            # St. Paul Field Office -> St Paul Field Office
+            fo_data = self.field_offices["field_offices"].get(field_office.text.strip("."), field_office_schema)
+            facility["field_office"] = fo_data
         address = element.select_one(".address-line1")
         if address:
             facility["address"]["street"] = address.text
