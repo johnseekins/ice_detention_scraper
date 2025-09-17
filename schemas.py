@@ -75,8 +75,16 @@ ice_facility_types = {
         "expanded_name": "United States Marshal Service Intergovernmental Agreement",
         "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
     },
+    "USMS IGA": {
+        "expanded_name": "United States Marshal Service Intergovernmental Agreement",
+        "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
+    },
     "USMS CDF": {
         "expanded_name": "United States Marshal Service Central Detention Facility",
+        "description": "Name guessed at from searching",
+    },
+    "CDF": {
+        "expanded_name": "Central Detention Facility",
         "description": "Name guessed at from searching",
     },
 }
