@@ -78,7 +78,7 @@ def _flatdict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
 
 def convert_to_dataframe(d: dict) -> polars.DataFrame:
     """facilities internal dict to dataframe"""
-    flatdata = [_flatdict(f) for _, f in d]
+    flatdata = [_flatdict(f) for f in d.values()]
     fieldnames = [k for k in flatdata[0].keys() if k not in flatdata_filtered_keys]
     # https://docs.pola.rs/api/python/stable/reference/api/polars.from_dicts.html
     df = polars.from_dicts(flatdata, schema=fieldnames)
