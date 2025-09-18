@@ -94,7 +94,6 @@ class ICEGovFacilityScraper(object):
             {"match": "27991 Buena Vista Blvd.", "replace": "27991 BUENA VISTA BOULEVARD", "locality": "Los Fresnos"},
             {"match": "175 Pike County Blvd.", "replace": "175 PIKE COUNTY BOULEVARD", "locality": "Lords Valley"},
             {"match": "500 W. 2nd Street", "replace": "301 W. 2nd", "locality": "Rolla"},
-            {"match": "307 Saint Joseph St", "replace": "300 KANSAS CITY STREET NONE", "locality": "Rapid City"},
             {"match": "3405 West Highway 146", "replace": "3405 W HWY 146", "locality": "LaGrange"},
             {"match": "1623 E J Street, Suite 2", "replace": "1623 E. J STREET", "locality": "Tacoma"},
             {"match": "1805 W 32nd Street", "replace": "1805 W 32ND ST", "locality": "Baldwin"},
@@ -106,7 +105,6 @@ class ICEGovFacilityScraper(object):
             {"match": "2190 E Mesquite Avenue", "replace": "2190 EAST MESQUITE AVENUE", "locality": "Pahrump"},
             {"match": "287 Industrial Drive", "replace": "327 INDUSTRIAL DRIVE", "locality": "Jonesboro"},
             {"match": "1572 Gateway Road", "replace": "1572 GATEWAY", "locality": "Calexico"},
-            {"match": "203 Aspinall Avenue", "replace": "203 ASPINAL AVE. PO BOX 3236", "locality": "Hagatna"},
             {"match": "1199 N Haseltine Road", "replace": "1199 N HASELTINE RD", "locality": "Springfield"},
             {"match": "1701 North Washington", "replace": "1701 NORTH WASHINGTON ST", "locality": "Grand Forks"},
             {"match": "611 Frontage Road", "replace": "611 FRONTAGE RD", "locality": "McFarland"},
@@ -126,7 +124,7 @@ class ICEGovFacilityScraper(object):
             {"match": "704 E Broadway Street", "replace": "702 E BROADWAY ST", "locality": "Eden"},
             {"match": "1300 E Hwy 107", "replace": "1330 HIGHWAY 107", "locality": "La Villa"},
             {"match": "216 W. Center Street", "replace": "215 WEST CENTRAL STREET", "locality": "Juneau"},
-            {"match": "300 El Racho Way ", "replace": "300 EL RANCHO WAY", "locality": "Dilley"},
+            {"match": "300 El Rancho Way ", "replace": "300 EL RANCHO WAY", "locality": "Dilley"},
             {"match": "3130 North Oakland Street", "replace": "3130 OAKLAND ST", "locality": "Aurora"},
             {"match": "03151 Co. Rd. 24.2", "replace": "3151 ROAD 2425 ROUTE 1", "locality": "Stryker"},
             {"match": "20 Hobo Forks Road", "replace": "20 HOBO FORK RD", "locality": "Natchez"},
@@ -145,22 +143,37 @@ class ICEGovFacilityScraper(object):
                 "locality": "Bowling Green",
             },
             {"match": "58 Pine Mountain Road", "replace": "58 PINE MOUNTAIN RD", "locality": "McElhattan"},
+            {
+                "match": "Adelanto East 10400 Rancho Road | Adelanto West 10250 Rancho Road",
+                "replace": "10250 Rancho Road",
+                "locality": "Adelanto",
+            },
+            {"match": "4702 East Saunders", "replace": "4702 EAST SAUNDERS STREET", "locality": "Laredo"},
+            {"match": "9998 S. Highway 98", "replace": "9998 SOUTH HIGHWAY 83", "locality": "Laredo"},
             # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
             {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
+            # fix a few shockingly bad addresses in spreadsheet
+            {"match": "DEPARTMENT OF CORRECTIONS 1618 ASH STREET", "replace": "1618 Ash Street", "locality": "ERIE"},
+            {"match": "203 ASPINAL AVE. PO BOX 3236", "replace": "203 Aspinall Avenue", "locality": "HAGATNA"},
+            {
+                "match": "11866 HASTINGS BRIDGE ROAD P.O. BOX 429",
+                "replace": "11866 Hastings Bridge Road",
+                "locality": "LOVEJOY",
+            },
+            {"match": "300 KANSAS CITY STREET NONE", "replace": "307 Saint Joseph St", "locality": "RAPID CITY"},
+            {"match": "4909 FM 2826", "replace": "4909 Farm to Market Road", "locality": "ROBSTOWN"},
+            {"match": "6920 DIGITAL RD", "replace": "11541 Montana Avenue", "locality": "EL PASO"},
             # default matches should come last
             {"match": "'s", "replace": "", "locality": ""},
             {"match": ".", "replace": "", "locality": ""},
             {"match": ",", "replace": "", "locality": ""},
         ]
-        stripped_street = street
         cleaned = False
-        if any(f["match"] in stripped_street for f in street_filters):
-            cleaned = True
         for f in street_filters:
-            if (f["match"] in stripped_street) and ((f["locality"] and f["locality"] == locality) or not f["locality"]):
-                stripped_street = stripped_street.replace(f["match"], f["replace"])
+            if (f["match"] in street) and ((f["locality"] and f["locality"] == locality) or not f["locality"]):
+                street = street.replace(f["match"], f["replace"])
                 cleaned = True
-        return stripped_street, cleaned
+        return street, cleaned
 
     def _repair_zip(self, zip_code: int, locality: str) -> Tuple[str, bool]:
         """
@@ -172,22 +185,21 @@ class ICEGovFacilityScraper(object):
         if len(zcode) == 4:
             zcode = f"0{zcode}"
             cleaned = True
-        # This address is an absolute mess
-        if zcode == "89512" and locality == "Reno":
-            zcode = "89506"
-            cleaned = True
-        if zcode == "82901" and locality == "Rock Springs":
-            zcode = "82935"
-            cleaned = True
-        if zcode == "98421-1615" and locality == "Tacoma":
-            zcode = "98421"
-            cleaned = True
-        if zcode == "89048" and locality == "Pahrump":
-            zcode = "89060"
-            cleaned = True
-        if zcode == "85132" and locality == "Florence":
-            zcode = "85232"
-            cleaned = True
+        matches = [
+            {"match": "89512", "replace": "89506", "locality": "Reno"},
+            {"match": "82901", "replace": "82935", "locality": "Rock Springs"},
+            {"match": "98421-1615", "replace": "98421", "locality": "Tacoma"},
+            {"match": "89048", "replace": "89060", "locality": "Pahrump"},
+            {"match": "85132", "replace": "85232", "locality": "Florence"},
+            # Laredo facility addresses are particularly bad...
+            {"match": "78041", "replace": "78401", "locality": "LAREDO"},
+            {"match": "78401", "replace": "78046", "locality": "LAREDO"},
+        ]
+        for z in matches:
+            if z["match"] == zcode and z["locality"] == locality:
+                zcode = z["replace"]
+                cleaned = True
+                break
         return zcode, cleaned
 
     def _repair_locality(self, locality: str, administrative_area: str) -> Tuple[str, bool]:
@@ -196,21 +208,18 @@ class ICEGovFacilityScraper(object):
         How the post office ever successfully delivered a letter is beyond me
         """
         cleaned = False
-        if locality == "LaGrange" and administrative_area == "KY":
-            locality = "La Grange"
-            cleaned = True
-        if locality == "Leachfield" and administrative_area == "KY":
-            locality = "LEITCHFIELD"
-            cleaned = True
-        if locality == "Susupe, Saipan" and administrative_area == "MP":
-            locality = "SAIPAN"
-            cleaned = True
-        if locality == "Cottonwood Falls" and administrative_area == "KS":
-            locality = "COTTONWOOD FALL"
-            cleaned = True
-        if locality == "Sault Ste. Marie" and administrative_area == "MI":
-            locality = "SAULT STE MARIE"
-            cleaned = True
+        matches = [
+            {"match": "LaGrange", "replace": "La Grange", "area": "KY"},
+            {"match": "Leachfield", "replace": "LEITCHFIELD", "area": "KY"},
+            {"match": "SAIPAN", "replace": "Susupe, Saipan", "area": "MP"},
+            {"match": "COTTONWOOD FALL", "replace": "Cottonwood Falls", "area": "KS"},
+            {"match": "Sault Ste. Marie", "replace": "SAULT STE MARIE", "area": "MI"},
+        ]
+        for f in matches:
+            if f["match"] == locality and f["area"] == administrative_area:
+                locality = f["replace"]
+                cleaned = True
+                break
         return locality, cleaned
 
     def _load_sheet(self) -> dict:
@@ -240,14 +249,14 @@ class ICEGovFacilityScraper(object):
             if match:
                 details["phone"] = match.group(1)
                 details["_repaired_record"] = True
-            full_address = ",".join([street, row["City"], row["State"], zcode]).upper()
-            details["address"]["administrative_area"] = row["State"]
             locality, cleaned = self._repair_locality(row["City"], row["State"])
             if cleaned:
                 details["_repaired_record"] = True
-            details["address"]["locality"] = row["City"]
-            details["address"]["postal_code"] = row["Zip"]
-            details["address"]["street"] = row["Address"]
+            full_address = ",".join([street, locality, row["State"], zcode]).upper()
+            details["address"]["administrative_area"] = row["State"]
+            details["address"]["locality"] = locality
+            details["address"]["postal_code"] = zcode
+            details["address"]["street"] = street
             details["name"] = row["Name"]
             details["population"]["male"]["criminal"] = row["Male Crim"]
             details["population"]["male"]["non_criminal"] = row["Male Non-Crim"]
@@ -316,12 +325,15 @@ class ICEGovFacilityScraper(object):
                 addr = facility["address"]
                 street, cleaned = self._clean_street(addr["street"], addr["locality"])
                 if cleaned:
+                    addr["street"] = street
                     facility["_repaired_record"] = True
                 zcode, cleaned = self._repair_zip(addr["postal_code"], addr["locality"])
                 if cleaned:
+                    addr["postal_code"] = zcode
                     facility["_repaired_record"] = True
                 locality, cleaned = self._repair_locality(addr["locality"], addr["administrative_area"])
                 if cleaned:
+                    addr["locality"] = locality
                     facility["_repaired_record"] = True
                 full_address = ",".join([street, locality, addr["administrative_area"], zcode]).upper()
                 if not facility["address_str"]:
