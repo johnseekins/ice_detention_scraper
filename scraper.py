@@ -361,7 +361,8 @@ class ICEGovFacilityScraper(object):
                     facility["address_str"] = full_address
                 if full_address in self.facilities_data["facilities"].keys():  # type: ignore [attr-defined]
                     self.facilities_data["facilities"][full_address] = self._update_facility(  # type: ignore [index]
-                        self.facilities_data["facilities"][full_address], facility  # type: ignore [index]
+                        self.facilities_data["facilities"][full_address],
+                        facility,  # type: ignore [index]
                     )
                     # update to the frequently nicer address from ice.gov
                     self.facilities_data["facilities"][full_address]["address"] = addr  # type: ignore [index]
