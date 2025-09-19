@@ -30,7 +30,7 @@ def search(facility_name: str) -> dict:
         "processing",
     ]
     resp_info = copy.deepcopy(enrich_resp_schema)
-    resp_info["query_type"] = "wikipedia"
+    resp_info["enrichment_type"] = "wikipedia"
     # Clean facility name for search
     search_name: str = clean_facility_name(facility_name)
     logger.debug("Searching Wikipedia for %s", facility_name)

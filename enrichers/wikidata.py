@@ -25,7 +25,7 @@ def search(facility_name: str) -> dict:
         "limit": 3,
     }
     resp_info = copy.deepcopy(enrich_resp_schema)
-    resp_info["query_type"] = "wikidata"
+    resp_info["enrichment_type"] = "wikidata"
     data = {}
     try:
         response = session.get(search_url, params=params, timeout=10)  # type: ignore [arg-type]

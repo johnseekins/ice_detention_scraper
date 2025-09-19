@@ -121,7 +121,7 @@ enrich_resp_schema = {
     "url": "",
     "details": {},
     "method": "none",
-    "query_type": "",
+    "enrichment_type": "",
 }
 
 enrich_allowed_types = [

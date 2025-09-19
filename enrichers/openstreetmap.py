@@ -15,7 +15,7 @@ def search(facility_name: str, address: dict) -> dict:
     search_name = clean_facility_name(facility_name)
     search_url = "https://nominatim.openstreetmap.org/search"
     resp_info = copy.deepcopy(enrich_resp_schema)
-    resp_info["query_type"] = "openstreetmap"
+    resp_info["enrichment_type"] = "openstreetmap"
     data = []
     if not address:
         logger.debug("No address for %s, simply searching for name", facility_name)
