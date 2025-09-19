@@ -36,12 +36,9 @@ def enrich_facility_data(facilities_data: dict) -> dict:
 
     with ProcessPoolExecutor(max_workers=3) as pool:
         for res in pool.map(enrich_facility, facilities_data["facilities"].items()):
-            enriched_data["facilities"][res[0]] = res[1]
+            enriched_data["facilities"][res[0]] = res[1]  # type: ignore [index]
             processed += 1
             logger.info("Finished %s, %s/%s completed", res[1]["name"], processed, total)
-    # for facility_id, facility in facilities_data["facilities"].items():
-    #     enriched_facility = enrich_facility(facility_id, facility)
-    #   enriched_data["facilities"][facility_id] = enriched_facility  # type: ignore [index]
 
     logger.info("Data enrichment completed!")
     enriched_data["enrich_runtime"] = time.time() - start_time
