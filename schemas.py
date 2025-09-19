@@ -1,7 +1,13 @@
 import copy
 import datetime
 
-facilities_schema: dict = {
+# default to Washington, D.C.?
+default_coords: dict = {
+    "latitude": 38.89511000,
+    "longitude": -77.03637000,
+}
+
+facilities_schema = {
     "scraped_date": datetime.datetime.now(datetime.UTC),
     "scrape_runtime": 0,
     "enrich_runtime": 0,
@@ -48,12 +54,20 @@ facility_schema: dict = {
     "phone": "",
     "raw_scrape": "",
     "source_urls": [],
-    "wikipedia_page_url": "",
-    "wikidata_page_url": "",
-    "osm_result_url": "",
-    "wikipedia_search_query": "",
-    "wikidata_search_query": "",
-    "osm_search_query": "",
+    "wikipedia": {
+        "page_url": "",
+        "search_query": "",
+    },
+    "wikidata": {
+        "page_url": "",
+        "search_query": "",
+    },
+    "osm": {
+        "url": "",
+        "latitude": 0,
+        "longitude": 0,
+        "search_query": "",
+    },
     "page_updated_date": None,
     "population": {
         "male": {
@@ -66,10 +80,26 @@ facility_schema: dict = {
             "criminal": 0,
             "non_criminal": 0,
         },
+        "ice_threat_level": {
+            "level_1": 0,
+            "level_2": 0,
+            "level_3": 0,
+            "none": 0,
+        },
     },
-    "facility_type": "",
-    "facility_type_detail": {},
-    "inspection_date": None,
+    "facility_type": {
+        "id": "",
+        "description": "",
+        "expanded_name": "",
+        "housing": {
+            "mandatory": 0,
+            "guaranteed_min": 0,
+        },
+    },
+    "inspection": {
+        "last_date": None,
+        "last_rating": "",
+    },
     "avg_stay_length": 0,
 }
 
@@ -81,7 +111,7 @@ ice_facility_types = {
     },
     "DIGSA": {
         "expanded_name": "Dedicated Intergovernmental Service Agreement",
-        "decsription": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Inter-governmental Service Agreements, which house only ICE detainees – typically these are operated by private contractors pursuant to their agreements with local governments.",
+        "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Inter-governmental Service Agreements, which house only ICE detainees – typically these are operated by private contractors pursuant to their agreements with local governments.",
     },
     "IGSA": {
         "expanded_name": "Intergovernmental Service Agreement",
@@ -147,6 +177,7 @@ resp_info_schema = {
     "cleaned_name": "",
     "search_query_steps": [],
     "url": "",
+    "details": {},
     "method": "none",
 }
 
