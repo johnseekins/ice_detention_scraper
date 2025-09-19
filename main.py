@@ -15,7 +15,7 @@ Usage:
     python main.py --load-existing --enrich --debug
 
     # With custom output file
-    python main.py --load-existing --enrich --debug -o debug_facilities.csv
+    python main.py --load-existing --enrich --debug -o debug_facilities
 """
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -28,9 +28,6 @@ from schemas import supported_output_types
 from scraper import ICEGovFacilityScraper
 from utils import logger
 # CLI, argument parsing, script orchestration
-
-# argparse ArgumentParser converts hyphens to underscores.
-# @see https://docs.python.org/3/library/argparse.html
 
 
 def main() -> None:
@@ -72,6 +69,12 @@ def main() -> None:
         "--debug",
         action="store_true",
         help="Full debug information and logging",
+    )
+    parser.add_argument(
+        "--enrich-workers",
+        type=int,
+        default=3,
+        help="Number of concurrent processes to allow while enriching data",
     )
     # todo these need more attention, but should now be accepted as command line options now.
     parser.add_argument(
@@ -123,7 +126,7 @@ def main() -> None:
         if not facilities_data:
             logger.warning("No facility data available for enrichment.")
             return
-        facilities_data = enrich_facility_data(facilities_data)
+        facilities_data = enrich_facility_data(facilities_data, args.enrich_workers)
 
     if facilities_data:
         output_filename = args.output_file_name

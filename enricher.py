@@ -18,15 +18,7 @@ WIKIPEDIA_DELAY = 0.5  # Be respectful to Wikipedia
 WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
 
 
-def _smap(f):
-    """
-    map a function name to its execution
-    per https://stackoverflow.com/a/60467981
-    """
-    return f()
-
-
-def enrich_facility_data(facilities_data: dict) -> dict:
+def enrich_facility_data(facilities_data: dict, workers: int = 3) -> dict:
     """wrapper function for multiprocessing of facility enrichment"""
     start_time = time.time()
     logger.info("Starting data enrichment with external sources...")
@@ -34,11 +26,11 @@ def enrich_facility_data(facilities_data: dict) -> dict:
     total = len(facilities_data["facilities"])
     processed = 0
 
-    with ProcessPoolExecutor(max_workers=3) as pool:
+    with ProcessPoolExecutor(max_workers=workers) as pool:
         for res in pool.map(enrich_facility, facilities_data["facilities"].items()):
             enriched_data["facilities"][res[0]] = res[1]  # type: ignore [index]
             processed += 1
-            logger.info("Finished %s, %s/%s completed", res[1]["name"], processed, total)
+            logger.info("  -> Finished %s, %s/%s completed", res[1]["name"], processed, total)
 
     logger.info("Data enrichment completed!")
     enriched_data["enrich_runtime"] = time.time() - start_time
@@ -64,12 +56,12 @@ def enrich_facility(facility_data: tuple) -> tuple:
     enriched_facility["osm_search_query"] = osm.get("search_query_steps", "")
 
     logger.debug(enriched_facility)
-    return (facility_id, enriched_facility)
+    return facility_id, enriched_facility
 
 
 def _search_wikipedia(facility_name: str) -> dict:
     """Search Wikipedia for facility and return final URL after redirects"""
-    facility_terms = [
+    facility_terms: list = [
         "detention",
         "prison",
         "jail",
@@ -466,5 +458,4 @@ def _clean_facility_name(name: str) -> str:
         if cleaned.endswith(suffix):
             cleaned = cleaned[: -len(suffix)].strip()
             break
-
     return cleaned
