@@ -56,13 +56,26 @@ facility_schema: dict = {
             "criminal": 0,
             "non_criminal": 0,
         },
+        "ice_threat_level": {
+            "level_1": 0,
+            "level_2": 0,
+            "level_3": 0,
+            "none": 0,
+        },
     },
     "facility_type": {
         "id": "",
         "description": "",
         "expanded_name": "",
+        "housing": {
+            "mandatory": 0,
+            "guaranteed_min": 0,
+        },
     },
-    "inspection_date": None,
+    "inspection": {
+        "last_date": None,
+        "last_rating": "",
+    },
     "avg_stay_length": 0,
 }
 
