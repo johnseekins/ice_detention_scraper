@@ -359,24 +359,24 @@ class ICEGovFacilityScraper(object):
                 full_address = ",".join([street, locality, addr["administrative_area"], zcode]).upper()
                 if not facility["address_str"]:
                     facility["address_str"] = full_address
-                if full_address in self.facilities_data["facilities"].keys():
-                    self.facilities_data["facilities"][full_address] = self._update_facility(
-                        self.facilities_data["facilities"][full_address], facility
+                if full_address in self.facilities_data["facilities"].keys():  # type: ignore [attr-defined]
+                    self.facilities_data["facilities"][full_address] = self._update_facility(  # type: ignore [index]
+                        self.facilities_data["facilities"][full_address], facility  # type: ignore [index]
                     )
                     # update to the frequently nicer address from ice.gov
-                    self.facilities_data["facilities"][full_address]["address"] = addr
+                    self.facilities_data["facilities"][full_address]["address"] = addr  # type: ignore [index]
                     # add scraped urls
                     for url in facility["source_urls"]:
                         # no dupes
-                        if url in self.facilities_data["facilities"][full_address]["source_urls"]:
+                        if url in self.facilities_data["facilities"][full_address]["source_urls"]:  # type: ignore [index]
                             continue
-                        self.facilities_data["facilities"][full_address]["source_urls"].append(url)
+                        self.facilities_data["facilities"][full_address]["source_urls"].append(url)  # type: ignore [index]
                 # this is likely to produce _some_ duplicates, but it's a reasonable starting place
                 else:
-                    self.facilities_data["facilities"][facility["name"]] = facility
+                    self.facilities_data["facilities"][facility["name"]] = facility  # type: ignore [index]
 
         self.facilities_data["scrape_runtime"] = time.time() - start_time
-        logger.info("Total facilities scraped: %s", len(self.facilities_data["facilities"]))
+        logger.info("Total facilities scraped: %s", len(list(self.facilities_data["facilities"].keys())))  # type: ignore [attr-defined]
         logger.info(" Completed in %s seconds", self.facilities_data["scrape_runtime"])
         return self.facilities_data
 
