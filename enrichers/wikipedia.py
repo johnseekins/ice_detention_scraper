@@ -1,4 +1,5 @@
 from enrichers import Enrichment
+import requests
 from urllib.parse import quote
 from utils import logger
 
@@ -36,7 +37,6 @@ class Wikipedia(Enrichment):
         except Exception as e:
             logger.debug("  Wikipedia search error for '%s': %s", wiki_url, e)
             self.resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
-        if response.status_code != 200:
             wiki_url = f"{self.static_search}{quote(facility_name.replace(' ', '_').replace('|', '_'))}"
             self.resp_info["search_query_steps"].append(wiki_url)  # type: ignore [attr-defined]
             try:

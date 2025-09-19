@@ -23,6 +23,7 @@ class OpenStreetMap(Enrichment):
             self.resp_info["search_query_steps"].append(search_name)  # type: ignore [attr-defined]
             try:
                 response = self._req(search_url, params=params, timeout=15)
+                logger.debug("Response: %s", response.text)
                 data = response.json()
             except Exception as e:
                 logger.debug(" OSM search error for '%s': %s", facility_name, e)

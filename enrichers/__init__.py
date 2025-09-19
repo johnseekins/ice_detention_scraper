@@ -26,7 +26,8 @@ class Enrichment(object):
 
     def _req(self, url: str, params: dict = {}, timeout: int = 10) -> requests.Response:
         """requests response wrapper to ensure we honor waits"""
-        response = session.get(url, allow_redirects=True, timeout=timeout)
+
+        response = session.get(url, allow_redirects=True, timeout=timeout, params=params)
         response.raise_for_status()
         time.sleep(self.wait_time)
         return response
