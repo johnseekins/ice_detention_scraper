@@ -125,6 +125,7 @@ ice_facility_types = {
         "expanded_name": "United States Marshals Service",
         "description": "A facility primarily contracted with the USMS for housing of USMS detainees, in which ICE contracts with the USMS for bed space.",
     },
+    # two keys for the same thing as it isn't consistently defined
     "USMSIGA": {
         "expanded_name": "United States Marshal Service Intergovernmental Agreement",
         "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
