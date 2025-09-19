@@ -8,6 +8,9 @@ from enrichers import (
 from schemas import (
     default_coords,
     facilities_schema,
+    OSM_DELAY,
+    WIKIDATA_DELAY,
+    WIKIPEDIA_DELAY,
 )
 import time
 from utils import logger
@@ -40,11 +43,13 @@ def enrich_facility(facility_data: tuple) -> tuple:
     logger.info("Enriching facility %s...", facility_name)
     enriched_facility = copy.deepcopy(facility)
 
-    wiki = wikipedia.Wikipedia(facility_name=facility_name)
+    wiki = wikipedia.Wikipedia(facility_name=facility_name, wait_time=WIKIPEDIA_DELAY)
     wiki_res = wiki.search()
-    wd = wikidata.Wikidata(facility_name=facility_name)
+    wd = wikidata.Wikidata(facility_name=facility_name, wait_time=WIKIDATA_DELAY)
     wd_res = wd.search()
-    osm = openstreetmap.OpenStreetMap(facility_name=facility_name, address=facility.get("address", {}))
+    osm = openstreetmap.OpenStreetMap(
+        facility_name=facility_name, address=facility.get("address", {}), wait_time=OSM_DELAY
+    )
     osm_res = osm.search()
     enriched_facility["wikipedia"]["page_url"] = wiki_res.get("url", "")
     enriched_facility["wikipedia"]["search_query"] = wiki_res.get("search_query_steps", "")

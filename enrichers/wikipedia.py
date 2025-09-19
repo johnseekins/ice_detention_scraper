@@ -1,5 +1,4 @@
 from enrichers import Enrichment
-import requests
 from urllib.parse import quote
 from utils import logger
 
