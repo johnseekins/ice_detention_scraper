@@ -271,9 +271,7 @@ class ICEGovFacilityScraper(object):
                     details["population"]["female"]["allowed"] = True
                 else:
                     details["population"]["male"]["allowed"] = True
-            details["facility_type"] = {
-                "id": row["Type Detailed"],
-            }
+            details["facility_type"] = {"id": row["Type Detailed"]}
             ft_details = ice_facility_types.get(row["Type Detailed"], {})
             if ft_details:
                 details["facility_type"]["description"] = ft_details["description"]
