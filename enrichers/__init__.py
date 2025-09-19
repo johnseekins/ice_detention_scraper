@@ -3,6 +3,7 @@ import requests
 from schemas import enrich_resp_schema
 import time
 from utils import (
+    default_headers,
     session,
 )
 
@@ -24,10 +25,21 @@ class Enrichment(object):
         """Child objects should implement this"""
         return {}
 
-    def _req(self, url: str, params: dict = {}, timeout: int = 10) -> requests.Response:
+    def _req(
+        self, url: str, params: dict = {}, timeout: int = 10, stream: bool = False, headers: dict = default_headers
+    ) -> requests.Response:
         """requests response wrapper to ensure we honor waits"""
 
-        response = session.get(url, allow_redirects=True, timeout=timeout, params=params)
+        # ensure we get all headers configured correctly
+        # but manually applied headers win the argument
+        for k, v in default_headers.items():
+            if k in headers.keys():
+                continue
+            headers[k] = v
+
+        response = session.get(
+            url, allow_redirects=True, timeout=timeout, params=params, stream=stream, headers=headers
+        )
         response.raise_for_status()
         time.sleep(self.wait_time)
         return response
