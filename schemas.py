@@ -134,12 +134,12 @@ ice_facility_types = {
         "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
     },
     "USMS CDF": {
-        "expanded_name": "United States Marshal Service Central Detention Facility",
-        "description": "Name guessed at from searching",
+        "expanded_name": "United States Marshal Service Contract Detention Facility",
+        "description": "Name derived from listing at https://www.vera.org/ice-detention-trends",
     },
     "CDF": {
-        "expanded_name": "Central Detention Facility",
-        "description": "Name guessed at from searching",
+        "expanded_name": "Contract Detention Facility",
+        "description": "Name derived from listing at https://www.vera.org/ice-detention-trends",
     },
 }
 
