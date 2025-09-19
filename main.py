@@ -23,7 +23,7 @@ import copy
 import logging
 from file_utils import export_to_file, print_summary
 import default_data
-from enricher import ExternalDataEnricher
+from enricher import enrich_facility_data
 from schemas import supported_output_types
 from scraper import ICEGovFacilityScraper
 from utils import logger
@@ -123,8 +123,7 @@ def main() -> None:
         if not facilities_data:
             logger.warning("No facility data available for enrichment.")
             return
-        enricher = ExternalDataEnricher()
-        facilities_data = enricher.enrich_facility_data(facilities_data)
+        facilities_data = enrich_facility_data(facilities_data)
 
     if facilities_data:
         output_filename = args.output_file_name

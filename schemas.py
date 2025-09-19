@@ -90,13 +90,20 @@ ice_facility_types = {
 }
 
 # enrichment response object
-resp_info_schema = {
+enrich_resp_schema = {
     "original_name": "",
     "cleaned_name": "",
     "search_query_steps": [],
     "url": "",
     "method": "none",
+    "query_type": "",
 }
+
+enrich_allowed_types = [
+    "wikipedia",
+    "wikidata",
+    "openstreetmap",
+]
 
 # enrichment print details
 enrichment_print_schema = {
