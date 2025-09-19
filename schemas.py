@@ -1,5 +1,11 @@
 import datetime
 
+# default to Washington, D.C.?
+default_coords: dict = {
+    "latitude": 38.89511000,
+    "longitude": -77.03637000,
+}
+
 facilities_schema = {
     "scraped_date": datetime.datetime.now(datetime.UTC),
     "scrape_runtime": 0,

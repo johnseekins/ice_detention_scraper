@@ -5,7 +5,10 @@ from enrichers import (
     wikipedia,
     openstreetmap,
 )
-from schemas import facilities_schema
+from schemas import (
+    default_coords,
+    facilities_schema,
+)
 import time
 from utils import logger
 
@@ -37,15 +40,20 @@ def enrich_facility(facility_data: tuple) -> tuple:
     logger.info("Enriching facility %s...", facility_name)
     enriched_facility = copy.deepcopy(facility)
 
-    wiki = wikipedia.search(facility_name)
-    wd = wikidata.search(facility_name)
-    osm = openstreetmap.search(facility_name, facility.get("address", {}))
-    enriched_facility["wikipedia_page_url"] = wiki.get("url", "")
-    enriched_facility["wikipedia_search_query"] = wiki.get("search_query_steps", "")
-    enriched_facility["wikidata_page_url"] = wd.get("url", "")
-    enriched_facility["wikidata_search_query"] = wd.get("search_query_steps", "")
-    enriched_facility["osm_result_url"] = osm.get("url", "")
-    enriched_facility["osm_search_query"] = osm.get("search_query_steps", "")
+    wiki = wikipedia.Wikipedia({"facility_name": facility_name})
+    wiki_res = wiki.search()
+    wd = wikidata.Wikidata({"facility_name": facility_name})
+    wd_res = wd.search()
+    osm = openstreetmap.OpenStreetMap({"facility_name": facility_name, "address": facility.get("address", {})})
+    osm_res = osm.search()
+    enriched_facility["wikipedia"]["page_url"] = wiki_res.get("url", "")
+    enriched_facility["wikipedia"]["search_query"] = wiki_res.get("search_query_steps", "")
+    enriched_facility["wikidata"]["page_url"] = wd_res.get("url", "")
+    enriched_facility["wikidata"]["search_query"] = wd_res.get("search_query_steps", "")
+    enriched_facility["osm"]["latitude"] = osm_res.get("details", {}).get("latitude", default_coords["latitude"])
+    enriched_facility["osm"]["longitude"] = osm_res.get("details", {}).get("longitude", default_coords["longitude"])
+    enriched_facility["osm"]["url"] = osm_res.get("url", "")
+    enriched_facility["osm"]["search_query"] = osm_res.get("search_query_steps", "")
 
     logger.debug(enriched_facility)
     return facility_id, enriched_facility
