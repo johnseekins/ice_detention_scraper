@@ -22,6 +22,7 @@ facility_schema: dict = {
         "postal_code": "",
         "street": "",
     },
+    "address_str": "",
     "_repaired_record": False,
     "field_office": "",
     "image_url": "",
@@ -91,8 +92,16 @@ ice_facility_types = {
         "expanded_name": "United States Marshal Service Intergovernmental Agreement",
         "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
     },
+    "USMS IGA": {
+        "expanded_name": "United States Marshal Service Intergovernmental Agreement",
+        "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
+    },
     "USMS CDF": {
         "expanded_name": "United States Marshal Service Central Detention Facility",
+        "description": "Name guessed at from searching",
+    },
+    "CDF": {
+        "expanded_name": "Central Detention Facility",
         "description": "Name guessed at from searching",
     },
 }
@@ -115,3 +124,5 @@ enrichment_print_schema = {
 }
 
 default_field_office = "(Possibly) Not managed by DHS field office"
+
+supported_output_types = ["csv", "json", "xlsx", "parquet"]
