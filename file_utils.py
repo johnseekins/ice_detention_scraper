@@ -1,11 +1,11 @@
 import copy
-import csv
 import json
 from schemas import enrichment_print_schema
 from utils import (
-    _flatdict,
+    convert_to_dataframe,
     logger,
 )
+import xlsxwriter  # type: ignore [import-untyped]
 
 
 def export_to_file(
@@ -18,23 +18,20 @@ def export_to_file(
         return ""
 
     full_name = f"{filename}.{file_type}"
-    csv_filtered_keys = ["raw_scrape", "wikipedia_search_query", "wikidata_search_query", "osm_search_query"]
-    try:
-        with open(full_name, "w", newline="", encoding="utf-8") as f_out:
-            if file_type == "csv":
-                flatdata = [_flatdict(f) for _, f in facilities_data["facilities"].items()]
-                fieldnames = [k for k in flatdata[0].keys() if k not in csv_filtered_keys]
-
-                writer = csv.DictWriter(f_out, fieldnames=fieldnames)
-                writer.writeheader()
-                for facility in flatdata:
-                    row_data = {field: facility.get(field, None) for field in fieldnames}
-                    writer.writerow(row_data)
-            elif file_type == "json":
-                json.dump(facilities_data, f_out, indent=2, sort_keys=True, default=str)
-    except Exception as e:
-        logger.error("Error writing %s file: %s", file_type, e)
-        return ""
+    if file_type in ["csv", "xlsx", "parquet"]:
+        writer = convert_to_dataframe(facilities_data["facilities"])
+        match file_type:
+            case "xlsx":
+                with xlsxwriter.Workbook(full_name, {"remove_timezone": True}) as wb:
+                    writer.write_excel(workbook=wb, include_header=True, autofit=True)
+            case "csv":
+                with open(full_name, "w", newline="", encoding="utf-8") as f_out:
+                    writer.write_csv(file=f_out, include_header=True)
+            case "parquet":
+                writer.write_parquet(full_name, use_pyarrow=True)
+    elif file_type == "json":
+        with open(full_name, "w", encoding="utf-8") as f_out:
+            json.dump(facilities_data, f_out, indent=2, sort_keys=True, default=str)
 
     logger.info(
         "%s file '%s.%s' created successfully with %s facilities.",

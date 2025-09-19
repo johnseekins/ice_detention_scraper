@@ -24,6 +24,7 @@ import logging
 from file_utils import export_to_file, print_summary
 import default_data
 from enricher import ExternalDataEnricher
+from schemas import supported_output_types
 from scraper import ICEGovFacilityScraper
 from field_offices import ICEFieldOfficeScraper
 from utils import logger
@@ -59,7 +60,7 @@ def main() -> None:
     parser.add_argument(
         "--file-type",
         default="csv",
-        choices=["csv", "json"],
+        choices=supported_output_types,
         help="type of file to export",
     )
     parser.add_argument(

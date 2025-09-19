@@ -279,6 +279,7 @@ class ICEGovFacilityScraper(object):
             details["inspection_date"] = row["Last Inspection End Date"]
             details["source_urls"].append(self.sheet_url)
             details["field_office"] = self.field_offices["field_offices"][area_of_responsibility[row["AOR"]]]
+            details["address_str"] = full_address
             results[full_address] = details
         return results
 
@@ -337,6 +338,8 @@ class ICEGovFacilityScraper(object):
                     addr["locality"] = locality
                     facility["_repaired_record"] = True
                 full_address = ",".join([street, locality, addr["administrative_area"], zcode]).upper()
+                if not facility["address_str"]:
+                    facility["address_str"] = full_address
                 if full_address in self.facilities_data["facilities"].keys():
                     self.facilities_data["facilities"][full_address] = self._update_facility(
                         self.facilities_data["facilities"][full_address], facility
