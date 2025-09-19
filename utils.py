@@ -56,11 +56,13 @@ facility_sheet_header = [
 
 # all values that will only complicate workbook output types
 flatdata_filtered_keys = [
+    "_repaired_record",
+    "address_str",
+    "osm.search_query",
     "raw_scrape",
-    "wikipedia_search_query",
-    "wikidata_search_query",
-    "osm_search_query",
     "source_urls",
+    "wikipedia.search_query",
+    "wikidata.search_query",
 ]
 
 

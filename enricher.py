@@ -1,5 +1,6 @@
 import copy
 from schemas import (
+    default_coords,
     facilities_schema,
     resp_info_schema,
 )
@@ -36,35 +37,47 @@ class ExternalDataEnricher(object):
             # Wikipedia search # todo refactor to method
             try:
                 wiki_result = self._search_wikipedia(facility_name)
-                enriched_facility["wikipedia_page_url"] = wiki_result.get("url", "")
-                enriched_facility["wikipedia_search_query"] = " ".join(wiki_result.get("search_query_steps", []))
+                enriched_facility["wikipedia"]["page_url"] = wiki_result.get("url", "")
+                enriched_facility["wikipedia"]["search_query"] = " ".join(wiki_result.get("search_query_steps", []))
                 time.sleep(WIKIPEDIA_DELAY)
             except Exception as e:
                 logger.error(" Wikipedia search error: %s", e)
-                enriched_facility["wikipedia_page_url"] = ""
-                enriched_facility["wikipedia_search_query"] = str(e)
+                enriched_facility["wikipedia"]["page_url"] = ""
+                enriched_facility["wikipedia"]["search_query"] = str(e)
 
             # Wikidata search # todo refactor to method
             try:
                 wikidata_result = self._search_wikidata(facility_name)
-                enriched_facility["wikidata_page_url"] = wikidata_result.get("url", "")
-                enriched_facility["wikidata_search_query"] = " ".join(wikidata_result.get("search_query_steps", []))
+                enriched_facility["wikidata"]["page_url"] = wikidata_result.get("url", "")
+                enriched_facility["wikidata"]["search_query"] = " ".join(wikidata_result.get("search_query_steps", []))
                 time.sleep(WIKIDATA_DELAY)
             except Exception as e:
                 logger.error(" Wikidata search error: %s", e)
-                enriched_facility["wikidata_page_url"] = ""
-                enriched_facility["wikidata_search_query"] = str(e)
+                enriched_facility["wikidata"]["page_url"] = ""
+                enriched_facility["wikidata"]["search_query"] = str(e)
 
             # OpenStreetMap search # todo refactor to method
             try:
                 osm_result = self._search_openstreetmap(facility_name, facility.get("address", {}))
-                enriched_facility["osm_result_url"] = osm_result.get("url", "")
-                enriched_facility["osm_search_query"] = " ".join(osm_result.get("search_query_steps", []))
+                enriched_facility["osm"]["url"] = osm_result.get("url", "")
+                enriched_facility["osm"]["latitude"] = osm_result.get("details", {}).get(
+                    "latitude", default_coords["latitude"]
+                )
+                enriched_facility["osm"]["longitude"] = osm_result.get("details", {}).get(
+                    "longitude", default_coords["longitude"]
+                )
+                enriched_facility["osm"]["search_query"] = " ".join(osm_result.get("search_query_steps", []))
                 time.sleep(NOMINATIM_DELAY)
             except Exception as e:
                 logger.error(" OSM search error: %s", e)
-                enriched_facility["osm_result_url"] = ""
-                enriched_facility["osm_search_query"] = str(e)
+                enriched_facility["osm"]["url"] = ""
+                enriched_facility["osm"]["latitude"] = osm_result.get("details", {}).get(
+                    "latitude", default_coords["latitude"]
+                )
+                enriched_facility["osm"]["longitude"] = osm_result.get("details", {}).get(
+                    "longitude", default_coords["longitude"]
+                )
+                enriched_facility["osm"]["search_query"] = str(e)
 
             enriched_data["facilities"][facility_id] = enriched_facility  # type: ignore [index]
             processed += 1
@@ -376,7 +389,7 @@ class ExternalDataEnricher(object):
             }
             for search_name, params in search_params.items():
                 logger.debug("Searching OSM for %s", params["q"])
-                resp_info["search_query_steps"].append(params["q"])  # type: ignore [attr-defined]
+                resp_info["search_query_steps"].append(f"Query: {params['q']}")  # type: ignore [attr-defined]
                 try:
                     response = session.get(search_url, params=params, timeout=15)  # type: ignore [arg-type]
                     response.raise_for_status()
@@ -396,26 +409,30 @@ class ExternalDataEnricher(object):
         match_terms = ["prison", "detention", "correctional", "jail"]
         for result in data:
             osm_type = result.get("type", "").lower()
+            lat = result.get("lat", default_coords["latitude"])
+            lon = result.get("lon", default_coords["longitude"])
             display_name = result.get("display_name", "").lower()
             if any(term in osm_type for term in match_terms) or any(term in display_name for term in match_terms):
                 # todo courthouse could be added, or other tags such as "prison:for=migrant" as a clear positive search result.
                 osm_id = result.get("osm_id", "")
                 osm_type_prefix = result.get("osm_type", "")
-                title = result.get("display_name", "")
                 if osm_id and osm_type_prefix:
                     resp_info["url"] = f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}"
-                    resp_info["title"] = title
+                    resp_info["details"]["latitude"] = lat  # type: ignore [index]
+                    resp_info["details"]["longitude"] = lon  # type: ignore [index]
+                    resp_info["title"] = display_name
                     return resp_info
         # fallback to first result
         first_result = data[0]
         logger.debug("Address searches didn't directly find anything, just using the first result: %s", first_result)
-        # default to Washington, D.C.?
-        lat = first_result.get("lat", "38.89511000")
-        lon = first_result.get("lon", "-77.03637000")
+        lat = first_result.get("lat", default_coords["latitude"])
+        lon = first_result.get("lon", default_coords["longitude"])
         title = first_result.get("display_name", "")
         resp_info["search_query_steps"].append(f"{lat}&{lon}")  # type: ignore [attr-defined]
         if lat and lon:
             resp_info["url"] = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+            resp_info["details"]["latitude"] = lat  # type: ignore [index]
+            resp_info["details"]["longitude"] = lon  # type: ignore [index]
             resp_info["title"] = title
         return resp_info
 
