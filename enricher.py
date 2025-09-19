@@ -1,6 +1,7 @@
 from concurrent.futures import ProcessPoolExecutor
 import copy
 from schemas import (
+    default_coords,
     facilities_schema,
     enrich_resp_schema,
 )
@@ -383,8 +384,125 @@ def _search_openstreetmap(facility_name: str, address: dict) -> dict:
             except Exception as e:
                 logger.debug(" OSM search error for '%s': %s", facility_name, e)
                 resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
+<<<<<<< HEAD
                 continue
             if data:
+=======
+                return resp_info
+        else:
+            full_address = (
+                f"{address['street']} {address['locality']}, {address['administrative_area']} {address['postal_code']}"
+            )
+            locality = f"{address['locality']}, {address['administrative_area']} {address['postal_code']}"
+            search_url = "https://nominatim.openstreetmap.org/search"
+            search_params = {
+                "facility_name": {
+                    "q": f"{search_name} {full_address}",
+                    "format": "json",
+                    "limit": 5,
+                    "dedupe": 1,
+                },
+                "street_address": {
+                    "q": f"{full_address}",
+                    "format": "json",
+                    "limit": 5,
+                    "dedupe": 1,
+                },
+                "locality": {
+                    "q": f"{locality}",
+                    "format": "json",
+                    "limit": 5,
+                    "dedupe": 1,
+                },
+            }
+            for search_name, params in search_params.items():
+                logger.debug("Searching OSM for %s", params["q"])
+                resp_info["search_query_steps"].append(f"Query: {params['q']}")  # type: ignore [attr-defined]
+                try:
+                    response = session.get(search_url, params=params, timeout=15)  # type: ignore [arg-type]
+                    response.raise_for_status()
+                    data = response.json()
+                except Exception as e:
+                    logger.debug(" OSM search error for '%s': %s", facility_name, e)
+                    resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
+                    continue
+                if data:
+                    break
+                time.sleep(NOMINATIM_DELAY)
+            if not data:
+                resp_info["search_query_steps"].append("No results found")  # type: ignore [attr-defined]
+                return resp_info
+        # when the URL result is a "way" this is usually correct.
+        # checks top five results.
+        match_terms = ["prison", "detention", "correctional", "jail"]
+        for result in data:
+            osm_type = result.get("type", "").lower()
+            lat = result.get("lat", default_coords["latitude"])
+            lon = result.get("lon", default_coords["longitude"])
+            display_name = result.get("display_name", "").lower()
+            if any(term in osm_type for term in match_terms) or any(term in display_name for term in match_terms):
+                # todo courthouse could be added, or other tags such as "prison:for=migrant" as a clear positive search result.
+                osm_id = result.get("osm_id", "")
+                osm_type_prefix = result.get("osm_type", "")
+                if osm_id and osm_type_prefix:
+                    resp_info["url"] = f"https://www.openstreetmap.org/{osm_type_prefix}/{osm_id}"
+                    resp_info["details"]["latitude"] = lat  # type: ignore [index]
+                    resp_info["details"]["longitude"] = lon  # type: ignore [index]
+                    resp_info["title"] = display_name
+                    return resp_info
+        # fallback to first result
+        first_result = data[0]
+        logger.debug("Address searches didn't directly find anything, just using the first result: %s", first_result)
+        lat = first_result.get("lat", default_coords["latitude"])
+        lon = first_result.get("lon", default_coords["longitude"])
+        title = first_result.get("display_name", "")
+        resp_info["search_query_steps"].append(f"{lat}&{lon}")  # type: ignore [attr-defined]
+        if lat and lon:
+            resp_info["url"] = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+            resp_info["details"]["latitude"] = lat  # type: ignore [index]
+            resp_info["details"]["longitude"] = lon  # type: ignore [index]
+            resp_info["title"] = title
+        return resp_info
+
+    def _clean_facility_name(self, name: str) -> str:
+        """Clean facility name for better search results"""
+        # Remove common suffixes and prefixes that might interfere with search
+        # This function may not be helpful - may be counterproductive.
+        cleaned = name
+
+        # Remove pipe separators and take the main name
+        if "|" in cleaned:
+            parts = cleaned.split("|")
+            # Take the longer part as it's likely the full name
+            cleaned = max(parts, key=len).strip()
+
+        # Remove common facility type suffixes for broader search
+        suffixes_to_remove = [
+            "Detention Center",
+            "Processing Center",
+            "Correctional Center",
+            "Correctional Facility",
+            "Detention Facility",
+            "Service Processing Center",
+            "ICE Processing Center",
+            "Immigration Processing Center",
+            "Adult Detention Facility",
+            "Contract Detention Facility",
+            "Regional Detention Center",
+            "County Jail",
+            "County Detention Center",
+            "Sheriff's Office",
+            "Justice Center",
+            "Safety Center",
+            "Jail Services",
+            "Correctional Complex",
+            "Public Safety Complex",
+        ]
+
+        for suffix in suffixes_to_remove:
+            if cleaned.endswith(suffix):
+                cleaned = cleaned[: -len(suffix)].strip()
+>>>>>>> 1f8186d1aa634637e1af6e904cae78f5bfffdea4
                 break
             time.sleep(NOMINATIM_DELAY)
         if not data:

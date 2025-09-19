@@ -19,8 +19,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": None,
             "name": "EL PASO SOFT SIDED FACILITY",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -29,10 +27,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "1300 LANGE CT,BARABOO,WI,53913": {
             "_repaired_record": True,
@@ -49,8 +57,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": None,
             "name": "SAUK COUNTY SHERIFF",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -59,10 +65,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "1623 E J STREET,TACOMA,WA,98421": {
             "_repaired_record": True,
@@ -79,8 +95,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/sites/default/files/images/nwIPC.png",
             "inspection_date": "2025-01-30",
             "name": "NORTHWEST ICE PROCESSSING CENTER",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-08-20 07:47:00+04:00",
             "phone": "",
             "population": {
@@ -93,10 +107,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=4",
                 "https://www.ice.gov/detain/detention-facilities/northwest-ice-processing-center-nwipc",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "216 S BROAD ST,GUTHRIE,OK,73044": {
             "_repaired_record": False,
@@ -113,8 +137,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": "2025-05-13",
             "name": "LOGAN COUNTY JAIL",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -123,10 +145,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "219 EAST FREMONT AVENUE,RIGBY,ID,83442": {
             "_repaired_record": False,
@@ -143,8 +175,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": "2024-07-18",
             "name": "JEFFERSON COUNTY JAIL",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -153,10 +183,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "320 SHAW STATION ROAD,LEITCHFIELD,KY,42754": {
             "_repaired_record": True,
@@ -173,8 +213,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/sites/default/files/2025-08/detFacGrayson.jpg",
             "inspection_date": "2025-08-21",
             "name": "GRAYSON COUNTY JAIL",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-08-20 08:07:50+04:00",
             "phone": "",
             "population": {
@@ -187,10 +225,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=3",
                 "https://www.ice.gov/detain/detention-facilities/grayson-county-detention-center",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "3347 TAMIAMI TRAIL E,NAPLES,FL,34112": {
             "_repaired_record": False,
@@ -207,8 +255,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": "2024-12-05",
             "name": "COLLIER COUNTY NAPLES JAIL CENTER",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -217,10 +263,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "3855 SOUTH JOHN YOUNG PARKWAY,ORLANDO,FL,32839": {
             "_repaired_record": False,
@@ -237,8 +293,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": "2024-08-15",
             "name": "ORANGE COUNTY JAIL (FL)",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -247,10 +301,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "406 NORTH AVENUE D,SAN LUIS,AZ,85349": {
             "_repaired_record": False,
@@ -267,8 +331,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/assets/pages/detention/facilities/sanLuisDetCntr.jpg",
             "inspection_date": "2024-09-26",
             "name": "SAN LUIS REGIONAL DETENTION CENTER",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-02-10 18:54:02+05:00",
             "phone": "",
             "population": {
@@ -281,10 +343,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=5",
                 "https://www.ice.gov/detain/detention-facilities/san-luis-regional-detention-center",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "409 FM 1144,KARNES CITY,TX,78118": {
             "_repaired_record": False,
@@ -301,8 +373,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/sites/default/files/images/detention/karnetx_0.jpg",
             "inspection_date": "2025-06-05",
             "name": "KARNES COUNTY IMMIGRATION PROCESSING CENTER",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-08-18 15:00:23+04:00",
             "phone": "",
             "population": {
@@ -315,10 +385,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=3",
                 "https://www.ice.gov/detain/detention-facilities/karnes-county-ipc",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "451 DOREMUS AVENUE,NEWARK,NJ,07105": {
             "_repaired_record": True,
@@ -335,8 +415,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/sites/default/files/2025-05/detFacDelaney.png",
             "inspection_date": None,
             "name": "DELANEY HALL DETENTION FACILITY",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-09-04 08:48:58+04:00",
             "phone": "",
             "population": {
@@ -349,10 +427,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=1",
                 "https://www.ice.gov/detain/detention-facilities/delaney-hall-detention-facility",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "5001 MALONEYVILLE RD,KNOXVILLE,TN,37918": {
             "_repaired_record": False,
@@ -369,8 +457,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": "2024-09-26",
             "name": "KNOX COUNTY DETENTION FACILITY",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -379,10 +465,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "555 GEO DRIVE,PHILIPSBURG,PA,16866": {
             "_repaired_record": False,
@@ -399,8 +495,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/assets/pages/detention/facilities/moshannon.png",
             "inspection_date": "2025-03-06",
             "name": "MOSHANNON VALLEY PROCESSING CENTER",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-08-14 07:24:42+04:00",
             "phone": "",
             "population": {
@@ -413,10 +507,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=4",
                 "https://www.ice.gov/detain/detention-facilities/moshannon-valley-processing-center",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "651 FEDERAL DRIVE SUITE 104,GUAYNABO,PR,965": {
             "_repaired_record": True,
@@ -433,8 +537,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": None,
             "name": "SAN JUAN STAGING",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -443,10 +545,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "6920 DIGITAL RD,EL PASO,TX,79936": {
             "_repaired_record": False,
@@ -463,8 +575,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": None,
             "name": "ERO EL PASO CAMP EAST MONTANA",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -473,10 +583,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "705 HANOVER STREET,HAMILTON,OH,45011": {
             "_repaired_record": False,
@@ -493,8 +613,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/sites/default/files/images/detFacButler.png",
             "inspection_date": None,
             "name": "BUTLER COUNTY JAIL",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-05-15 07:19:46+04:00",
             "phone": "",
             "population": {
@@ -507,10 +625,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=0",
                 "https://www.ice.gov/detain/detention-facilities/butler-county-sheriffs-office",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "715 5TH AVENUE,HOLDREGE,NE,68949": {
             "_repaired_record": False,
@@ -527,8 +655,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/assets/pages/detention/facilities/phelpsCoJail.jpg",
             "inspection_date": "2025-02-06",
             "name": "PHELPS COUNTY JAIL (NE)",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-02-10 18:50:51+05:00",
             "phone": "",
             "population": {
@@ -541,10 +667,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=4",
                 "https://www.ice.gov/detain/detention-facilities/phelps-county-jail",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "CoreCivic Laredo Processing Center": {
             "_repaired_record": False,
@@ -561,8 +697,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/sites/default/files/images/detention/lrdicdf.jpg",
             "inspection_date": None,
             "name": "CoreCivic Laredo Processing Center",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-02-10 15:38:10+05:00",
             "phone": "",
             "population": {
@@ -574,10 +708,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=1",
                 "https://www.ice.gov/detain/detention-facilities/laredo-detention-center",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "DoD Detention Facility at Fort Bliss": {
             "_repaired_record": False,
@@ -594,8 +738,6 @@ facilities_data = {
             "image_url": "https://www.ice.gov/sites/default/files/2025-09/detFacFortBliss.jpg",
             "inspection_date": None,
             "name": "DoD Detention Facility at Fort Bliss",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": "2025-09-02 14:01:55+04:00",
             "phone": "",
             "population": {
@@ -607,10 +749,20 @@ facilities_data = {
                 "https://www.ice.gov/detention-facilities?exposed_form_display=1&page=1",
                 "https://www.ice.gov/detain/detention-facilities/dod-detention-facility-fort-bliss",
             ],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
         "PARK STREET,FONDA,NY,12068": {
             "_repaired_record": False,
@@ -627,8 +779,6 @@ facilities_data = {
             "image_url": "",
             "inspection_date": None,
             "name": "MONTGOMERY COUNTY JAIL",
-            "osm_result_url": "",
-            "osm_search_query": "",
             "page_updated_date": None,
             "phone": "",
             "population": {
@@ -637,10 +787,20 @@ facilities_data = {
             },
             "raw_scrape": "",
             "source_urls": ["https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx"],
-            "wikidata_page_url": "",
-            "wikidata_search_query": "",
-            "wikipedia_page_url": "",
-            "wikipedia_search_query": "",
+            "wikipedia": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "wikidata": {
+                "page_url": "",
+                "search_query": "",
+            },
+            "osm": {
+                "url": "",
+                "latitude": "38.89511000",
+                "longitude": "-77.03637000",
+                "search_query": "",
+            },
         },
     },
     "scrape_runtime": 48.883458614349365,

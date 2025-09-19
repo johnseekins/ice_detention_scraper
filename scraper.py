@@ -35,6 +35,7 @@ class ICEGovFacilityScraper(object):
         self.filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
 
     def _download_sheet(self) -> None:
+        """Download the detention stats sheet from ice.gov"""
         resp = session.get(self.base_xlsx_url, timeout=120)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.content, "html.parser")
@@ -270,11 +271,28 @@ class ICEGovFacilityScraper(object):
                     details["population"]["female"]["allowed"] = True
                 else:
                     details["population"]["male"]["allowed"] = True
-
-            details["facility_type"] = row["Type Detailed"]
-            details["facility_type_detail"] = ice_facility_types.get(row["Type Detailed"], {})
+            details["population"]["ice_threat_level"] = {
+                "level_1": row["ICE Threat Level 1"],
+                "level_2": row["ICE Threat Level 2"],
+                "level_3": row["ICE Threat Level 3"],
+                "none": row["No ICE Threat Level"],
+            }
+            details["facility_type"] = {
+                "id": row["Type Detailed"],
+                "housing": {
+                    "mandatory": row["Mandatory"],
+                    "guaranteed_min": row["Guaranteed Minimum"],
+                },
+            }
+            ft_details = ice_facility_types.get(row["Type Detailed"], {})
+            if ft_details:
+                details["facility_type"]["description"] = ft_details["description"]
+                details["facility_type"]["expanded_name"] = ft_details["expanded_name"]
             details["avg_stay_length"] = row["FY25 ALOS"]
-            details["inspection_date"] = row["Last Inspection End Date"]
+            details["inspection"] = {
+                "last_date": row["Last Inspection End Date"],
+                "last_rating": row["Last Final Rating"],
+            }
             details["source_urls"].append(self.sheet_url)
             details["address_str"] = full_address
             details["field_office"] = default_field_office
@@ -282,6 +300,7 @@ class ICEGovFacilityScraper(object):
         return results
 
     def _update_facility(self, old: dict, new: dict) -> dict:
+        """Recursive function to Insert values from new when they are false-y in old"""
         for k, v in new.items():
             if isinstance(v, dict):
                 old[k] = self._update_facility(old[k], new[k])
