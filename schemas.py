@@ -33,7 +33,6 @@ field_office_schema: dict = {
     },
     "aor": "",
     "email": "",
-    "raw_scrape": "",
     "source_urls": [],
 }
 
@@ -52,7 +51,6 @@ facility_schema: dict = {
     "image_url": "",
     "name": "",
     "phone": "",
-    "raw_scrape": "",
     "source_urls": [],
     "wikipedia": {
         "page_url": "",

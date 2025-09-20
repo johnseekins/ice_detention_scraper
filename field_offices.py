@@ -1,5 +1,4 @@
 # ICEFieldOfficeScraper class and scraping-related code
-import base64
 from bs4 import BeautifulSoup
 import copy
 import datetime
@@ -127,8 +126,6 @@ class ICEFieldOfficeScraper(object):
     def _extract_single_office(self, element: BeautifulSoup, page_url: str) -> dict:
         """Extract data from a single office element"""
         office = copy.deepcopy(field_office_schema)
-        raw_scrape = str(element)
-        office["raw_scrape"] = base64.b64encode(raw_scrape.encode("utf-8")).decode("utf-8")
         office["source_urls"].append(page_url)
         logger.debug("Trying to get office data from %s", element)
         office_name = element.select_one(".views-field-field-field-office-location")

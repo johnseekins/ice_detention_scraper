@@ -1,5 +1,4 @@
 # ICEFacilityScraper class and scraping-related code
-import base64
 from bs4 import BeautifulSoup
 import copy
 import datetime
@@ -525,7 +524,6 @@ class ICEGovFacilityScraper(object):
         """Extract data from a single facility element"""
         facility = copy.deepcopy(facility_schema)
         raw_scrape = str(element)
-        facility["raw_scrape"] = base64.b64encode(raw_scrape.encode("utf-8")).decode("utf-8")
         facility["source_urls"].append(page_url)
         logger.debug("Trying to get facility data from %s", element)
         # Method 1: Try structured extraction if element has proper HTML structure

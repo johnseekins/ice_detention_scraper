@@ -58,11 +58,9 @@ facility_sheet_header = [
 flatdata_filtered_keys = [
     "_repaired_record",
     "address_str",
-    "field_office.raw_scrape",
     "field_office.address_str",
     "field_office.source_urls",
     "osm.search_query",
-    "raw_scrape",
     "source_urls",
     "wikipedia.search_query",
     "wikidata.search_query",
