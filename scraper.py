@@ -165,13 +165,21 @@ class ICEGovFacilityScraper(object):
             {"match": "4909 FM 2826", "replace": "4909 Farm to Market Road", "locality": "ROBSTOWN"},
             {"match": "6920 DIGITAL RD", "replace": "11541 Montana Avenue", "locality": "EL PASO"},
             # default matches should come last
-            {"match": "'s", "replace": "", "locality": ""},
-            {"match": ".", "replace": "", "locality": ""},
-            {"match": ",", "replace": "", "locality": ""},
         ]
         cleaned = False
         for f in street_filters:
             if (f["match"] in street) and ((f["locality"] and f["locality"] == locality) or not f["locality"]):
+                street = street.replace(f["match"], f["replace"])
+                cleaned = True
+                break
+        # simpler loop for default cleanup
+        default_matches = [
+            {"match": "'s", "replace": ""},
+            {"match": ".", "replace": ""},
+            {"match": ",", "replace": ""},
+        ]
+        for f in default_matches:
+            if f["match"] in street:
                 street = street.replace(f["match"], f["replace"])
                 cleaned = True
         return street, cleaned
@@ -185,7 +193,7 @@ class ICEGovFacilityScraper(object):
         cleaned = False
         if len(zcode) == 4:
             zcode = f"0{zcode}"
-            cleaned = True
+            return zcode, cleaned
         matches = [
             {"match": "89512", "replace": "89506", "locality": "Reno"},
             {"match": "82901", "replace": "82935", "locality": "Rock Springs"},
