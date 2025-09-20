@@ -65,8 +65,6 @@ class OpenStreetMap(Enrichment):
                     logger.debug(" OSM search error for '%s': %s", facility_name, e)
                     self.resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
                     continue
-                if data:
-                    return self.resp_info
         # when the URL result is a "way" this is usually correct.
         # checks top five results.
         match_terms = ["prison", "detention", "correctional", "jail"]
@@ -86,6 +84,8 @@ class OpenStreetMap(Enrichment):
                     self.resp_info["details"]["longitude"] = lon  # type: ignore [index]
                     self.resp_info["title"] = title
                     return self.resp_info
+        if not data:
+            return self.resp_info
         # fallback to first result
         first_result = data[0]
         logger.debug("Address searches didn't directly find anything, just using the first result: %s", first_result)
