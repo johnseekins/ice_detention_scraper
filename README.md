@@ -84,6 +84,14 @@ Examples of the full setup for some OSes are below:
     uv run pre-commit install
 ```
 
+Another command for installing mise in your session can also work (in bash):
+
+```bash
+    eval "$(mise activate bash)"
+    # confirm it is working in this shell:
+    mise doctor
+```
+
 ### OS X
 
 ```zsh
