@@ -390,7 +390,10 @@ class ICEGovFacilityScraper(object):
         return self.facilities_data
 
     def _scrape_updated(self, url: str):
-        """Scrape first page to get "last updated" time"""
+        """
+        Scrape url to get "last updated" time
+        Is specifically oriented around ice.gov facility pages
+        """
         if not url:
             logger.error("Could not find a time block! Guessing wildly!")
             return datetime.datetime.strptime(default_timestamp, timestamp_format)
