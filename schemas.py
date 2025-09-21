@@ -177,12 +177,6 @@ enrich_resp_schema = {
     "enrichment_type": "",
 }
 
-enrich_allowed_types = [
-    "wikipedia",
-    "wikidata",
-    "openstreetmap",
-]
-
 # enrichment print details
 enrichment_print_schema = {
     "wiki_found": 0,
