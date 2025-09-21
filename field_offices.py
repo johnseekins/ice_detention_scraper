@@ -171,7 +171,7 @@ class ICEFieldOfficeScraper(object):
             office["email"] = email[0]["href"].split(":", 1)[1]
         detail_txt = details.text  # type: ignore [union-attr]
         logger.debug("Detail text: %s", detail_txt)
-        aor_match = re.match(r"Area of Responsibility:(.+)\n?Email", detail_txt)
+        aor_match = re.search(r"Area of Responsibility:(.+)Email", detail_txt)
         if aor_match:
             office["aor"] = aor_match.group(1).strip().replace("\xa0", " ")
 
