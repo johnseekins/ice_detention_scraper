@@ -79,6 +79,8 @@ ice_facility_types = {
 
 from .utils import (  # noqa: E402
     clean_street,  # noqa: F401
+    repair_zip,  # noqa: F401
+    repair_locality,  # noqa: F401
     update_facility,  # noqa: F401
 )
 from .page_load import scrape_facilities  # noqa: F401,E402
