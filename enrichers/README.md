@@ -4,7 +4,8 @@ These functions let us collect data about facilities from additional sources.
 
 ## Enrichment class
 
-The base class we can build enrichment tools from. Largely ensures some consistent in functionality between enrichment tools.
+The base class we can build enrichment tools from. Largely ensures some consistent
+in functionality between enrichment tools.
 
 ### Available functions
 

@@ -110,12 +110,10 @@ Another command for installing mise in your session can also work (in bash):
 in hopes of finding similarly named pages but this is too aggressive, and it veers way off. (That is, it's looking for places
 that have simpler names, like the county name instead of `county + detention center`). Use the debug mode to see what
 it is doing.
-* ICE scraping is not robustly tested. The image URL extraction needs some work. (should be able to get the detention center image URLs.)
 * The user-agent for running ice.gov scrape web requests calls itself `'User-Agent': 'ICE-Facilities-Research/1.0 (Educational Research Purpose)'`.
 You can change this in `utils.py`.
 * It tells some pretty inaccurate percentages in the final summary - a lot of false positives, the Wikipedia debug percent
 seems wrong.
-* The remote query rate limiting is (I think) done in series but would go faster with parallel/async processing.
 * This is only targeted at English (EN) Wikipedia currently, but  multi-lingual page checks would help a wider audience.
 
 ## Contributing & Code Standards
@@ -127,6 +125,9 @@ Pull requests and reviews are welcome on the main repo. For checking type safety
 ```bash
 uv run mypy .
 ```
+
+Please see the [ice_scrapers README.md](ice_scrapers/README.md) and [enrichers README.md](enrichers/README.md)
+for more details about the facilities scrapers and how to create new enrichers for new data sources.
 
 ## Credit
 

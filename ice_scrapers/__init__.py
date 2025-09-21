@@ -44,11 +44,11 @@ ice_facility_types = {
     },
     "DIGSA": {
         "expanded_name": "Dedicated Intergovernmental Service Agreement",
-        "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Inter-governmental Service Agreements, which house only ICE detainees – typically these are operated by private contractors pursuant to their agreements with local governments.",
+        "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Intergovernmental Service Agreements, which house only ICE detainees – typically these are operated by private contractors pursuant to their agreements with local governments.",
     },
     "IGSA": {
         "expanded_name": "Intergovernmental Service Agreement",
-        "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Inter-governmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
+        "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Intergovernmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
     },
     "SPC": {
         "expanded_name": "Service Processing Center",
@@ -60,15 +60,15 @@ ice_facility_types = {
     },
     # two keys for the same thing as it isn't consistently defined
     "USMSIGA": {
-        "expanded_name": "United States Marshal Service Intergovernmental Agreement",
-        "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
+        "expanded_name": "United States Marshals Service Intergovernmental Agreement",
+        "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
     },
     "USMS IGA": {
-        "expanded_name": "United States Marshal Service Intergovernmental Agreement",
-        "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshal Service contract.",
+        "expanded_name": "United States Marshals Service Intergovernmental Agreement",
+        "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
     },
     "USMS CDF": {
-        "expanded_name": "United States Marshal Service Contract Detention Facility",
+        "expanded_name": "United States Marshals Service Contract Detention Facility",
         "description": "Name derived from listing at https://www.vera.org/ice-detention-trends",
     },
     "CDF": {
