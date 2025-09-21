@@ -1,5 +1,7 @@
-from schemas import default_coords
-from enrichers import Enrichment
+from enrichers import (
+    default_coords,
+    Enrichment,
+)
 from utils import logger
 
 

@@ -1,16 +1,16 @@
 from concurrent.futures import ProcessPoolExecutor
 import copy
 from enrichers import (
+    default_coords,
+    OSM_DELAY,
     openstreetmap,
     wikidata,
+    WIKIDATA_DELAY,
     wikipedia,
+    WIKIPEDIA_DELAY,
 )
 from schemas import (
-    default_coords,
     facilities_schema,
-    OSM_DELAY,
-    WIKIDATA_DELAY,
-    WIKIPEDIA_DELAY,
 )
 import time
 from utils import logger
@@ -25,7 +25,7 @@ def enrich_facility_data(facilities_data: dict, workers: int = 3) -> dict:
     processed = 0
 
     with ProcessPoolExecutor(max_workers=workers) as pool:
-        for res in pool.map(enrich_facility, facilities_data["facilities"].items()):
+        for res in pool.map(_enrich_facility, facilities_data["facilities"].items()):
             enriched_data["facilities"][res[0]] = res[1]  # type: ignore [index]
             processed += 1
             logger.info("  -> Finished %s, %s/%s completed", res[1]["name"], processed, total)
@@ -36,7 +36,7 @@ def enrich_facility_data(facilities_data: dict, workers: int = 3) -> dict:
     return enriched_data
 
 
-def enrich_facility(facility_data: tuple) -> tuple:
+def _enrich_facility(facility_data: tuple) -> tuple:
     """enrich a single facility"""
     facility_id, facility = facility_data
     facility_name = facility["name"]

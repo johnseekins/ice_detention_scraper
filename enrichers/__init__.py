@@ -7,6 +7,16 @@ from utils import (
     session,
 )
 
+OSM_DELAY = 1.0  # 1 second between requests as per OSM policy
+WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
+WIKIPEDIA_DELAY = 0.5  # Be respectful to Wikipedia
+
+# default to Washington, D.C.?
+default_coords: dict = {
+    "latitude": 38.89511000,
+    "longitude": -77.03637000,
+}
+
 
 class Enrichment(object):
     required_keys = [
@@ -109,3 +119,6 @@ class Enrichment(object):
                 cleaned = cleaned[: -len(suffix)].strip()
                 break
         return cleaned
+
+
+from .general import enrich_facility_data  # noqa: F401,E402

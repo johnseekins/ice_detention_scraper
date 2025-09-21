@@ -23,7 +23,7 @@ import copy
 import logging
 from file_utils import export_to_file, print_summary
 import default_data
-from enricher import enrich_facility_data
+from enrichers import enrich_facility_data
 from schemas import supported_output_types
 from scraper import ICEGovFacilityScraper
 from field_offices import ICEFieldOfficeScraper
