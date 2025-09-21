@@ -23,47 +23,13 @@ session.headers.update(default_headers)
 default_timestamp = "1970-01-01T00:00:00-+0000"
 timestamp_format = "%Y-%m-%dT%H:%M:%S-%z"
 
-# extracted ADP sheet header list 2025-09-07
-facility_sheet_header = [
-    "Name",
-    "Address",
-    "City",
-    "State",
-    "Zip",
-    "AOR",
-    "Type Detailed",
-    "Male/Female",
-    "FY25 ALOS",
-    "Level A",
-    "Level B",
-    "Level C",
-    "Level D",
-    "Male Crim",
-    "Male Non-Crim",
-    "Female Crim",
-    "Female Non-Crim",
-    "ICE Threat Level 1",
-    "ICE Threat Level 2",
-    "ICE Threat Level 3",
-    "No ICE Threat Level",
-    "Mandatory",
-    "Guaranteed Minimum",
-    "Last Inspection Type",
-    "Last Inspection End Date",
-    "Pending FY25 Inspection",
-    "Last Inspection Standard",
-    "Last Final Rating",
-]
-
 # all values that will only complicate workbook output types
 flatdata_filtered_keys = [
     "_repaired_record",
     "address_str",
-    "field_office.raw_scrape",
     "field_office.address_str",
     "field_office.source_urls",
     "osm.search_query",
-    "raw_scrape",
     "source_urls",
     "wikipedia.search_query",
     "wikidata.search_query",
