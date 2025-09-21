@@ -24,14 +24,18 @@ import logging
 from file_utils import export_to_file, print_summary
 import default_data
 from enricher import ExternalDataEnricher
-from schemas import supported_output_types
-from scraper import ICEGovFacilityScraper
-from field_offices import ICEFieldOfficeScraper
+from ice_scrapers import (
+    load_sheet,
+    merge_field_offices,
+    scrape_facilities,
+    scrape_field_offices,
+)
+from schemas import (
+    facilities_schema,
+    supported_output_types,
+)
 from utils import logger
 # CLI, argument parsing, script orchestration
-
-# argparse ArgumentParser converts hyphens to underscores.
-# @see https://docs.python.org/3/library/argparse.html
 
 
 def main() -> None:
@@ -106,18 +110,18 @@ def main() -> None:
         logger.warning(
             "Warning: --debug-wikipedia, --debug-wikidata and --debug-osm are currently not implemented as command line options."
         )
-
-    facilities_data = {}
+    facilities_data = copy.deepcopy(facilities_schema)
 
     if args.scrape and args.load_existing:
         logger.error("Can't scrape and load existing data!")
         exit(1)
 
     if args.scrape:
-        fo_scraper = ICEFieldOfficeScraper()
-        field_offices = fo_scraper.scrape_field_offices()
-        scraper = ICEGovFacilityScraper(field_offices)
-        facilities_data = scraper.scrape_facilities()
+        facilities = load_sheet()
+        facilities_data["facilities"] = copy.deepcopy(facilities)
+        facilities_data = scrape_facilities(facilities_data)
+        field_offices = scrape_field_offices()
+        facilities_data = merge_field_offices(facilities_data, field_offices)
     elif args.load_existing:
         facilities_data = copy.deepcopy(default_data.facilities_data)
         logger.info(
