@@ -1,3 +1,9 @@
+"""
+Import order here is a touch weird, but we need it so
+types exist before attempting to import functions that
+may call them
+"""
+
 import copy
 import requests
 from schemas import enrich_resp_schema
@@ -7,39 +13,28 @@ from utils import (
     session,
 )
 
-OSM_DELAY = 1.0  # 1 second between requests as per OSM policy
-WIKIDATA_DELAY = 0.5  # Be respectful to Wikidata
-WIKIPEDIA_DELAY = 0.5  # Be respectful to Wikipedia
-
-# default to Washington, D.C.?
-default_coords: dict = {
-    "latitude": 38.89511000,
-    "longitude": -77.03637000,
-}
-
 
 class Enrichment(object):
-    required_keys = [
+    _required_keys = [
         "facility_name",
     ]
+    # in seconds
+    _wait_time: float = 1
 
     def __init__(self, **kwargs):
         self.resp_info = copy.deepcopy(enrich_resp_schema)
-        for k in self.required_keys:
+        for k in self._required_keys:
             if k not in kwargs.keys():
                 raise KeyError("Missing required key %s in %s", k, kwargs)
         self.search_args = copy.deepcopy(kwargs)
-        self.wait_time = int(kwargs.get("wait_time", 1))
 
     def search(self) -> dict:
         """Child objects should implement this"""
         return {}
 
-    def _req(
-        self, url: str, params: dict = {}, timeout: int = 10, stream: bool = False, headers: dict = default_headers
-    ) -> requests.Response:
+    def _req(self, url: str, **kwargs) -> requests.Response:
         """requests response wrapper to ensure we honor waits"""
-
+        headers = kwargs.get("headers", {})
         # ensure we get all headers configured correctly
         # but manually applied headers win the argument
         for k, v in default_headers.items():
@@ -48,10 +43,15 @@ class Enrichment(object):
             headers[k] = v
 
         response = session.get(
-            url, allow_redirects=True, timeout=timeout, params=params, stream=stream, headers=headers
+            url,
+            allow_redirects=True,
+            timeout=kwargs.get("timeout", 10),
+            params=kwargs.get("params", {}),
+            stream=kwargs.get("stream", False),
+            headers=headers,
         )
         response.raise_for_status()
-        time.sleep(self.wait_time)
+        time.sleep(self._wait_time)
         return response
 
     def _minimal_clean_facility_name(self, name: str) -> str:

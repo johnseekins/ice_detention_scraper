@@ -1,13 +1,9 @@
 from concurrent.futures import ProcessPoolExecutor
 import copy
 from enrichers import (
-    default_coords,
-    OSM_DELAY,
     openstreetmap,
     wikidata,
-    WIKIDATA_DELAY,
     wikipedia,
-    WIKIPEDIA_DELAY,
 )
 from schemas import (
     facilities_schema,
@@ -43,17 +39,16 @@ def _enrich_facility(facility_data: tuple) -> tuple:
     logger.info("Enriching facility %s...", facility_name)
     enriched_facility = copy.deepcopy(facility)
 
-    wiki_res = wikipedia.Wikipedia(facility_name=facility_name, wait_time=WIKIPEDIA_DELAY).search()
-    wd_res = wikidata.Wikidata(facility_name=facility_name, wait_time=WIKIDATA_DELAY).search()
-    osm_res = openstreetmap.OpenStreetMap(
-        facility_name=facility_name, address=facility.get("address", {}), wait_time=OSM_DELAY
-    ).search()
+    wiki_res = wikipedia.Wikipedia(facility_name=facility_name).search()
+    wd_res = wikidata.Wikidata(facility_name=facility_name).search()
+    osm = openstreetmap.OpenStreetMap(facility_name=facility_name, address=facility.get("address", {}))
+    osm_res = osm.search()
     enriched_facility["wikipedia"]["page_url"] = wiki_res.get("url", "")
     enriched_facility["wikipedia"]["search_query"] = wiki_res.get("search_query_steps", "")
     enriched_facility["wikidata"]["page_url"] = wd_res.get("url", "")
     enriched_facility["wikidata"]["search_query"] = wd_res.get("search_query_steps", "")
-    enriched_facility["osm"]["latitude"] = osm_res.get("details", {}).get("latitude", default_coords["latitude"])
-    enriched_facility["osm"]["longitude"] = osm_res.get("details", {}).get("longitude", default_coords["longitude"])
+    enriched_facility["osm"]["latitude"] = osm_res.get("details", {}).get("latitude", osm.default_coords["latitude"])
+    enriched_facility["osm"]["longitude"] = osm_res.get("details", {}).get("longitude", osm.default_coords["longitude"])
     enriched_facility["osm"]["url"] = osm_res.get("url", "")
     enriched_facility["osm"]["search_query"] = osm_res.get("search_query_steps", "")
 

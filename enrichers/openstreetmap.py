@@ -1,11 +1,14 @@
-from enrichers import (
-    default_coords,
-    Enrichment,
-)
+from enrichers import Enrichment
 from utils import logger
 
 
 class OpenStreetMap(Enrichment):
+    # default to Washington, D.C.?
+    default_coords: dict = {
+        "latitude": 38.89511000,
+        "longitude": -77.03637000,
+    }
+
     def search(self) -> dict:
         facility_name = self.search_args["facility_name"]
         address = self.search_args.get("address", {})
@@ -74,8 +77,8 @@ class OpenStreetMap(Enrichment):
         match_terms = ["prison", "detention", "correctional", "jail"]
         for result in data:
             osm_type = result.get("type", "").lower()
-            lat = result.get("lat", default_coords["latitude"])
-            lon = result.get("lon", default_coords["longitude"])
+            lat = result.get("lat", self.default_coords["latitude"])
+            lon = result.get("lon", self.default_coords["longitude"])
             display_name = result.get("display_name", "").lower()
             if any(term in osm_type for term in match_terms) or any(term in display_name for term in match_terms):
                 # todo courthouse could be added, or other tags such as "prison:for=migrant" as a clear positive search result.
@@ -92,8 +95,8 @@ class OpenStreetMap(Enrichment):
         first_result = data[0]
         logger.debug("Address searches didn't directly find anything, just using the first result: %s", first_result)
         title = first_result.get("display_name", "")
-        lat = first_result.get("lat", default_coords["latitude"])
-        lon = first_result.get("lon", default_coords["longitude"])
+        lat = first_result.get("lat", self.default_coords["latitude"])
+        lon = first_result.get("lon", self.default_coords["longitude"])
         self.resp_info["search_query_steps"].append(f"{lat}&{lon}")  # type: ignore [attr-defined]
         if lat and lon:
             self.resp_info["url"] = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"

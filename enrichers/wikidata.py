@@ -3,6 +3,9 @@ from utils import logger
 
 
 class Wikidata(Enrichment):
+    # wikidata can handle slightly more aggressive requests
+    _wait_time = 0.5
+
     def search(self) -> dict:
         facility_name = self.search_args["facility_name"]
         # Fetches 3 results based on _clean_facility_name (not exact name). todo: needs adjustment.

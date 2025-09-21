@@ -4,6 +4,7 @@ from utils import logger
 
 
 class Wikipedia(Enrichment):
+    _wait_time = 0.5
     static_search: str = "https://en.wikipedia.org/wiki/"
     api_search: str = "https://en.wikipedia.org/w/api.php"
     facility_terms: list = [
