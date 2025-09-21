@@ -1,10 +1,10 @@
-# scraping-related code for ice.gov detention facility pages
 from bs4 import BeautifulSoup
 import copy
 import datetime
 import re
 from ice_scrapers import (
     clean_street,
+    get_ice_scrape_pages,
     repair_zip,
     repair_locality,
     update_facility,
@@ -21,29 +21,12 @@ from utils import (
 base_scrape_url = "https://www.ice.gov/detention-facilities"
 
 
-def _get_scrape_pages() -> list:
-    """Discover all facility pages"""
-    resp = session.get(base_scrape_url, timeout=30)
-    resp.raise_for_status()
-    soup = BeautifulSoup(resp.content, "html.parser")
-    links = soup.findAll("a", href=re.compile(r"\?page="))
-    if not links:
-        raise Exception(f"{base_scrape_url} contains *no* links?!")
-    pages = [
-        f"{base_scrape_url}{link['href']}&exposed_form_display=1"
-        for link in links
-        if not any(k in link["aria-label"] for k in ["Next", "Last"])
-    ]
-    logger.debug("Pages discovered: %s", pages)
-    return pages
-
-
 def scrape_facilities(facilities_data: dict) -> dict:
     """Scrape all ICE detention facility data from all discovered pages"""
     start_time = time.time()
     logger.info("Starting to scrape ICE.gov detention facilities...")
     facilities_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
-    urls = _get_scrape_pages()
+    urls = get_ice_scrape_pages(base_scrape_url)
 
     for page_num, url in enumerate(urls):
         logger.info("Scraping page %s/%s...", page_num + 1, len(urls))

@@ -77,13 +77,44 @@ ice_facility_types = {
     },
 }
 
+# ICE AOR mappings
+area_of_responsibility = {
+    "ATL": "Atlanta Field Office",
+    "BAL": "Baltimore Field Office",
+    "BOS": "Boston Field Office",
+    "BUF": "Buffalo Field Office",
+    "CHI": "Chicago Field Office",
+    "DAL": "Dallas Field Office",
+    "DEN": "Denver Field Office",
+    "DET": "Detroit Field Office",
+    "ELP": "El Paso Field Office",
+    "HLG": "Harlingen Field Office",
+    "HOU": "Houston Field Office",
+    "LOS": "Los Angeles Field Office",
+    "MIA": "Miami Field Office",
+    "NEW": "Newark Field Office",
+    "NOL": "New Orleans Field Office",
+    "NYC": "New York City Field Office",
+    "PHI": "Philadelphia Field Office",
+    "PHO": "Phoenix Field Office",
+    "SEA": "Seattle Field Office",
+    "SFR": "San Francisco Field Office",
+    "SLC": "Salt Lake City Field Office",
+    "SNA": "San Antonio Field Office",
+    "SND": "San Diego Field Office",
+    "SPM": "St Paul Field Office",
+    "WAS": "Washington Field Office",
+}
+field_office_to_aor = {v: k for k, v in area_of_responsibility.items()}
+
 from .utils import (  # noqa: E402
     clean_street,  # noqa: F401
+    get_ice_scrape_pages,  # noqa: F401
     repair_zip,  # noqa: F401
     repair_locality,  # noqa: F401
     update_facility,  # noqa: F401
 )
-from .page_load import scrape_facilities  # noqa: F401,E402
+from .facilities_scraper import scrape_facilities  # noqa: F401,E402
 from .spreadsheet_load import load_sheet  # noqa: F401,E402
 from .field_offices import (  # noqa: E402
     merge_field_offices,  # noqa: F401

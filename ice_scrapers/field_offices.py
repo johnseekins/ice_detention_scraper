@@ -2,6 +2,11 @@
 from bs4 import BeautifulSoup
 import copy
 import datetime
+from ice_scrapers import (
+    area_of_responsibility,
+    field_office_to_aor,
+    get_ice_scrape_pages,
+)
 import re
 from schemas import (
     field_offices_schema,
@@ -15,53 +20,6 @@ from utils import (
 
 base_scrape_url = "https://www.ice.gov/contact/field-offices"
 
-# ICE AOR mappings
-area_of_responsibility = {
-    "ATL": "Atlanta Field Office",
-    "BAL": "Baltimore Field Office",
-    "BOS": "Boston Field Office",
-    "BUF": "Buffalo Field Office",
-    "CHI": "Chicago Field Office",
-    "DAL": "Dallas Field Office",
-    "DEN": "Denver Field Office",
-    "DET": "Detroit Field Office",
-    "ELP": "El Paso Field Office",
-    "HLG": "Harlingen Field Office",
-    "HOU": "Houston Field Office",
-    "LOS": "Los Angeles Field Office",
-    "MIA": "Miami Field Office",
-    "NEW": "Newark Field Office",
-    "NOL": "New Orleans Field Office",
-    "NYC": "New York City Field Office",
-    "PHI": "Philadelphia Field Office",
-    "PHO": "Phoenix Field Office",
-    "SEA": "Seattle Field Office",
-    "SFR": "San Francisco Field Office",
-    "SLC": "Salt Lake City Field Office",
-    "SNA": "San Antonio Field Office",
-    "SND": "San Diego Field Office",
-    "SPM": "St Paul Field Office",
-    "WAS": "Washington Field Office",
-}
-field_office_to_aor = {v: k for k, v in area_of_responsibility.items()}
-
-
-def _get_scrape_pages() -> list:
-    """Discover all facility pages"""
-    resp = session.get(base_scrape_url, timeout=30)
-    resp.raise_for_status()
-    soup = BeautifulSoup(resp.content, "html.parser")
-    links = soup.findAll("a", href=re.compile(r"\?page="))
-    if not links:
-        raise Exception(f"{base_scrape_url} contains *no* links?!")
-    pages = [
-        f"{base_scrape_url}{link['href']}&exposed_form_display=1"
-        for link in links
-        if not any(k in link["aria-label"] for k in ["Next", "Last"])
-    ]
-    logger.debug("Pages discovered: %s", pages)
-    return pages
-
 
 def scrape_field_offices() -> dict:
     """Collect data on ICE field offices"""
@@ -69,7 +27,7 @@ def scrape_field_offices() -> dict:
     office_data = copy.deepcopy(field_offices_schema)
     office_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
     logger.info("Starting to scrape ICE.gov field offices...")
-    urls = _get_scrape_pages()
+    urls = get_ice_scrape_pages(base_scrape_url)
     for page_num, url in enumerate(urls):
         logger.info("Scraping page %s/%s...", page_num + 1, len(urls))
         offices = _scrape_page(url)
@@ -138,11 +96,6 @@ def _scrape_page(page_url: str) -> list:
             )
             break
 
-    # if not office_elements:
-    #     # Fallback: look for any element containing office-like text patterns
-    #     logger.warning("  Using fallback: searching for office patterns in text")
-    #     office_elements = _find_office_patterns(content_container)
-
     # Extract data from each office element
     for element in office_elements:
         office_data = _extract_single_office(element, page_url)
@@ -208,6 +161,7 @@ def _extract_single_office(element: BeautifulSoup, page_url: str) -> dict:
 
 
 def merge_field_offices(facilities_data: dict, field_offices: dict) -> dict:
+    """Actually insert field office data into our facilities_data object"""
     final_facilities = copy.deepcopy(facilities_data["facilities"])
     for facility_id, facility in facilities_data["facilities"].items():
         office = field_offices["field_offices"].get(facility["field_office"]["field_office"], None)

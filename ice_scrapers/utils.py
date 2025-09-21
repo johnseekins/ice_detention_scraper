@@ -1,4 +1,10 @@
+from bs4 import BeautifulSoup
+import re
 from typing import Tuple
+from utils import (
+    logger,
+    session,
+)
 
 
 def clean_street(street: str, locality: str = "") -> Tuple[str, bool]:
@@ -179,3 +185,23 @@ def update_facility(old: dict, new: dict) -> dict:
         if not old.get(k, None):
             old[k] = v
     return old
+
+
+def get_ice_scrape_pages(url: str) -> list:
+    """
+    Discover all facility pages
+    This _may_ be generic to Drupal's pagination code...
+    """
+    resp = session.get(url, timeout=30)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.content, "html.parser")
+    links = soup.findAll("a", href=re.compile(r"\?page="))
+    if not links:
+        raise Exception(f"{url} contains *no* links?!")
+    pages = [
+        f"{url}{link['href']}&exposed_form_display=1"
+        for link in links
+        if not any(k in link["aria-label"] for k in ["Next", "Last"])
+    ]
+    logger.debug("Pages discovered: %s", pages)
+    return pages
