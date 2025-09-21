@@ -59,7 +59,6 @@ def clean_street(street: str, locality: str = "") -> Tuple[str, bool]:
         {"match": "351 Elliott Street", "replace": "351 ELLIOTT ST", "locality": "Honolulu"},
         {"match": "1 Success Loop Rd", "replace": "1 SUCCESS LOOP DR", "locality": "Berlin"},
         {"match": "700 Arch Street", "replace": "700 ARCH ST", "locality": "Philadelphia"},
-        {"match": "33 NE 4th Street", "replace": "33 NE 4 STREET", "locality": "Miami"},
         {"match": "1300 Metropolitan", "replace": "1300 METROPOLITAN AVE", "locality": "Leavenworth"},
         {"match": "601 McDonough Blvd SE", "replace": "601 MCDONOUGH BOULEVARD SE", "locality": "Atlanta"},
         {"match": "1705 E Hanna Rd", "replace": "1705 EAST HANNA RD", "locality": "Eloy"},
@@ -96,7 +95,8 @@ def clean_street(street: str, locality: str = "") -> Tuple[str, bool]:
         {"match": "9998 S. Highway 98", "replace": "9998 SOUTH HIGHWAY 83", "locality": "Laredo"},
         # a unique one, 'cause the PHONE NUMBER IS IN THE ADDRESS?!
         {"match": "911 PARR BLVD 775 328 3308", "replace": "911 E Parr Blvd", "locality": "RENO"},
-        # fix a few shockingly bad addresses in spreadsheet
+        # fix a few bad addresses in spreadsheet
+        {"match": "33 NE 4 STREET", "replace": "33 NE 4th Street", "locality": "MIAMI"},
         {"match": "DEPARTMENT OF CORRECTIONS 1618 ASH STREET", "replace": "1618 Ash Street", "locality": "ERIE"},
         {"match": "203 ASPINAL AVE. PO BOX 3236", "replace": "203 Aspinall Avenue", "locality": "HAGATNA"},
         {
