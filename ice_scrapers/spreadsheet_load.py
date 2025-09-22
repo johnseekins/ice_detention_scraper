@@ -124,7 +124,7 @@ def load_sheet(keep_sheet: bool = True) -> dict:
             "none": row["No ICE Threat Level"],
         }
         """
-        extraced from
+        # extracted from https://www.ice.gov/doclib/detention/FY25_detentionStats09112025.xlsx 2025-09-22
         Upon admission and periodically thereafter, detainees are categorized into a security level based on a variety of public safety factors, and are housed accordingly.  Factors include prior convictions, threat risk, disciplinary record, special vulnerabilities, and special management concerns.  Detainees are categorized into one of four classes of security risk: A/low, B/medium low, C/medium high, and D/high.
         """
         details["population"]["security_threat"]["low"] = row["Level A"]
