@@ -79,6 +79,13 @@ facility_schema: dict = {
             "level_3": 0,
             "none": 0,
         },
+        "total": 0,
+        "security_threat": {
+            "low": 0,
+            "medium_low": 0,
+            "medium_high": 0,
+            "high": 0,
+        },
     },
     "facility_type": {
         "id": "",
@@ -90,6 +97,7 @@ facility_schema: dict = {
         },
     },
     "inspection": {
+        "last_type": "",
         "last_date": None,
         "last_rating": "",
     },

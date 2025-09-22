@@ -12,6 +12,7 @@ from ice_scrapers import (
     clean_street,
     facility_sheet_header,
     ice_facility_types,
+    ice_inspection_types,
     repair_zip,
     repair_locality,
 )
@@ -99,10 +100,15 @@ def load_sheet(keep_sheet: bool = True) -> dict:
         details["address"]["postal_code"] = zcode
         details["address"]["street"] = street
         details["name"] = row["Name"]
+
+        # population statistics
         details["population"]["male"]["criminal"] = row["Male Crim"]
         details["population"]["male"]["non_criminal"] = row["Male Non-Crim"]
         details["population"]["female"]["criminal"] = row["Female Crim"]
         details["population"]["female"]["non_criminal"] = row["Female Non-Crim"]
+        details["population"]["total"] = (
+            row["Male Crim"] + row["Male Non-Crim"] + row["Female Crim"] + row["Female Non-Crim"]
+        )
         if row["Male/Female"]:
             if "/" in row["Male/Female"]:
                 details["population"]["female"]["allowed"] = True
@@ -117,6 +123,15 @@ def load_sheet(keep_sheet: bool = True) -> dict:
             "level_3": row["ICE Threat Level 3"],
             "none": row["No ICE Threat Level"],
         }
+        """
+        extraced from
+        Upon admission and periodically thereafter, detainees are categorized into a security level based on a variety of public safety factors, and are housed accordingly.  Factors include prior convictions, threat risk, disciplinary record, special vulnerabilities, and special management concerns.  Detainees are categorized into one of four classes of security risk: A/low, B/medium low, C/medium high, and D/high.
+        """
+        details["population"]["security_threat"]["low"] = row["Level A"]
+        details["population"]["security_threat"]["medium_low"] = row["Level B"]
+        details["population"]["security_threat"]["medium_high"] = row["Level C"]
+        details["population"]["security_threat"]["high"] = row["Level D"]
+
         details["facility_type"] = {
             "id": row["Type Detailed"],
             "housing": {
@@ -130,6 +145,8 @@ def load_sheet(keep_sheet: bool = True) -> dict:
             details["facility_type"]["expanded_name"] = ft_details["expanded_name"]
         details["avg_stay_length"] = row["FY25 ALOS"]
         details["inspection"] = {
+            # fall back to type code
+            "last_type": ice_inspection_types.get(row["Last Inspection Type"], row["Last Inspection Type"]),
             "last_date": row["Last Inspection End Date"],
             "last_rating": row["Last Final Rating"],
         }
