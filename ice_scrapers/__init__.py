@@ -36,6 +36,13 @@ facility_sheet_header = [
     "Last Final Rating",
 ]
 
+ice_inspection_types = {
+    # found in https://www.ice.gov/foia/odo-facility-inspections
+    "ODO": "Office of Detention Oversight",
+    # found in https://ia803100.us.archive.org/16/items/6213032-ORSA-MOU-ICE/6213032-ORSA-MOU-ICE_text.pdf
+    "ORSA": "Operational Review Self-Assessment",
+}
+
 # extracted from https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx 2025-09-07
 ice_facility_types = {
     "BOP": {

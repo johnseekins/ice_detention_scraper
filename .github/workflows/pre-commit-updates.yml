@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Ensure Pre-commit services are updated (if possible)
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 0 1 * *' # Run on midnight on the first of the month
+
+permissions:
+  pull-requests: write
+  contents: write
+
+concurrency:
+  group: precommit-updates
+  cancel-in-progress: true
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - id: file-check
+        run: |
+          files=$(find . -type f -name ".pre-commit-config.yaml" -print0 | xargs)
+          if [[ -s "${files}" ]]; then
+            echo "files_exist=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "files_exist=false" >> "$GITHUB_OUTPUT"
+          fi
+      # selfhosted nodes have precommit installed by default
+      - name: Run pre-commit autoupdate
+        if: steps.file-check.outputs.files_exist == 'true'
+        run: |
+          sudo apt-get install -yqq python3-pip python3-wheel
+          pip3 install -q --disable-pip-version-check pre-commit
+          pre-commit autoupdate
+      - name: Create Pull Request
+        if: steps.file-check.outputs.files_exist == 'true'
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e
+        with:
+          token: ${{ github.token }}
+          branch: update/pre-commit-autoupdate
+          title: Auto-update pre-commit hooks
+          commit-message: ND - Auto-update pre-commit hooks
+          body: |
+            Update versions of tools in pre-commit
+            configs to latest version
+          labels: dependencies
+          delete-branch: true
+          sign-commits: true

@@ -40,7 +40,7 @@ def _flatdict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
     """flatten a nested dictionary for nicer printing to workbooks (excel/csv/etc.)"""
     items: list = []
     for k, v in d.items():
-        new_key = parent_key + sep + str(k) if parent_key else str(k)
+        new_key = f"{parent_key}{sep}{str(k)}" if parent_key else str(k)
         if isinstance(v, dict):
             items.extend(_flatdict(v, new_key, sep=sep).items())
         else:
