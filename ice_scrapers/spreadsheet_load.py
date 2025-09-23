@@ -63,6 +63,7 @@ def _download_sheet(keep_sheet: bool = True) -> Tuple[polars.DataFrame, str]:
     df = polars.read_excel(
         drop_empty_rows=True,
         has_header=False,
+        raise_if_empty=True,
         # because we're manually defining the header...
         read_options={"skip_rows": 7, "column_names": facility_sheet_header},
         sheet_name=f"Facilities FY{cur_year}",
