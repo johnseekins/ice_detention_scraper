@@ -27,6 +27,7 @@ field_office_schema: dict = {
     "email": "",
     "field_office": "",
     "id": "",
+    "name": "",
     "source_urls": [],
 }
 
