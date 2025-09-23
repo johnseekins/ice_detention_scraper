@@ -15,6 +15,7 @@ from ice_scrapers import (
     ice_inspection_types,
     repair_zip,
     repair_locality,
+    ice_facility_group_mapping,
 )
 from typing import Tuple
 from utils import (
@@ -143,6 +144,10 @@ def load_sheet(keep_sheet: bool = True) -> dict:
         if ft_details:
             details["facility_type"]["description"] = ft_details["description"]
             details["facility_type"]["expanded_name"] = ft_details["expanded_name"]
+            for group, ids in ice_facility_group_mapping.items():
+                if row["Type Detailed"] in ids:
+                    details["facility_type"]["group"] = group
+                    break
         details["avg_stay_length"] = row["FY25 ALOS"]
         details["inspection"] = {
             # fall back to type code

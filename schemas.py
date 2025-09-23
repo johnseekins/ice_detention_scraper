@@ -95,6 +95,7 @@ facility_schema: dict = {
             "mandatory": 0,
             "guaranteed_min": 0,
         },
+        "group": "Other/Unknown",
     },
     "inspection": {
         "last_type": "",
