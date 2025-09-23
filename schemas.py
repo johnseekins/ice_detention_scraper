@@ -86,22 +86,22 @@ facility_schema: dict = {
             "medium_high": 0,
             "high": 0,
         },
+        "housing": {
+            "mandatory": 0,
+            "guaranteed_min": 0,
+        },
+        "avg_stay_length": 0,
     },
     "facility_type": {
         "id": "",
         "description": "",
         "expanded_name": "",
-        "housing": {
-            "mandatory": 0,
-            "guaranteed_min": 0,
-        },
     },
     "inspection": {
         "last_type": "",
         "last_date": None,
         "last_rating": "",
     },
-    "avg_stay_length": 0,
 }
 
 

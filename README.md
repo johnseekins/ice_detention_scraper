@@ -18,9 +18,6 @@ scrape of the data from ICE.gov. This is stored in `default_data.py` and include
 
 > Note ICE has been renaming known "detention center" sites to "processing center", and so on.
 
-The initial scrape data also keeps a `base64` ecoded string containing the original HTML that was scraped from ice.gov about the
-facility. Keeping this initial data allows us to verify the resulting extracted data if we need to.
-
 It also shows the ICE "field office" managing each detention facility.
 
 On the OpenStreetMap (OSM) CSV results, if the URL includes a "way" then it has probably identified the correctly tagged

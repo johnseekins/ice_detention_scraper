@@ -7,7 +7,7 @@ from utils import (
 )
 
 
-def clean_street(street: str, locality: str = "") -> Tuple[str, bool]:
+def repair_street(street: str, locality: str = "") -> Tuple[str, bool]:
     """Generally, we'll let the spreadsheet win arguments just to be consistent"""
     street_filters = [
         # address mismatch between site and spreadsheet

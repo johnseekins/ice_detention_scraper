@@ -82,6 +82,14 @@ ice_facility_types = {
         "expanded_name": "Contract Detention Facility",
         "description": "Name derived from listing at https://www.vera.org/ice-detention-trends",
     },
+    "Staging": {
+        "description": "Some facilities in the ICE spreadsheet are marked 'Staging'. Hard to determine why.",
+        "expanded_name": "Staging",
+    },
+    "Pending": {
+        "expanded_name": "Pending Classication and Inclusion",
+        "description": "Facilities discovered through other means that may become ICE/DHS facilities",
+    },
 }
 
 # ICE AOR mappings
@@ -115,10 +123,10 @@ area_of_responsibility = {
 field_office_to_aor = {v: k for k, v in area_of_responsibility.items()}
 
 from .utils import (  # noqa: E402
-    clean_street,  # noqa: F401
     get_ice_scrape_pages,  # noqa: F401
-    repair_zip,  # noqa: F401
     repair_locality,  # noqa: F401
+    repair_street,  # noqa: F401
+    repair_zip,  # noqa: F401
     update_facility,  # noqa: F401
 )
 from .facilities_scraper import scrape_facilities  # noqa: F401,E402
@@ -127,3 +135,5 @@ from .field_offices import (  # noqa: E402
     merge_field_offices,  # noqa: F401
     scrape_field_offices,  # noqa: F401
 )
+from .custom_facilities import insert_additional_facilities  # noqa: F401,E402
+from .general import facilities_scrape_wrapper  # noqa: F401,E402
