@@ -15,8 +15,8 @@ custom_facilities = {
         },
         "address_str": "North Highway 83,McCook,NE,69001",
         "facility_type": {
-            "description": "",
-            "expanded_name": "",
+            "expanded_name": "Pending Classication and Inclusion",
+            "description": "Facilities discovered through other means that may become ICE/DHS facilities",
             "id": "Pending",
         },
         "field_office": {
