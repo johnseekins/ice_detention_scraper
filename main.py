@@ -24,6 +24,7 @@ import logging
 from file_utils import export_to_file, print_summary
 import default_data
 from ice_scrapers import (
+    collect_vera_facility_data,
     load_sheet,
     merge_field_offices,
     scrape_facilities,
@@ -123,6 +124,7 @@ def main() -> None:
         exit(1)
 
     if args.scrape:
+        facilities_data = collect_vera_facility_data(facilities_data)
         facilities = load_sheet()
         facilities_data["facilities"] = copy.deepcopy(facilities)
         facilities_data = scrape_facilities(facilities_data)

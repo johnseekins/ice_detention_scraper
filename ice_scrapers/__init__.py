@@ -160,3 +160,4 @@ from .field_offices import (  # noqa: E402
     merge_field_offices,  # noqa: F401
     scrape_field_offices,  # noqa: F401
 )
+from .vera_data import collect_vera_facility_data  # noqa: F401,E402
