@@ -63,6 +63,12 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
         {"match": "Meade Co. Jail, SD", "replace": "Meade County Jail", "city": "Sturgis"},
         {"match": "Mecklenburg (NC) Co Jail", "replace": "Mecklenburg County Jail", "city": "Charlotte"},
         {"match": "Mountrail Co. Jail, ND", "replace": "Mountrail County Jail", "city": "Stanley"},
+        {
+            "match": "Saipan Department Of Corrections",
+            "replace": "SAIPAN DEPARTMENT OF CORRECTIONS (SUSUPE)",
+            "city": "Saipan",
+        },
+        # MPSIPAN,Saipan Department Of Corrections,15.156223,145.703679,Saipan,MP,USMS IGA,Federal
     ]
     fixed = False
     for m in matches:
@@ -71,6 +77,20 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
             name = m["replace"]
             break
     return name, fixed
+
+
+def _vera_city_fixes(city: str, state: str) -> Tuple[str, bool]:
+    """There are a few cases where getting a state match requires some munging"""
+    matches = [
+        {"match": "Saipan", "replace": "Susupe, Saipan", "city": "MP"},
+    ]
+    fixed = False
+    for m in matches:
+        if m["match"] == city and m["city"] == state:
+            fixed = True
+            city = m["replace"]
+            break
+    return city, fixed
 
 
 def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, force_download: bool = True) -> dict:
@@ -95,22 +115,23 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
     """
     matched_count = 0
     skipped_count = 0
-    fixed_names = 0
+    fixed = 0
     for row in df.iter_rows(named=True):
         if not row["state"] or not row["city"]:
             logger.warning("  Skipping Vera row with missing values: %s", row)
             skipped_count += 1
             continue
         found = False
-        facility_name, fixed = _vera_name_fixes(row["detention_facility_name"], row["city"])
-        if fixed:
-            fixed_names += 1
-        addr_str = f"{facility_name},{row['city']},{row['state']},United States"
+        facility_name, fixed_name = _vera_name_fixes(row["detention_facility_name"], row["city"])
+        city, fixed_city = _vera_city_fixes(row["city"], row["state"])
+        if fixed_name or fixed_city:
+            fixed += 1
+        addr_str = f"{facility_name},{city},{row['state']},United States"
         for k, v in facilities_data["facilities"].items():
             if (
                 v["name"].upper() == facility_name.upper()
                 and v["address"]["administrative_area"].upper() == row["state"].upper()
-                and v["address"]["locality"].upper() == row["city"].upper()
+                and v["address"]["locality"].upper() == city.upper()
             ):
                 logger.debug("  Found matching facility %s...", v["name"])
                 facilities_data["facilities"][k]["osm"]["latitude"] = row["latitude"]
@@ -124,7 +145,7 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
             facilities_data["facilities"][addr_str]["source_urls"].append(base_url)
             facilities_data["facilities"][addr_str]["name"] = facility_name
             facilities_data["facilities"][addr_str]["address"]["administrative_area"] = row["state"]
-            facilities_data["facilities"][addr_str]["address"]["locality"] = row["city"]
+            facilities_data["facilities"][addr_str]["address"]["locality"] = city
             facilities_data["facilities"][addr_str]["address"]["country"] = "United States"
             facilities_data["facilities"][addr_str]["address_str"] = addr_str
             facilities_data["facilities"][addr_str]["osm"]["latitude"] = row["latitude"]
@@ -137,7 +158,7 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
         df.height,
         skipped_count,
         matched_count,
-        fixed_names,
+        fixed,
     )
     if not keep_sheet:
         os.unlink(filename)
