@@ -101,6 +101,16 @@ def main() -> None:
         action="store_true",
         help="Add another column on export for OpenStreetMap debugging details and redirects",
     )
+    parser.add_argument(
+        "--skip-downloads",
+        action="store_true",
+        help="Skip downloading sheet data",
+    )
+    parser.add_argument(
+        "--delete-sheets",
+        action="store_true",
+        help="Remove any sheets we downloaded",
+    )
 
     args = parser.parse_args()
     if args.debug:
@@ -124,9 +134,11 @@ def main() -> None:
         exit(1)
 
     if args.scrape:
-        facilities_data = collect_vera_facility_data(facilities_data)
-        facilities = load_sheet()
+        facilities = load_sheet(keep_sheet=not args.delete_sheets, force_download=not args.skip_downloads)
         facilities_data["facilities"] = copy.deepcopy(facilities)
+        facilities_data = collect_vera_facility_data(
+            facilities_data, keep_sheet=not args.delete_sheets, force_download=not args.skip_downloads
+        )
         facilities_data = scrape_facilities(facilities_data)
         field_offices = scrape_field_offices()
         facilities_data = merge_field_offices(facilities_data, field_offices)

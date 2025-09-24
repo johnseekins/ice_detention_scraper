@@ -28,7 +28,7 @@ base_xlsx_url = "https://www.ice.gov/detain/detention-management"
 filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
 
 
-def _download_sheet(keep_sheet: bool = True) -> Tuple[polars.DataFrame, str]:
+def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> Tuple[polars.DataFrame, str]:
     """Download the detention stats sheet from ice.gov"""
     resp = session.get(base_xlsx_url, timeout=120)
     resp.raise_for_status()
@@ -50,16 +50,16 @@ def _download_sheet(keep_sheet: bool = True) -> Tuple[polars.DataFrame, str]:
             actual_link = link["href"]
             # this seems like tracking into the future...
             cur_year = year
-
     logger.debug("Found sheet at: %s", actual_link)
-    logger.info("Downloading detention stats sheet from %s", actual_link)
-    resp = session.get(actual_link, timeout=120, stream=True)
-    size = len(resp.content)
-    with open(filename, "wb") as f:
-        for chunk in resp.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
-    logger.debug("Wrote %s byte sheet to %s", size, filename)
+    if force_download or not os.path.exists(filename):
+        logger.info("Downloading detention stats sheet from %s", actual_link)
+        resp = session.get(actual_link, timeout=120, stream=True)
+        size = len(resp.content)
+        with open(filename, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+        logger.debug("Wrote %s byte sheet to %s", size, filename)
     df = polars.read_excel(
         drop_empty_rows=True,
         has_header=False,
@@ -74,8 +74,8 @@ def _download_sheet(keep_sheet: bool = True) -> Tuple[polars.DataFrame, str]:
     return df, actual_link
 
 
-def load_sheet(keep_sheet: bool = True) -> dict:
-    df, sheet_url = _download_sheet(keep_sheet)
+def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
+    df, sheet_url = _download_sheet(keep_sheet, force_download)
     """Convert the detentionstats sheet data into something we can update our facilities with"""
     results: dict = {}
     # occassionally a phone number shows up in weird places in the spreadsheet.
