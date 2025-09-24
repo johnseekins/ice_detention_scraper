@@ -68,7 +68,7 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
             "replace": "SAIPAN DEPARTMENT OF CORRECTIONS (SUSUPE)",
             "city": "Saipan",
         },
-        # MPSIPAN,Saipan Department Of Corrections,15.156223,145.703679,Saipan,MP,USMS IGA,Federal
+        {"match": "Sitka City Jail, Sitka AK", "replace": "Sitka City Jail", "city": "Sitka"},
     ]
     fixed = False
     for m in matches:
