@@ -92,7 +92,7 @@ ice_facility_types = {
     },
     "Unknown": {
         "expanded_name": "Unknown",
-        "description": "A facility who's type could not be identified",
+        "description": "A facility whose type could not be identified",
     },
     "SPC": {
         "expanded_name": "Service Processing Center",
