@@ -14,7 +14,7 @@ def facilities_scrape_wrapper(keep_sheet: bool = True, force_download: bool = Tr
     facilities_data = copy.deepcopy(facilities_schema)
     facilities = load_sheet(keep_sheet, force_download)
     facilities_data["facilities"] = copy.deepcopy(facilities)
-    facilities_data = collect_vera_facility_data(facilities_data, keep_sheet=keep_sheet, force_download=force_download)
+    facilities_data = collect_vera_facility_data(facilities_data, keep_sheet, force_download)
     facilities_data = scrape_facilities(facilities_data)
     field_offices = scrape_field_offices()
     facilities_data = merge_field_offices(facilities_data, field_offices)
