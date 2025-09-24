@@ -23,18 +23,9 @@ import copy
 import logging
 from file_utils import export_to_file, print_summary
 import default_data
-from ice_scrapers import (
-    collect_vera_facility_data,
-    load_sheet,
-    merge_field_offices,
-    scrape_facilities,
-    scrape_field_offices,
-)
+from ice_scrapers import facilities_scrape_wrapper
 from enrichers import enrich_facility_data
-from schemas import (
-    facilities_schema,
-    supported_output_types,
-)
+from schemas import supported_output_types
 from utils import logger
 # CLI, argument parsing, script orchestration
 
@@ -127,21 +118,14 @@ def main() -> None:
         logger.warning(
             "Warning: --debug-wikipedia, --debug-wikidata and --debug-osm are currently not implemented as command line options."
         )
-    facilities_data = copy.deepcopy(facilities_schema)
-
     if args.scrape and args.load_existing:
         logger.error("Can't scrape and load existing data!")
         exit(1)
 
     if args.scrape:
-        facilities = load_sheet(keep_sheet=not args.delete_sheets, force_download=not args.skip_downloads)
-        facilities_data["facilities"] = copy.deepcopy(facilities)
-        facilities_data = collect_vera_facility_data(
-            facilities_data, keep_sheet=not args.delete_sheets, force_download=not args.skip_downloads
+        facilities_data = facilities_scrape_wrapper(
+            keep_sheet=not args.delete_sheets, force_download=not args.skip_downloads
         )
-        facilities_data = scrape_facilities(facilities_data)
-        field_offices = scrape_field_offices()
-        facilities_data = merge_field_offices(facilities_data, field_offices)
     elif args.load_existing:
         facilities_data = copy.deepcopy(default_data.facilities_data)
         logger.info(
