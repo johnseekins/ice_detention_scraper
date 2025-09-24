@@ -4,18 +4,18 @@ import copy
 Handle manually discovered/managed facilities
 """
 custom_facilities = {
-    "North Highway 83,McCook,NE,69001": {
+    "2309 North Highway 83,McCook,NE,69001": {
         "_repaired_record": False,
         "address": {
             "administrative_area": "NE",
             "country": "United States",
             "locality": "McCook",
             "postal_code": "69001",
-            "street": "North Highway 83",
+            "street": "2309 North Highway 83",
         },
         "address_str": "North Highway 83,McCook,NE,69001",
         "facility_type": {
-            "expanded_name": "Pending Classication and Inclusion",
+            "expanded_name": "Pending Classification and Inclusion",
             "description": "Facilities discovered through other means that may become ICE/DHS facilities",
             "id": "Pending",
         },
