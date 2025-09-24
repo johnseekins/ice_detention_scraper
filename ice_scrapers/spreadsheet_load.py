@@ -9,12 +9,12 @@ from schemas import (
     field_office_schema,
 )
 from ice_scrapers import (
-    clean_street,
     facility_sheet_header,
     ice_facility_types,
     ice_inspection_types,
-    repair_zip,
     repair_locality,
+    repair_street,
+    repair_zip,
 )
 from typing import Tuple
 from utils import (
@@ -84,7 +84,7 @@ def load_sheet(keep_sheet: bool = True) -> dict:
         zcode, cleaned = repair_zip(row["Zip"], row["City"])
         if cleaned:
             details["_repaired_record"] = True
-        street, cleaned = clean_street(row["Address"], row["City"])
+        street, cleaned = repair_street(row["Address"], row["City"])
         if cleaned:
             details["_repaired_record"] = True
         match = phone_re.search(row["Address"])
@@ -101,7 +101,9 @@ def load_sheet(keep_sheet: bool = True) -> dict:
         details["address"]["street"] = street
         details["name"] = row["Name"]
 
-        # population statistics
+        """
+        population statistics
+        """
         details["population"]["male"]["criminal"] = row["Male Crim"]
         details["population"]["male"]["non_criminal"] = row["Male Non-Crim"]
         details["population"]["female"]["criminal"] = row["Female Crim"]
@@ -123,27 +125,22 @@ def load_sheet(keep_sheet: bool = True) -> dict:
             "level_3": row["ICE Threat Level 3"],
             "none": row["No ICE Threat Level"],
         }
-        """
-        # extracted from https://www.ice.gov/doclib/detention/FY25_detentionStats09112025.xlsx 2025-09-22
-        Upon admission and periodically thereafter, detainees are categorized into a security level based on a variety of public safety factors, and are housed accordingly.  Factors include prior convictions, threat risk, disciplinary record, special vulnerabilities, and special management concerns.  Detainees are categorized into one of four classes of security risk: A/low, B/medium low, C/medium high, and D/high.
-        """
+        # Levels extracted from https://www.ice.gov/doclib/detention/FY25_detentionStats09112025.xlsx 2025-09-22
         details["population"]["security_threat"]["low"] = row["Level A"]
         details["population"]["security_threat"]["medium_low"] = row["Level B"]
         details["population"]["security_threat"]["medium_high"] = row["Level C"]
         details["population"]["security_threat"]["high"] = row["Level D"]
+        details["population"]["housing"]["mandatory"] = row["Mandatory"]
+        details["population"]["housing"]["guaranteed_min"] = row["Guaranteed Minimum"]
+        details["population"]["avg_stay_length"] = row["FY25 ALOS"]
 
         details["facility_type"] = {
             "id": row["Type Detailed"],
-            "housing": {
-                "mandatory": row["Mandatory"],
-                "guaranteed_min": row["Guaranteed Minimum"],
-            },
         }
         ft_details = ice_facility_types.get(row["Type Detailed"], {})
         if ft_details:
             details["facility_type"]["description"] = ft_details["description"]
             details["facility_type"]["expanded_name"] = ft_details["expanded_name"]
-        details["avg_stay_length"] = row["FY25 ALOS"]
         details["inspection"] = {
             # fall back to type code
             "last_type": ice_inspection_types.get(row["Last Inspection Type"], row["Last Inspection Type"]),

@@ -3,10 +3,10 @@ import copy
 import datetime
 import re
 from ice_scrapers import (
-    clean_street,
     get_ice_scrape_pages,
-    repair_zip,
     repair_locality,
+    repair_street,
+    repair_zip,
     update_facility,
 )
 from schemas import facility_schema
@@ -38,7 +38,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
         time.sleep(1)  # Be respectful to the server
         for facility in facilities:
             addr = facility["address"]
-            street, cleaned = clean_street(addr["street"], addr["locality"])
+            street, cleaned = repair_street(addr["street"], addr["locality"])
             if cleaned:
                 addr["street"] = street
                 facility["_repaired_record"] = True

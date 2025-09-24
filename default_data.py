@@ -14,11 +14,9 @@ facilities_data = {
                 "street": "1 Sheriff Office Drive",
             },
             "address_str": "1 SHERIFF OFFICE DRIVE,MACCLENNY,FL,32063",
-            "avg_stay_length": 32.1266008049762,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Intergovernmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
                 "expanded_name": "Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": 192, "mandatory": 199.196428571429},
                 "id": "IGSA",
             },
             "field_office": {
@@ -50,6 +48,7 @@ facilities_data = {
             "phone": "",
             "population": {
                 "female": {"allowed": True, "criminal": 26.4047619047619, "non_criminal": 31.9910714285714},
+                "avg_stay_length": 32.1266008049762,
                 "ice_threat_level": {
                     "level_1": 24.5952380952381,
                     "level_2": 13.0059523809524,
@@ -57,6 +56,7 @@ facilities_data = {
                     "none": 210.523809523811,
                 },
                 "male": {"allowed": True, "criminal": 143.247023809523, "non_criminal": 59.6249999999997},
+                "housing": {"guaranteed_min": 192, "mandatory": 199.196428571429},
                 "security_threat": {
                     "high": 83.4196428571429,
                     "low": 36.1041666666665,
@@ -83,11 +83,9 @@ facilities_data = {
                 "street": "1300 LANGE CT",
             },
             "address_str": "1300 LANGE CT,BARABOO,WI,53913",
-            "avg_stay_length": 6.81081081081081,
             "facility_type": {
                 "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
                 "expanded_name": "United States Marshals Service Intergovernmental Agreement",
-                "housing": {"guaranteed_min": None, "mandatory": 1.23214285714286},
                 "id": "USMS IGA",
             },
             "field_office": {
@@ -114,6 +112,7 @@ facilities_data = {
             "page_updated_date": None,
             "phone": "",
             "population": {
+                "avg_stay_length": 6.81081081081081,
                 "female": {"allowed": True, "criminal": 0.0, "non_criminal": 0.00595238095238095},
                 "ice_threat_level": {
                     "level_1": 0.0,
@@ -122,6 +121,7 @@ facilities_data = {
                     "none": 1.75297619047619,
                 },
                 "male": {"allowed": True, "criminal": 0.842261904761905, "non_criminal": 1.06845238095238},
+                "housing": {"guaranteed_min": None, "mandatory": 1.23214285714286},
                 "security_threat": {
                     "high": 0.267857142857143,
                     "low": 0.610119047619048,
@@ -144,11 +144,9 @@ facilities_data = {
                 "street": "1623 E J STREET",
             },
             "address_str": "1623 E J STREET,TACOMA,WA,98421",
-            "avg_stay_length": 69.515069725596,
             "facility_type": {
                 "description": "Name derived from listing at https://www.vera.org/ice-detention-trends",
                 "expanded_name": "Contract Detention Facility",
-                "housing": {"guaranteed_min": 1181, "mandatory": 949.535714285718},
                 "id": "CDF",
             },
             "field_office": {
@@ -179,6 +177,7 @@ facilities_data = {
             "page_updated_date": "2025-08-20 07:47:00+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 69.515069725596,
                 "female": {"allowed": True, "criminal": 46.4107142857143, "non_criminal": 78.5446428571429},
                 "ice_threat_level": {
                     "level_1": 151.08630952381,
@@ -187,6 +186,7 @@ facilities_data = {
                     "none": 943.872023809526,
                 },
                 "male": {"allowed": True, "criminal": 408.907738095238, "non_criminal": 634.157738095241},
+                "housing": {"guaranteed_min": 1181, "mandatory": 949.535714285718},
                 "security_threat": {
                     "high": 212.28869047619,
                     "low": 592.693452380955,
@@ -213,11 +213,9 @@ facilities_data = {
                 "street": "216 S BROAD ST",
             },
             "address_str": "216 S BROAD ST,GUTHRIE,OK,73044",
-            "avg_stay_length": 2.70526315789474,
             "facility_type": {
                 "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
                 "expanded_name": "United States Marshals Service Intergovernmental Agreement",
-                "housing": {"guaranteed_min": None, "mandatory": 0.901785714285713},
                 "id": "USMS IGA",
             },
             "field_office": {
@@ -244,7 +242,9 @@ facilities_data = {
             "page_updated_date": None,
             "phone": "",
             "population": {
+                "avg_stay_length": 2.70526315789474,
                 "female": {"allowed": False, "criminal": 0.0476190476190476, "non_criminal": 0.163690476190476},
+                "housing": {"guaranteed_min": None, "mandatory": 0.901785714285713},
                 "ice_threat_level": {
                     "level_1": 0.0178571428571429,
                     "level_2": 0.0119047619047619,
@@ -274,11 +274,9 @@ facilities_data = {
                 "street": "219 EAST FREMONT AVENUE",
             },
             "address_str": "219 EAST FREMONT AVENUE,RIGBY,ID,83442",
-            "avg_stay_length": 2.98178506375228,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Intergovernmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
                 "expanded_name": "Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": None, "mandatory": 4.18750000000003},
                 "id": "IGSA",
             },
             "field_office": {
@@ -309,7 +307,9 @@ facilities_data = {
             "page_updated_date": None,
             "phone": "",
             "population": {
+                "avg_stay_length": 2.98178506375228,
                 "female": {"allowed": True, "criminal": 0.0297619047619048, "non_criminal": 0.0238095238095238},
+                "housing": {"guaranteed_min": None, "mandatory": 4.18750000000003},
                 "ice_threat_level": {
                     "level_1": 0.0654761904761905,
                     "level_2": 0.178571428571429,
@@ -339,11 +339,9 @@ facilities_data = {
                 "street": "320 Shaw Station Road",
             },
             "address_str": "320 SHAW STATION ROAD,LEITCHFIELD,KY,42754",
-            "avg_stay_length": 18.0488505747126,
             "facility_type": {
                 "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
                 "expanded_name": "United States Marshals Service Intergovernmental Agreement",
-                "housing": {"guaranteed_min": 0, "mandatory": 50.785714285714},
                 "id": "USMS IGA",
             },
             "field_office": {
@@ -374,7 +372,9 @@ facilities_data = {
             "page_updated_date": "2025-08-20 08:07:50+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 18.0488505747126,
                 "female": {"allowed": True, "criminal": 20.3869047619048, "non_criminal": 39.9613095238095},
+                "housing": {"guaranteed_min": 0, "mandatory": 50.785714285714},
                 "ice_threat_level": {
                     "level_1": 6.74404761904762,
                     "level_2": 3.27678571428571,
@@ -408,11 +408,9 @@ facilities_data = {
                 "street": "3347 TAMIAMI TRAIL E",
             },
             "address_str": "3347 TAMIAMI TRAIL E,NAPLES,FL,34112",
-            "avg_stay_length": 2.91890440386681,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Intergovernmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
                 "expanded_name": "Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": None, "mandatory": 11.8065476190477},
                 "id": "IGSA",
             },
             "field_office": {
@@ -443,7 +441,9 @@ facilities_data = {
             "page_updated_date": None,
             "phone": "",
             "population": {
+                "avg_stay_length": 2.91890440386681,
                 "female": {"allowed": True, "criminal": 0.366071428571429, "non_criminal": 0.601190476190476},
+                "housing": {"guaranteed_min": None, "mandatory": 11.8065476190477},
                 "ice_threat_level": {
                     "level_1": 0.306547619047619,
                     "level_2": 0.258928571428571,
@@ -473,11 +473,9 @@ facilities_data = {
                 "street": "3855 SOUTH JOHN YOUNG PARKWAY",
             },
             "address_str": "3855 SOUTH JOHN YOUNG PARKWAY,ORLANDO,FL,32839",
-            "avg_stay_length": 2.24147157190635,
             "facility_type": {
                 "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
                 "expanded_name": "United States Marshals Service Intergovernmental Agreement",
-                "housing": {"guaranteed_min": None, "mandatory": 12.014880952381},
                 "id": "USMS IGA",
             },
             "field_office": {
@@ -509,6 +507,8 @@ facilities_data = {
             "phone": "",
             "population": {
                 "female": {"allowed": True, "criminal": 0.75297619047619, "non_criminal": 2.18154761904762},
+                "avg_stay_length": 2.24147157190635,
+                "housing": {"guaranteed_min": None, "mandatory": 12.014880952381},
                 "ice_threat_level": {
                     "level_1": 0.151785714285714,
                     "level_2": 0.0476190476190476,
@@ -538,11 +538,9 @@ facilities_data = {
                 "street": "406 North Avenue D",
             },
             "address_str": "406 NORTH AVENUE D,SAN LUIS,AZ,85349",
-            "avg_stay_length": 17.4419417475728,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Intergovernmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
                 "expanded_name": "Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": 100, "mandatory": 153.306547619047},
                 "id": "IGSA",
             },
             "field_office": {
@@ -573,7 +571,9 @@ facilities_data = {
             "page_updated_date": "2025-02-10 18:54:02+05:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 17.4419417475728,
                 "female": {"allowed": True, "criminal": 2.45833333333333, "non_criminal": 41.5327380952381},
+                "housing": {"guaranteed_min": 100, "mandatory": 153.306547619047},
                 "ice_threat_level": {
                     "level_1": 13.8095238095238,
                     "level_2": 3.2202380952381,
@@ -607,11 +607,9 @@ facilities_data = {
                 "street": "409 FM 1144",
             },
             "address_str": "409 FM 1144,KARNES CITY,TX,78118",
-            "avg_stay_length": 33.2780461031833,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Intergovernmental Service Agreements, which house only ICE detainees \u2013 typically these are operated by private contractors pursuant to their agreements with local governments.",
                 "expanded_name": "Dedicated Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": 928, "mandatory": 605.050595238094},
                 "id": "DIGSA",
             },
             "field_office": {
@@ -642,7 +640,9 @@ facilities_data = {
             "page_updated_date": "2025-08-18 15:00:23+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 33.2780461031833,
                 "female": {"allowed": True, "criminal": 20.4434523809524, "non_criminal": 258.038690476191},
+                "housing": {"guaranteed_min": 928, "mandatory": 605.050595238094},
                 "ice_threat_level": {
                     "level_1": 1.38988095238095,
                     "level_2": 7.22321428571429,
@@ -676,11 +676,9 @@ facilities_data = {
                 "street": "451 Doremus Avenue",
             },
             "address_str": "451 DOREMUS AVENUE,NEWARK,NJ,07105",
-            "avg_stay_length": 18.698902027027,
             "facility_type": {
                 "description": "Name derived from listing at https://www.vera.org/ice-detention-trends",
                 "expanded_name": "Contract Detention Facility",
-                "housing": {"guaranteed_min": 700, "mandatory": 118.9375},
                 "id": "CDF",
             },
             "field_office": {
@@ -707,7 +705,9 @@ facilities_data = {
             "page_updated_date": "2025-09-15 13:47:56+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 18.698902027027,
                 "female": {"allowed": True, "criminal": 1.66964285714286, "non_criminal": 15.9107142857143},
+                "housing": {"guaranteed_min": 700, "mandatory": 118.9375},
                 "ice_threat_level": {
                     "level_1": 0.854166666666667,
                     "level_2": 2.87202380952381,
@@ -741,11 +741,9 @@ facilities_data = {
                 "street": "5001 MALONEYVILLE RD",
             },
             "address_str": "5001 MALONEYVILLE RD,KNOXVILLE,TN,37918",
-            "avg_stay_length": 3.70551670551671,
             "facility_type": {
                 "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
                 "expanded_name": "United States Marshals Service Intergovernmental Agreement",
-                "housing": {"guaranteed_min": None, "mandatory": 20.5654761904763},
                 "id": "USMS IGA",
             },
             "field_office": {
@@ -776,7 +774,9 @@ facilities_data = {
             "page_updated_date": None,
             "phone": "",
             "population": {
+                "avg_stay_length": 3.70551670551671,
                 "female": {"allowed": True, "criminal": 0.720238095238095, "non_criminal": 1.41964285714285},
+                "housing": {"guaranteed_min": None, "mandatory": 20.5654761904763},
                 "ice_threat_level": {
                     "level_1": 0.196428571428571,
                     "level_2": 0.0476190476190476,
@@ -806,11 +806,9 @@ facilities_data = {
                 "street": "555 GEO Drive",
             },
             "address_str": "555 GEO DRIVE,PHILIPSBURG,PA,16866",
-            "avg_stay_length": 60.577734375,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Intergovernmental Service Agreements, which house only ICE detainees \u2013 typically these are operated by private contractors pursuant to their agreements with local governments.",
                 "expanded_name": "Dedicated Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": 800, "mandatory": 1031.93452380953},
                 "id": "DIGSA",
             },
             "field_office": {
@@ -841,7 +839,9 @@ facilities_data = {
             "page_updated_date": "2025-08-14 07:24:42+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 60.577734375,
                 "female": {"allowed": True, "criminal": 25.4940476190476, "non_criminal": 23.1279761904762},
+                "housing": {"guaranteed_min": 800, "mandatory": 1031.93452380953},
                 "ice_threat_level": {
                     "level_1": 187.080357142857,
                     "level_2": 63.6279761904762,
@@ -875,8 +875,7 @@ facilities_data = {
                 "street": "651 FEDERAL DRIVE SUITE 104",
             },
             "address_str": "651 FEDERAL DRIVE SUITE 104,GUAYNABO,PR,00965",
-            "avg_stay_length": 4.85525227460711,
-            "facility_type": {"housing": {"guaranteed_min": 100, "mandatory": 8.66666666666672}, "id": "STAGING"},
+            "facility_type": {"expanded_name": "", "description": "", "id": "STAGING"},
             "field_office": {
                 "address": {
                     "administrative_area": "FL",
@@ -901,7 +900,9 @@ facilities_data = {
             "page_updated_date": None,
             "phone": "",
             "population": {
+                "avg_stay_length": 4.85525227460711,
                 "female": {"allowed": True, "criminal": 0.1875, "non_criminal": 0.982142857142856},
+                "housing": {"guaranteed_min": 100, "mandatory": 8.66666666666672},
                 "ice_threat_level": {
                     "level_1": 0.0892857142857143,
                     "level_2": 0.0744047619047619,
@@ -931,11 +932,9 @@ facilities_data = {
                 "street": "705 Hanover Street",
             },
             "address_str": "705 HANOVER STREET,HAMILTON,OH,45011",
-            "avg_stay_length": 28.500872600349,
             "facility_type": {
                 "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
                 "expanded_name": "United States Marshals Service Intergovernmental Agreement",
-                "housing": {"guaranteed_min": 0, "mandatory": 110.571428571429},
                 "id": "USMS IGA",
             },
             "field_office": {
@@ -962,7 +961,9 @@ facilities_data = {
             "page_updated_date": "2025-05-15 07:19:46+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 28.500872600349,
                 "female": {"allowed": True, "criminal": 1.87202380952381, "non_criminal": 12.8630952380952},
+                "housing": {"guaranteed_min": 0, "mandatory": 110.571428571429},
                 "ice_threat_level": {
                     "level_1": 4.52083333333333,
                     "level_2": 5.66071428571429,
@@ -996,11 +997,9 @@ facilities_data = {
                 "street": "715 5th Avenue",
             },
             "address_str": "715 5TH AVENUE,HOLDREGE,NE,68949",
-            "avg_stay_length": 38.2981132075472,
             "facility_type": {
                 "description": "A USMS Intergovernmental Agreement in which ICE agrees to utilize an already established US Marshals Service contract.",
                 "expanded_name": "United States Marshals Service Intergovernmental Agreement",
-                "housing": {"guaranteed_min": 0, "mandatory": 26.764880952381},
                 "id": "USMS IGA",
             },
             "field_office": {
@@ -1031,7 +1030,9 @@ facilities_data = {
             "page_updated_date": "2025-02-10 18:50:51+05:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 38.2981132075472,
                 "female": {"allowed": True, "criminal": 1.27678571428571, "non_criminal": 0.342261904761905},
+                "housing": {"guaranteed_min": 0, "mandatory": 26.764880952381},
                 "ice_threat_level": {
                     "level_1": 2.05952380952381,
                     "level_2": 2.0327380952381,
@@ -1065,11 +1066,9 @@ facilities_data = {
                 "street": "4702 EAST SAUNDERS STREET",
             },
             "address_str": "4702 EAST SAUNDERS STREET,LAREDO,TX,78401",
-            "avg_stay_length": 34.5141129032258,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Intergovernmental Service Agreements, which house only ICE detainees \u2013 typically these are operated by private contractors pursuant to their agreements with local governments.",
                 "expanded_name": "Dedicated Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": 0, "mandatory": 234.130952380952},
                 "id": "DIGSA",
             },
             "field_office": {
@@ -1100,7 +1099,9 @@ facilities_data = {
             "page_updated_date": "2025-02-10 15:38:10+05:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 34.5141129032258,
                 "female": {"allowed": True, "criminal": 26.4047619047619, "non_criminal": 336.178571428572},
+                "housing": {"guaranteed_min": 0, "mandatory": 234.130952380952},
                 "ice_threat_level": {
                     "level_1": 6.05357142857143,
                     "level_2": 5.58630952380952,
@@ -1134,11 +1135,9 @@ facilities_data = {
                 "street": "11541 Montana Avenue",
             },
             "address_str": "11541 MONTANA AVENUE,EL PASO,TX,79936",
-            "avg_stay_length": 3.64849187935035,
             "facility_type": {
                 "description": "",
                 "expanded_name": "",
-                "housing": {"guaranteed_min": 0, "mandatory": 16.5684523809523},
                 "id": "DOD",
             },
             "field_office": {
@@ -1165,7 +1164,9 @@ facilities_data = {
             "page_updated_date": "2025-09-18 13:57:54+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 3.64849187935035,
                 "female": {"allowed": True, "criminal": 0.0416666666666667, "non_criminal": 0.598214285714285},
+                "housing": {"guaranteed_min": 0, "mandatory": 16.5684523809523},
                 "ice_threat_level": {
                     "level_1": 5.79761904761905,
                     "level_2": 3.36309523809524,
@@ -1193,11 +1194,9 @@ facilities_data = {
             "_repaired_record": False,
             "address": {"administrative_area": "", "country": "", "locality": "", "postal_code": "", "street": ""},
             "address_str": ",,,00000",
-            "avg_stay_length": 0,
             "facility_type": {
                 "description": "",
                 "expanded_name": "",
-                "housing": {"guaranteed_min": 0, "mandatory": 0},
                 "id": "",
             },
             "field_office": {
@@ -1224,7 +1223,9 @@ facilities_data = {
             "page_updated_date": "2025-05-06 08:22:09+04:00",
             "phone": "",
             "population": {
+                "avg_stay_length": 0,
                 "female": {"allowed": False, "criminal": 0, "non_criminal": 0},
+                "housing": {"guaranteed_min": 0, "mandatory": 0},
                 "ice_threat_level": {"level_1": 0, "level_2": 0, "level_3": 0, "none": 0},
                 "male": {"allowed": False, "criminal": 0, "non_criminal": 0},
                 "security_threat": {"high": 0, "low": 0, "medium_high": 0, "medium_low": 0},
@@ -1247,11 +1248,9 @@ facilities_data = {
                 "street": "PARK STREET",
             },
             "address_str": "PARK STREET,FONDA,NY,12068",
-            "avg_stay_length": 1.953125,
             "facility_type": {
                 "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Intergovernmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
                 "expanded_name": "Intergovernmental Service Agreement",
-                "housing": {"guaranteed_min": None, "mandatory": 0.654761904761904},
                 "id": "IGSA",
             },
             "field_office": {
@@ -1278,7 +1277,9 @@ facilities_data = {
             "page_updated_date": None,
             "phone": "",
             "population": {
+                "avg_stay_length": 1.953125,
                 "female": {"allowed": True, "criminal": 0.0, "non_criminal": 0.0684523809523809},
+                "housing": {"guaranteed_min": None, "mandatory": 0.654761904761904},
                 "ice_threat_level": {
                     "level_1": 0.00595238095238095,
                     "level_2": 0.0119047619047619,

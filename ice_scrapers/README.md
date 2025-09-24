@@ -36,3 +36,7 @@ and contact info for the field office.
 > The field-offices page shows information about a number of different offices. As we
 > are largely focused on detention, ERO (Enforcement and Removal Operations) centers
 > are the most interesting.
+
+## custom_facilities.py
+
+Some facilities we may discover manually. Or they may be "pending" classification, but we discover them early on. These facilities are defined here.
