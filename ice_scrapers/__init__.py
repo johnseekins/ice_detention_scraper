@@ -74,6 +74,10 @@ ice_facility_types = {
         "expanded_name": "Department of Defence",
         "description": "Department of Defence facilities - Often Army bases",
     },
+    "FAMILY": {
+        "expanded_name": "Family",
+        "description": "A facility in which families are able to remain together while awaiting their proceedings",
+    },
     "Family": {
         "expanded_name": "Family",
         "description": "A facility in which families are able to remain together while awaiting their proceedings",
