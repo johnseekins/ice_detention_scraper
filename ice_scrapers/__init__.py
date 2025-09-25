@@ -4,38 +4,6 @@ types exist before attempting to import functions that
 may call them
 """
 
-# extracted ADP sheet header list 2025-09-07
-facility_sheet_header = [
-    "Name",
-    "Address",
-    "City",
-    "State",
-    "Zip",
-    "AOR",
-    "Type Detailed",
-    "Male/Female",
-    "FY25 ALOS",
-    "Level A",
-    "Level B",
-    "Level C",
-    "Level D",
-    "Male Crim",
-    "Male Non-Crim",
-    "Female Crim",
-    "Female Non-Crim",
-    "ICE Threat Level 1",
-    "ICE Threat Level 2",
-    "ICE Threat Level 3",
-    "No ICE Threat Level",
-    "Mandatory",
-    "Guaranteed Minimum",
-    "Last Inspection Type",
-    "Last Inspection End Date",
-    "Pending FY25 Inspection",
-    "Last Inspection Standard",
-    "Last Final Rating",
-]
-
 ice_inspection_types = {
     # found in https://www.ice.gov/foia/odo-facility-inspections
     "ODO": "Office of Detention Oversight",

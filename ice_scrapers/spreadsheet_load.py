@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import copy
 import datetime
 from ice_scrapers import (
-    facility_sheet_header,
     ice_facility_types,
     ice_inspection_types,
     repair_locality,
@@ -26,6 +25,38 @@ from utils import (
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 base_xlsx_url = "https://www.ice.gov/detain/detention-management"
 filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
+
+# extracted ADP sheet header list 2025-09-07
+facility_sheet_header = [
+    "Name",
+    "Address",
+    "City",
+    "State",
+    "Zip",
+    "AOR",
+    "Type Detailed",
+    "Male/Female",
+    "FY25 ALOS",
+    "Level A",
+    "Level B",
+    "Level C",
+    "Level D",
+    "Male Crim",
+    "Male Non-Crim",
+    "Female Crim",
+    "Female Non-Crim",
+    "ICE Threat Level 1",
+    "ICE Threat Level 2",
+    "ICE Threat Level 3",
+    "No ICE Threat Level",
+    "Mandatory",
+    "Guaranteed Minimum",
+    "Last Inspection Type",
+    "Last Inspection End Date",
+    "Pending FY25 Inspection",
+    "Last Inspection Standard",
+    "Last Final Rating",
+]
 
 
 def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> Tuple[polars.DataFrame, str]:
@@ -154,9 +185,9 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
             "last_rating": row["Last Final Rating"],
         }
         details["source_urls"].append(sheet_url)
-        # details["field_office"] = self.field_offices["field_offices"][area_of_responsibility[row["AOR"]]]
         details["field_office"] = copy.deepcopy(field_office_schema)
         details["field_office"]["id"] = row["AOR"]
         details["address_str"] = full_address
         results[full_address] = details
+    logger.info("  Loaded %s facilties", len(results.keys()))
     return results
