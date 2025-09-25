@@ -17,10 +17,10 @@ ice_facility_group_mapping = {
     "Dedicated": ["DIGSA", "CDF", "SPC"],
     "Federal": ["BOF", "USMSIGA", "USMS IGA", "USMS CDF", "DOD", "MOC"],
     "Hold/Staging": ["Hold", "Staging"],
-    "Family/Youth": ["Family", "Juvenile"],
+    "Family/Youth": ["Family", "Juvenile", "FAMILY"],
     "Medical": ["Hospital"],
     "Hotel": ["Hotel"],
-    "Other/Unknown": ["Other", "Unknown"],
+    "Other/Unknown": ["Other", "Unknown", "Pending"],
 }
 
 # extracted from https://www.ice.gov/doclib/detention/FY25_detentionStats08292025.xlsx 2025-09-07
