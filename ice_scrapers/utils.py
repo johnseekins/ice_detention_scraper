@@ -128,6 +128,21 @@ def repair_street(street: str, locality: str = "") -> Tuple[str, bool]:
     return street, cleaned
 
 
+def repair_name(name: str, locality: str) -> Tuple[str, bool]:
+    """Even facility names are occasionally bad"""
+    matches = [
+        {"match": "ALEXANDRIA STAGING FACILI", "replace": "Alexandria Staging Facility", "locality": "ALEXANDRIA"},
+        {"match": "ORANGE COUNTY JAIL (NY)", "replace": "ORANGE COUNTY JAIL", "locality": "GOSHEN"},
+    ]
+    cleaned = False
+    for m in matches:
+        if m["match"] == name and m["locality"] == locality:
+            name = m["replace"]
+            cleaned = True
+            break
+    return name, cleaned
+
+
 def repair_zip(zip_code: int, locality: str) -> Tuple[str, bool]:
     """
     Excel does a cool thing where it strips leading 0s

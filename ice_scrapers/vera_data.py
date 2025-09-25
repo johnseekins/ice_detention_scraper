@@ -1,4 +1,5 @@
 import copy
+from ice_scrapers import ice_facility_types
 import os
 import polars
 from schemas import facility_schema
@@ -69,6 +70,22 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
             "city": "Saipan",
         },
         {"match": "Sitka City Jail, Sitka AK", "replace": "Sitka City Jail", "city": "Sitka"},
+        {"match": "Leavenworth USP", "replace": "Leavenworth US Penitentiary", "city": "Leavenworth"},
+        {"match": "Limestone County Jail", "replace": "Limestone County Detention Center", "city": "Groesbeck"},
+        {"match": "FCI Berlin", "replace": "Berlin Fed. Corr. Inst.", "city": "Berlin"},
+        {"match": "Nassau Co Correc Center", "replace": "Nassau County Correctional Center", "city": "East Meadow"},
+        {"match": "Riverside Reg Jail", "replace": "Riverside Regional Jail", "city": "Hopewell"},
+        {"match": "T Don Hutto Residential Center", "replace": "T Don Hutto Detention Center", "city": "Taylor"},
+        {"match": "Desert View", "replace": "Desert View Annex", "city": "Adelanto"},
+        {"match": "Alamance Co. Det. Facility", "replace": "Alamance County Detention Facility", "city": "Graham"},
+        {"match": "Hall County Sheriff", "replace": "Hall County Department of Corrections", "city": "Grand Island"},
+        {"match": "Hall County Sheriff", "replace": "Hall County Department of Corrections", "city": "Grand Island"},
+        {
+            "match": "Dallas County Jail-Lew Sterrett",
+            "replace": "Dallas County Jail - Lew Sterrett Justice Center",
+            "city": "Dallas",
+        },
+        {"match": "Hardin Co Jail", "replace": "Hardin County Jail", "city": "Eldora"},
     ]
     fixed = False
     for m in matches:
@@ -153,6 +170,11 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
             facilities_data["facilities"][addr_str]["facility_type"]["id"] = row["type_detailed"]
             facilities_data["facilities"][addr_str]["facility_type"]["group"] = row["type_grouped"]
             facilities_data["facilities"][addr_str]["vera_id"] = row["detention_facility_code"]
+            ft_details = ice_facility_types.get(row["type_detailed"], {})
+            if ft_details:
+                facilities_data["facilities"][addr_str]["facility_type"]["description"] = ft_details["description"]
+                facilities_data["facilities"][addr_str]["facility_type"]["expanded_name"] = ft_details["expanded_name"]
+
     logger.info(
         "  Found %s facilities: Skipped %s, Matched %s, corrected names on %s",
         df.height,

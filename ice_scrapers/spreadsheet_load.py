@@ -1,20 +1,21 @@
 from bs4 import BeautifulSoup
 import copy
 import datetime
+from ice_scrapers import (
+    facility_sheet_header,
+    ice_facility_types,
+    ice_inspection_types,
+    repair_locality,
+    repair_name,
+    repair_street,
+    repair_zip,
+)
 import os
 import polars
 import re
 from schemas import (
     facility_schema,
     field_office_schema,
-)
-from ice_scrapers import (
-    facility_sheet_header,
-    ice_facility_types,
-    ice_inspection_types,
-    repair_locality,
-    repair_street,
-    repair_zip,
 )
 from typing import Tuple
 from utils import (
@@ -74,6 +75,7 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> Tup
 
 
 def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
+    logger.info("Collecting initial facility data from %s", base_xlsx_url)
     df, sheet_url = _download_sheet(keep_sheet, force_download)
     """Convert the detentionstats sheet data into something we can update our facilities with"""
     results: dict = {}
@@ -95,12 +97,15 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
         locality, cleaned = repair_locality(row["City"], row["State"])
         if cleaned:
             details["_repaired_record"] = True
+        name, cleaned = repair_name(row["Name"], row["City"])
+        if cleaned:
+            details["_repaired_record"] = True
         full_address = ",".join([street, locality, row["State"], zcode]).upper()
         details["address"]["administrative_area"] = row["State"]
         details["address"]["locality"] = locality
         details["address"]["postal_code"] = zcode
         details["address"]["street"] = street
-        details["name"] = row["Name"]
+        details["name"] = name
 
         """
         population statistics
