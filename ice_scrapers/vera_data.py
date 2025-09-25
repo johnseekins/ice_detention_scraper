@@ -254,6 +254,7 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
                 facilities_data["facilities"][k]["osm"]["latitude"] = row["latitude"]
                 facilities_data["facilities"][k]["osm"]["longitude"] = row["longitude"]
                 facilities_data["facilities"][k]["vera_id"] = row["detention_facility_code"]
+                facilities_data["facilities"][k]["source_urls"].append(base_url)
                 matched_count += 1
                 found = True
                 break
