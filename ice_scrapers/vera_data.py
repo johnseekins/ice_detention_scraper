@@ -157,6 +157,27 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
             "replace": "Chittenden Regional Correctional Facility",
             "city": "South Burlington",
         },
+        {
+            "match": "NW Regional Corrections Center",
+            "replace": "Northwest Regional Corrections Center",
+            "city": "Crookston",
+        },
+        {
+            "match": "Lasalle ICE Processing Center",
+            "replace": "Central Louisiana ICE Processing Center (CLIPC)",
+            "city": "Jena",
+        },
+        {
+            "match": "La Salle Co Regional Det. Center",
+            "replace": "La Salle County Regional Detention Center",
+            "city": "Encinal",
+        },
+        {
+            "match": "Hancock Co Pub Sfty Cplx",
+            "replace": "Hancock County Public Safety Complex",
+            "city": "Bay St. Louis",
+        },
+        {"match": "Brooks County Jail (Contract)", "replace": "Brooks County Jail", "city": "Falfurrias"},
     ]
     fixed = False
     for m in matches:
@@ -196,7 +217,7 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
     df = polars.read_csv(has_header=True, raise_if_empty=True, source=filename, use_pyarrow=True)
     if df.is_empty():
         raise ValueError("Empty CSV loaded somehow! %s", df)
-    # first step to removing duplicates is easy
+    # first step to removing duplicates is easy, but unlikely to actually filter anything
     df = df.unique()
     logger.debug("Extracted data: %s", df)
     """
