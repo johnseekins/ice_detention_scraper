@@ -36,7 +36,7 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
         {"match": "Dade Correctional Inst", "replace": "Dade Correctional Institution", "city": "Florida City"},
         {"match": "Franklin County Jail, VT", "replace": "Franklin County Jail", "city": "Saint Albans"},
         {"match": "Frederick County Det. Cen", "replace": "Frederick County Detention Center", "city": "Frederick"},
-        {"match": "Freeborn County Jail, MN", "replace": "Freeborn County Jail", "city": "Albert Lea"},
+        {"match": "Freeborn County Jail, MN", "replace": "Freeborn Adult Detention Center", "city": "Albert Lea"},
         {"match": "Fremont County Jail, CO", "replace": "Fremont County Jail", "city": "Canon City"},
         {"match": "Fremont County Jail, WY", "replace": "Fremont County Jail", "city": "Lander"},
         {
@@ -123,6 +123,40 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
         },
         {"match": "Tulsa County Jail", "replace": "Tulsa County Jail (David L. Moss Justice Ctr)", "city": "Tulsa"},
         {"match": "Kenton Co Detention Ctr", "replace": "Kenton County Jail", "city": "Covington"},
+        {"match": "Pennington County Jail SD", "replace": "Pennington County Jail", "city": "Rapid City"},
+        {"match": "Denver Contract Det. Fac.", "replace": "Denver Contract Detention Facility", "city": "Aurora"},
+        {
+            "match": "Corrections Center of NW Ohio",
+            "replace": "Corrections Center of Northwest Ohio",
+            "city": "Stryker",
+        },
+        {"match": "Grayson County Detention Center", "replace": "Grayson County Jail", "city": "Leitchfield"},
+        {"match": "Chippewa Co, SSM", "replace": "Chippewa County SSM", "city": "Sault Sainte Marie"},
+        {"match": "Florence SPC", "replace": "Florence Service Processing Center", "city": "Florence"},
+        {"match": "D. Ray James Prison", "replace": "D. Ray James Correctional Institution", "city": "Folkston"},
+        {"match": "Collier County Sheriff", "replace": "Collier County Jail", "city": "Naples"},
+        {"match": "Oldham County Jail", "replace": "Oldham County Detention Center", "city": "La Grange"},
+        {"match": "Salt Lake County Jail", "replace": "Salt Lake County Metro Jail", "city": "Salt Lake City"},
+        {"match": "Annex Folkston IPC", "replace": "Folkston Annex IPC", "city": "Folkston"},
+        {
+            "match": "Northwest State Correctional Ctr.",
+            "replace": "Northwest State Correctional Center",
+            "city": "Swanton",
+        },
+        {"match": "Basile Detention Center", "replace": "South Louisiana ICE Processing Center", "city": "Basile"},
+        {"match": "New Hanover Co Det Center", "replace": "New Hanover County Jail", "city": "Castle Hayne"},
+        {"match": "Bluebonnet Det Fclty", "replace": "Bluebonnet Detention Facility", "city": "Anson"},
+        {"match": "San Luis Regional Det Center", "replace": "San Luis Regional Detention Center", "city": "San Luis"},
+        {"match": "Buffalo SPC", "replace": "Buffalo Service Processing Center", "city": "Batavia"},
+        {"match": "Laurel County Corrections", "replace": "Laurel County Correctional Center", "city": "London"},
+        {"match": "Coastal Bend Det. Facility", "replace": "Coastal Bend Detention Facility", "city": "Robstown"},
+        {"match": "Winn Corr Institute", "replace": "Winn Correctional Center", "city": "Winnfield"},
+        {"match": "Elizabeth Contract D.F.", "replace": "Elizabeth Contract Detention Faciilty", "city": "Elizabeth"},
+        {
+            "match": "Chittenden Reg. Cor. Facility",
+            "replace": "Chittenden Regional Correctional Facility",
+            "city": "South Burlington",
+        },
     ]
     fixed = False
     for m in matches:
@@ -137,6 +171,7 @@ def _vera_city_fixes(city: str, state: str) -> Tuple[str, bool]:
     """There are a few cases where getting a state match requires some munging"""
     matches = [
         {"match": "Saipan", "replace": "Susupe, Saipan", "city": "MP"},
+        {"match": "Sault Sainte Marie", "replace": "Sault Ste Marie", "city": "MP"},
     ]
     fixed = False
     for m in matches:
@@ -159,10 +194,17 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
                     f.write(chunk)
         logger.debug("Wrote %s byte sheet to %s", size, filename)
     df = polars.read_csv(has_header=True, raise_if_empty=True, source=filename, use_pyarrow=True)
+    if df.is_empty():
+        raise ValueError("Empty CSV loaded somehow! %s", df)
+    # first step to removing duplicates is easy
+    df = df.unique()
     logger.debug("Extracted data: %s", df)
     """
     We retrieve the following columns
     detention_facility_code, detention_facility_name, latitude, longitude, city, state, type_detailed, type_grouped
+
+    There are definitely rows that are _essentially_ duplicates, but aren't actually duplicates?
+    A single facility (based on the latitude/longitudes) will show up with multiple names in this dataset
 
     None of the data Vera provides on a facility is more accurate than data we already have, so the logic
     here should be _purely_ "if not exists, add".
