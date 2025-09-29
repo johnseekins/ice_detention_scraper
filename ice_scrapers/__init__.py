@@ -53,6 +53,10 @@ ice_facility_types = {
         "expanded_name": "Dedicated Intergovernmental Service Agreement",
         "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Intergovernmental Service Agreements, which house only ICE detainees – typically these are operated by private contractors pursuant to their agreements with local governments.",
     },
+    "DOD": {
+        "expanded_name": "Department of Defense",
+        "description": "Military facility",
+    },
     "IGSA": {
         "expanded_name": "Intergovernmental Service Agreement",
         "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts for bed space via an Intergovernmental Service Agreement; or local jails used by ICE pursuant to Intergovernmental Service Agreements, which house both ICE and non-ICE detainees, typically county prisoners awaiting trial or serving short sentences, but sometimes also USMS prisoners.",
