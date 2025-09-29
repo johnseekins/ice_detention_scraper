@@ -240,15 +240,21 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
             continue
         found = False
         facility_name, fixed_name = _vera_name_fixes(row["detention_facility_name"], row["city"])
+        row["name"] = facility_name
         city, fixed_city = _vera_city_fixes(row["city"], row["state"])
+        row["city"] = city
         if fixed_name or fixed_city:
             fixed += 1
-        addr_str = f"{facility_name},{city},{row['state']},United States"
+        if row["name"] == "JTF Camp Six":
+            row["state"] = "FPO"
+            row["city"] = "FPO"
+            row["name"] = "Naval Station Guantanamo Bay (JTF Camp Six and Migrant Ops Center Main A)"
+        addr_str = f"{row['name']},{row['city']},{row['state']}"
         for k, v in facilities_data["facilities"].items():
             if (
-                v["name"].upper() == facility_name.upper()
+                v["name"].upper() == row["name"].upper()
                 and v["address"]["administrative_area"].upper() == row["state"].upper()
-                and v["address"]["locality"].upper() == city.upper()
+                and v["address"]["locality"].upper() == row["city"].upper()
             ):
                 logger.debug("  Found matching facility %s...", v["name"])
                 facilities_data["facilities"][k]["osm"]["latitude"] = row["latitude"]
@@ -261,10 +267,9 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
         if not found:
             facilities_data["facilities"][addr_str] = copy.deepcopy(facility_schema)
             facilities_data["facilities"][addr_str]["source_urls"].append(base_url)
-            facilities_data["facilities"][addr_str]["name"] = facility_name
+            facilities_data["facilities"][addr_str]["name"] = row["name"]
             facilities_data["facilities"][addr_str]["address"]["administrative_area"] = row["state"]
-            facilities_data["facilities"][addr_str]["address"]["locality"] = city
-            facilities_data["facilities"][addr_str]["address"]["country"] = "United States"
+            facilities_data["facilities"][addr_str]["address"]["locality"] = row["city"]
             facilities_data["facilities"][addr_str]["address_str"] = addr_str
             facilities_data["facilities"][addr_str]["osm"]["latitude"] = row["latitude"]
             facilities_data["facilities"][addr_str]["osm"]["longitude"] = row["longitude"]
