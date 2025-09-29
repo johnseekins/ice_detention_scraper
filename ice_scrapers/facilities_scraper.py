@@ -7,6 +7,7 @@ from ice_scrapers import (
     repair_locality,
     repair_street,
     repair_zip,
+    special_facilities,
     update_facility,
 )
 from schemas import facility_schema
@@ -19,19 +20,6 @@ from utils import (
 )
 
 base_scrape_url = "https://www.ice.gov/detention-facilities"
-
-
-def _special_facilities(facility: dict) -> dict:
-    match facility["name"]:
-        case "Naval Station Guantanamo Bay (JTF Camp Six and Migrant Ops Center Main A)":
-            facility["address"]["country"] = "Cuba"
-            facility["address"]["administrative_area"] = "FPO"
-            facility["address"]["locality"] = "FPO"
-            facility["address"]["postal_code"] = "34009"
-            facility["address"]["street"] = "AVENUE C PSC 1005 BOX 55"
-        case _:
-            pass
-    return facility
 
 
 def scrape_facilities(facilities_data: dict) -> dict:
@@ -50,7 +38,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
         logger.debug("Found %s facilities on page %s", len(facilities), page_num + 1)
         time.sleep(1)  # Be respectful to the server
         for facility in facilities:
-            facility = _special_facilities(facility)
+            facility = special_facilities(facility)
             addr = facility["address"]
             street, cleaned = repair_street(addr["street"], addr["locality"])
             if cleaned:

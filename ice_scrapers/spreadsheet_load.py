@@ -15,6 +15,7 @@ from ice_scrapers import (
     repair_locality,
     repair_street,
     repair_zip,
+    special_facilities,
 )
 from typing import Tuple
 from utils import (
@@ -72,17 +73,6 @@ def _download_sheet(keep_sheet: bool = True) -> Tuple[polars.DataFrame, str]:
     return df, actual_link
 
 
-def _special_rows(row: dict) -> dict:
-    match row["name"]:
-        case "JTF CAMP SIX":
-            row["address"]["country"] = "Cuba"
-            row["address"]["administrative_area"] = "FPO"
-            row["name"] = "Naval Station Guantanamo Bay (JTF Camp Six and Migrant Ops Center Main A)"
-        case _:
-            pass
-    return row
-
-
 def load_sheet(keep_sheet: bool = True) -> dict:
     df, sheet_url = _download_sheet(keep_sheet)
     """Convert the detentionstats sheet data into something we can update our facilities with"""
@@ -110,7 +100,7 @@ def load_sheet(keep_sheet: bool = True) -> dict:
         details["address"]["postal_code"] = zcode
         details["address"]["street"] = street
         details["name"] = row["Name"]
-        details = _special_rows(details)
+        details = special_facilities(details)
         full_address = ",".join(
             [
                 details["address"]["street"],

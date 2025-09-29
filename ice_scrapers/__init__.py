@@ -131,6 +131,7 @@ from .utils import (  # noqa: E402
     repair_locality,  # noqa: F401
     repair_street,  # noqa: F401
     repair_zip,  # noqa: F401
+    special_facilities,  # noqa: F401
     update_facility,  # noqa: F401
 )
 from .facilities_scraper import scrape_facilities  # noqa: F401,E402

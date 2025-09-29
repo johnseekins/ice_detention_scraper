@@ -7,6 +7,34 @@ from utils import (
 )
 
 
+def special_facilities(facility: dict) -> dict:
+    """
+    Some very specific facilities have unique fixes
+    that are hard to fit into our normal repair_* pattern.
+
+    Please don't expand this function unless it's necessary
+    """
+    match facility["name"]:
+        case "Naval Station Guantanamo Bay (JTF Camp Six and Migrant Ops Center Main A)":
+            """
+            First special case? JTF Camp Six is purely a mess.
+            While we work on getting a consistent address for this facility,
+            we'll need to make the two records converge.
+            """
+            facility["address"]["country"] = "Cuba"
+            facility["address"]["administrative_area"] = "FPO"
+            facility["address"]["locality"] = "FPO"
+            facility["address"]["postal_code"] = "34009"
+            facility["address"]["street"] = "AVENUE C PSC 1005 BOX 55"
+        case "JTF CAMP SIX":
+            facility["address"]["country"] = "Cuba"
+            facility["address"]["administrative_area"] = "FPO"
+            facility["name"] = "Naval Station Guantanamo Bay (JTF Camp Six and Migrant Ops Center Main A)"
+        case _:
+            pass
+    return facility
+
+
 def repair_street(street: str, locality: str = "") -> Tuple[str, bool]:
     """Generally, we'll let the spreadsheet win arguments just to be consistent"""
     street_filters = [
