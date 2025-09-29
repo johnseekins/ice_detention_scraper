@@ -15,6 +15,7 @@ from ice_scrapers import (
     repair_locality,
     repair_street,
     repair_zip,
+    special_facilities,
 )
 from typing import Tuple
 from utils import (
@@ -94,12 +95,20 @@ def load_sheet(keep_sheet: bool = True) -> dict:
         locality, cleaned = repair_locality(row["City"], row["State"])
         if cleaned:
             details["_repaired_record"] = True
-        full_address = ",".join([street, locality, row["State"], zcode]).upper()
         details["address"]["administrative_area"] = row["State"]
         details["address"]["locality"] = locality
         details["address"]["postal_code"] = zcode
         details["address"]["street"] = street
         details["name"] = row["Name"]
+        details = special_facilities(details)
+        full_address = ",".join(
+            [
+                details["address"]["street"],
+                details["address"]["locality"],
+                details["address"]["administrative_area"],
+                details["address"]["postal_code"],
+            ]
+        ).upper()
 
         """
         population statistics

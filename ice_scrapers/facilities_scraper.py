@@ -7,6 +7,7 @@ from ice_scrapers import (
     repair_locality,
     repair_street,
     repair_zip,
+    special_facilities,
     update_facility,
 )
 from schemas import facility_schema
@@ -37,6 +38,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
         logger.debug("Found %s facilities on page %s", len(facilities), page_num + 1)
         time.sleep(1)  # Be respectful to the server
         for facility in facilities:
+            facility = special_facilities(facility)
             addr = facility["address"]
             street, cleaned = repair_street(addr["street"], addr["locality"])
             if cleaned:
