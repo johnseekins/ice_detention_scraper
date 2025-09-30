@@ -198,9 +198,14 @@ def repair_name(name: str, locality: str) -> Tuple[str, bool]:
         {"match": "BURLEIGH COUNTY", "replace": "BURLEIGH COUNTY JAIL", "locality": "BISMARCK"},
         {"match": "NELSON COLEMAN CORRECTION", "replace": "NELSON COLEMAN CORRECTIONS CENTER", "locality": "KILLONA"},
         {
-            "match": "CIMMARRON CORRECTIONAL FACILITY",
+            "match": "CIMMARRON CORR FACILITY",
             "replace": "CIMARRON CORRECTIONAL FACILITY",
             "locality": "CUSHING",
+        },
+        {
+            "match": "IAM SECURE ADULT DET. FACILITY",
+            "replace": "IAH SECURE ADULT DET. FACILITY",
+            "locality": "LIVINGSTON",
         },
     ]
     cleaned = False
