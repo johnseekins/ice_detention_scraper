@@ -268,6 +268,8 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
                 facilities_data["facilities"][k]["osm"]["longitude"] = row["longitude"]
                 facilities_data["facilities"][k]["vera_id"] = row["detention_facility_code"]
                 facilities_data["facilities"][k]["source_urls"].append(base_url)
+                if fixed_name or fixed_city:
+                    facilities_data["facilities"][k]["_repaired_record"] = True
                 matched_count += 1
                 found = True
                 break
@@ -287,6 +289,8 @@ def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, f
             if ft_details:
                 facilities_data["facilities"][addr_str]["facility_type"]["description"] = ft_details["description"]
                 facilities_data["facilities"][addr_str]["facility_type"]["expanded_name"] = ft_details["expanded_name"]
+            if fixed_name or fixed_city:
+                facilities_data["facilities"][addr_str]["_repaired_record"] = True
 
     logger.info(
         "  Found %s facilities: Skipped %s, Matched %s, corrected names on %s",
