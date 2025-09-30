@@ -178,6 +178,12 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
             "city": "Bay St. Louis",
         },
         {"match": "Brooks County Jail (Contract)", "replace": "Brooks County Jail", "city": "Falfurrias"},
+        {"match": "Burleigh Co. Jail, ND", "replace": "Burleigh County Jail", "city": "Bismarck"},
+        {"match": "Lubbock County Jail", "replace": "Lubbock County Detention Center", "city": "Lubbock"},
+        {"match": "Montgomery County Jail", "replace": "Montgomery Ice Processing Center", "city": "Conroe"},
+        {"match": "Sebastian County Det Cnt", "replace": "Sebastian County Detention Center", "city": "Smith"},
+        {"match": "Atlanta U.S. Pen.", "replace": "FCI Atlanta", "city": "Atlanta"},
+        {"match": "Clinton County Corr. Fac.", "replace": "Clinton County Correctional Facility", "city": "McElhattan"},
     ]
     fixed = False
     for m in matches:
