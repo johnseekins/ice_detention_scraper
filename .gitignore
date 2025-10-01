@@ -1,5 +1,5 @@
 __pycache__/
-*.csv
-*.json
+ice_detention_facilities*
+vera_facilities.csv
 *.xlsx
 *.xlsx#

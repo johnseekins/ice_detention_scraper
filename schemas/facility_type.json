@@ -1,0 +1,20 @@
+{
+  "$id": "schema:facility_type",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Facility Type",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "A description of the facility type"
+    },
+    "expanded_name": {
+      "type": "string",
+      "description": "Human-readable name for the facility type"
+    },
+    "id": {
+      "type": "string",
+      "description": "Short code for facility type"
+    }
+  }
+}

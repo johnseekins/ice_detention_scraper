@@ -1,0 +1,27 @@
+{
+  "$id": "schema:address",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Address",
+  "type": "object",
+  "properties": {
+    "administrative_area": {
+      "type": "string",
+      "description": "Analogous to the 'state' in most US addresses"
+    },
+    "country": {
+      "type": "string"
+    },
+    "locality": {
+      "type": "string",
+      "description": "Analogous to the 'city' in most US addresses"
+    },
+    "postal_code": {
+      "type": "string",
+      "pattern": "\\d{5}"
+    },
+    "street": {
+      "type": "string",
+      "description": "The actual street address (e.g. 123 Main St.)"
+    }
+  }
+}

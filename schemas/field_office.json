@@ -1,0 +1,44 @@
+{
+  "$id": "schema:field_office",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Field Office",
+  "type": "object",
+  "properties": {
+    "address": {
+      "$ref": "schema:address"
+    },
+    "address_str": {
+      "type": "string",
+      "description": "A single string representing the field office's address"
+    },
+    "aor": {
+      "type": "string",
+      "description": "Area of Responsibility"
+    },
+    "email": {
+      "description": "Age in years which must be equal to or greater than zero.",
+      "type": "string",
+      "minimum": 0
+    },
+    "field_office": {
+      "type": "string",
+      "description": "Official Field Office Name"
+    },
+    "id": {
+      "type": "string",
+      "description": "The short code for the office"
+    },
+    "name": {
+      "type": "string",
+      "description": "An alternative name (often ending in '- ERO')"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number for the field office"
+    },
+    "source_urls": {
+      "type": "array",
+      "description": "List of URLs that field office data was collected from"
+    }
+  }
+}

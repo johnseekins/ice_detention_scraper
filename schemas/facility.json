@@ -1,0 +1,59 @@
+{
+  "$id": "schema:facility",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Facility",
+  "type": "object",
+  "properties": {
+    "address": {
+      "$ref": "schema:address"
+    },
+    "field_office": {
+      "$ref": "schema:field_office"
+    },
+    "population": {
+      "$ref": "schema:population"
+    },
+    "_repaired_record": {
+      "type": "boolean",
+      "description": "Whether or not the record was altered to fit into our system"
+    },
+    "address_str": {
+      "type": "string",
+      "description": "A single string representing the facility's address"
+    },
+    "facility_type": {
+      "$ref": "schema:facility_type"
+    },
+    "inspection": {
+      "$ref": "schema:inspection"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL pointing to an image of the facility"
+    },
+    "osm": {
+      "$ref": "schema:openstreetmap"
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the facility"
+    },
+    "page_updated_date": {},
+    "phone": {
+      "type": "string",
+      "description": "Phone number for the facility"
+    },
+    "source_urls": {
+      "type": "array",
+      "description": "List of URLs that facility data was collected from"
+    },
+    "wikipedia": {
+      "page_url": "",
+      "search_query": ""
+    },
+    "wikidata": {
+      "page_url": "",
+      "search_query": ""
+    }
+  }
+}

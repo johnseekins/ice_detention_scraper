@@ -1,0 +1,18 @@
+{
+  "$id": "schema:inspection",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Facility Inspection Data",
+  "type": "object",
+  "properties": {
+      "last_date": {
+        "description": "Last date of a completed inspection"
+      },
+      "last_rating": {
+        "type": "string"
+      },
+      "last_type": {
+        "type": "string",
+        "description": "Different bodies perform different inspection types"
+      }
+  }
+}

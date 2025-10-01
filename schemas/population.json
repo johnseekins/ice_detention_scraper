@@ -1,0 +1,92 @@
+{
+  "$id": "schema:population",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Facility Population Data",
+  "type": "object",
+  "properties": {
+    "avg_stay_length": {
+      "description": "Approximate length of stay per detainee (in days)",
+      "type": "float"
+    },
+    "female": {
+      "type": "object",
+      "properties": {
+        "allowed": {
+          "type": "boolean",
+          "description": "Whether the facility supports female-identifying detainees"
+        },
+        "criminal": {
+          "type": "float",
+          "description": "Number of female-identifying criminal detainees"
+        },
+        "non_criminal": {
+          "type": "float",
+          "description": "Number of female-identifying non-criminal detainees"
+        }
+      }
+    },
+    "male": {
+      "type": "object",
+      "properties": {
+        "allowed": {
+          "type": "boolean",
+          "description": "Whether the facility supports male-identifying detainees"
+        },
+        "criminal": {
+          "type": "float",
+          "description": "Number of male-identifying criminal detainees"
+        },
+        "non_criminal": {
+          "type": "float",
+          "description": "Number of male-identifying non-criminal detainees"
+        }
+      }
+    },
+    "housing": {
+      "type": "object",
+      "properties": {
+        "mandatory": {
+          "type": "integer"
+        },
+        "guaranteed_min": {
+          "type": "integer"
+        }
+      }
+    },
+    "ice_threat_level": {
+      "type": "object",
+      "properties": {
+        "level_1": {
+          "type": "integer"
+        },
+        "level_2": {
+          "type": "integer"
+        },
+        "level_3": {
+          "type": "integer"
+        },
+        "none": {
+          "type": "integer"
+        }
+      }
+    },
+    "security_threat": {
+      "low": {
+        "type": "integer"
+      },
+      "medium_low": {
+        "type": "integer"
+      },
+      "medium_high": {
+        "type": "integer"
+      },
+      "high": {
+        "type": "integer"
+      }
+    },
+    "total": {
+      "type": "float",
+      "description": "Total population (using a float because many data sources average population stats)"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$id": "schema:openstreetmap",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenStreetMap Data",
+  "type": "object",
+  "properties": {
+    "latitude": 0,
+    "longitude": 0,
+    "search_query": "",
+    "url": ""
+  }
+}
