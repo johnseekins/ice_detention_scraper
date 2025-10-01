@@ -38,7 +38,10 @@
       "type": "string",
       "description": "The name of the facility"
     },
-    "page_updated_date": {},
+    "page_updated_date": {
+      "type": "string",
+      "format": "date-time"
+    },
     "phone": {
       "type": "string",
       "description": "Phone number for the facility"
@@ -48,12 +51,10 @@
       "description": "List of URLs that facility data was collected from"
     },
     "wikipedia": {
-      "page_url": "",
-      "search_query": ""
+      "$ref": "schema:wikipedia"
     },
     "wikidata": {
-      "page_url": "",
-      "search_query": ""
+      "$ref": "schema:wikidata"
     }
   }
 }
