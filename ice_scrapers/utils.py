@@ -224,7 +224,8 @@ def repair_zip(zip_code: int, locality: str) -> Tuple[str, bool]:
     """
     zcode = str(zip_code)
     cleaned = False
-    if len(zcode) < 5:
+    # don't replace an empty zip with all 0s
+    if 0 < len(zcode) < 5:
         # pad any prefix
         zeros = "0" * (5 - len(zcode))
         zcode = f"{zeros}{zcode}"
