@@ -83,7 +83,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
     return facilities_data
 
 
-def _scrape_updated(url: str):
+def _scrape_updated(url: str) -> datetime.datetime:
     """
     Scrape url to get "last updated" time
     Is specifically oriented around ice.gov facility pages
@@ -97,7 +97,7 @@ def _scrape_updated(url: str):
         response.raise_for_status()
     except Exception as e:
         logger.error("  Error parsing %s: %s", url, e)
-        return []
+        return datetime.datetime.strptime(default_timestamp, timestamp_format)
     soup = BeautifulSoup(response.content, "html.parser")
     times = soup.findAll("time")
     if not times:
@@ -181,7 +181,6 @@ def _scrape_page(page_url: str) -> list:
             facilities.append(facility_data)
 
     logger.info("  Extracted %s facilities from page", len(facilities))
-
     return facilities
 
 
@@ -194,7 +193,6 @@ def _find_facility_patterns(container):
         r"([A-Z][^|]+(?:\|[^|]+)?)\s*([A-Z][^A-Z]*Field Office)",
         r"([^-]+)\s*-\s*([A-Z][^A-Z]*Field Office)",
     ]
-
     text_content = container.get_text()
 
     for pattern in facility_patterns:

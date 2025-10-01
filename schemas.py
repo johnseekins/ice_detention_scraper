@@ -1,7 +1,7 @@
 import copy
 import datetime
 
-facilities_schema = {
+facilities_schema: dict = {
     "enrich_runtime": 0,
     "facilities": {},
     "scrape_runtime": 0,
@@ -107,7 +107,7 @@ facility_schema: dict = {
 
 
 # enrichment response object
-enrich_resp_schema = {
+enrich_resp_schema: dict = {
     "cleaned_name": "",
     "details": {},
     "enrichment_type": "",
