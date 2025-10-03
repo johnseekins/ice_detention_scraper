@@ -102,6 +102,11 @@ def main() -> None:
         action="store_true",
         help="Remove any sheets we downloaded",
     )
+    parser.add_argument(
+        "--skip-vera",
+        action="store_true",
+        help="Don't collect vera.org data",
+    )
 
     args = parser.parse_args()
     if args.debug:
@@ -124,7 +129,9 @@ def main() -> None:
 
     if args.scrape:
         facilities_data = facilities_scrape_wrapper(
-            keep_sheet=not args.delete_sheets, force_download=not args.skip_downloads
+            keep_sheet=not args.delete_sheets,
+            force_download=not args.skip_downloads,
+            skip_vera=args.skip_vera,
         )
     elif args.load_existing:
         facilities_data = copy.deepcopy(default_data.facilities_data)
