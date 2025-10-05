@@ -46,9 +46,13 @@ def _enrich_facility(facility_data: tuple) -> tuple:
     wd_res = wikidata.Wikidata(facility_name=facility_name).search()
     osm = openstreetmap.OpenStreetMap(facility_name=facility_name, address=facility.get("address", {}))
     osm_res = osm.search()
-    enriched_facility["wikipedia"]["page_url"] = wiki_res.get("url", "")
+    url = wiki_res.get("url", None)
+    if url:
+        enriched_facility["wikipedia"]["page_url"] = url
     enriched_facility["wikipedia"]["search_query"] = wiki_res.get("search_query_steps", "")
-    enriched_facility["wikidata"]["page_url"] = wd_res.get("url", "")
+    url = wd_res.get("url", None)
+    if url:
+        enriched_facility["wikidata"]["page_url"] = url
     enriched_facility["wikidata"]["search_query"] = wd_res.get("search_query_steps", "")
     lat = osm_res.get("details", {}).get("latitude", None)
     long = osm_res.get("details", {}).get("longitude", None)
