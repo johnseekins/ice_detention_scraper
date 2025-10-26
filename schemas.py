@@ -118,10 +118,10 @@ enrich_resp_schema: dict = {
 }
 
 # enrichment print details
-enrichment_print_schema = {
+enrichment_print_schema: dict = {
     "osm_found": 0,
     "wiki_found": 0,
     "wikidata_found": 0,
 }
 
-supported_output_types = ["csv", "json", "parquet", "xlsx"]
+supported_output_types: list = ["csv", "json", "parquet", "xlsx"]

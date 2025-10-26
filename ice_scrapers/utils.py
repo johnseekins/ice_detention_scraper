@@ -35,6 +35,67 @@ def special_facilities(facility: dict) -> dict:
     return facility
 
 
+def repair_name(name: str, locality: str) -> Tuple[str, bool]:
+    """Even facility names are occasionally bad"""
+    matches = [
+        {"match": "ALEXANDRIA STAGING FACILI", "replace": "Alexandria Staging Facility", "locality": "ALEXANDRIA"},
+        {"match": "ORANGE COUNTY JAIL (NY)", "replace": "ORANGE COUNTY JAIL", "locality": "GOSHEN"},
+        {"match": "NORTH LAKE CORRECTIONAL F", "replace": "NORTH LAKE CORRECTIONAL FACILITY", "locality": "BALDWIN"},
+        {"match": "PHELPS COUNTY JAIL (MO)", "replace": "Phelps County Jail", "locality": "ROLLA"},
+        {
+            "match": "PENNINGTON COUNTY JAIL (SOUTH DAKOTA)",
+            "replace": "PENNINGTON COUNTY JAIL",
+            "locality": "RAPID CITY",
+        },
+        {
+            "match": "CORR. CTR OF NORTHWEST OHIO",
+            "replace": "CORRECTIONS CENTER OF NORTHWEST OHIO",
+            "locality": "STRYKER",
+        },
+        {
+            "match": "FOLKSTON D RAY ICE PROCES",
+            "replace": "D. RAY JAMES CORRECTIONAL INSTITUTION",
+            "locality": "FOLKSTON",
+        },
+        {"match": "COLLIER COUNTY NAPLES JAIL CENTER", "replace": "COLLIER COUNTY JAIL", "locality": "NAPLES"},
+        {
+            "match": "IAH SECURE ADULT DETENTION FACILITY (POLK)",
+            "replace": "IAM SECURE ADULT DET. FACILITY",
+            "locality": "LIVINGSTON",
+        },
+        {"match": "CIMMARRON CORR FACILITY", "replace": "CIMMARRON CORRECTIONAL FACILITY", "locality": "CUSHING"},
+        {"match": "ORANGE COUNTY JAIL (FL)", "replace": "ORANGE COUNTY JAIL", "locality": "ORLANDO"},
+        {"match": "CLARK COUNTY JAIL (IN)", "replace": "CLARK COUNTY JAIL", "locality": "JEFFERSONVILLE"},
+        {"match": "PRINCE EDWARD COUNTY (FARMVILLE)", "replace": "ICA - FARMVILLE", "locality": "FARMVILLE"},
+        {"match": "PHELPS COUNTY JAIL (NE)", "replace": "PHELPS COUNTY JAIL", "locality": "HOLDREGE"},
+        {
+            "match": "WASHINGTON COUNTY JAIL (PURGATORY CORRECTIONAL FAC",
+            "replace": "WASHINGTON COUNTY JAIL",
+            "locality": "HURRICANE",
+        },
+        {"match": "ETOWAH COUNTY JAIL (ALABAMA)", "replace": "ETOWAH COUNTY JAIL", "locality": "GADSDEN"},
+        {"match": "BURLEIGH COUNTY", "replace": "BURLEIGH COUNTY JAIL", "locality": "BISMARCK"},
+        {"match": "NELSON COLEMAN CORRECTION", "replace": "NELSON COLEMAN CORRECTIONS CENTER", "locality": "KILLONA"},
+        {
+            "match": "CIMMARRON CORR FACILITY",
+            "replace": "CIMARRON CORRECTIONAL FACILITY",
+            "locality": "CUSHING",
+        },
+        {
+            "match": "IAM SECURE ADULT DET. FACILITY",
+            "replace": "IAH SECURE ADULT DET. FACILITY",
+            "locality": "LIVINGSTON",
+        },
+    ]
+    cleaned = False
+    for m in matches:
+        if m["match"] == name and m["locality"] == locality:
+            name = m["replace"]
+            cleaned = True
+            break
+    return name, cleaned
+
+
 def repair_street(street: str, locality: str = "") -> Tuple[str, bool]:
     """Generally, we'll let the spreadsheet win arguments just to be consistent"""
     street_filters = [
@@ -154,67 +215,6 @@ def repair_street(street: str, locality: str = "") -> Tuple[str, bool]:
             street = street.replace(f["match"], f["replace"])
             cleaned = True
     return street, cleaned
-
-
-def repair_name(name: str, locality: str) -> Tuple[str, bool]:
-    """Even facility names are occasionally bad"""
-    matches = [
-        {"match": "ALEXANDRIA STAGING FACILI", "replace": "Alexandria Staging Facility", "locality": "ALEXANDRIA"},
-        {"match": "ORANGE COUNTY JAIL (NY)", "replace": "ORANGE COUNTY JAIL", "locality": "GOSHEN"},
-        {"match": "NORTH LAKE CORRECTIONAL F", "replace": "NORTH LAKE CORRECTIONAL FACILITY", "locality": "BALDWIN"},
-        {"match": "PHELPS COUNTY JAIL (MO)", "replace": "Phelps County Jail", "locality": "ROLLA"},
-        {
-            "match": "PENNINGTON COUNTY JAIL (SOUTH DAKOTA)",
-            "replace": "PENNINGTON COUNTY JAIL",
-            "locality": "RAPID CITY",
-        },
-        {
-            "match": "CORR. CTR OF NORTHWEST OHIO",
-            "replace": "CORRECTIONS CENTER OF NORTHWEST OHIO",
-            "locality": "STRYKER",
-        },
-        {
-            "match": "FOLKSTON D RAY ICE PROCES",
-            "replace": "D. RAY JAMES CORRECTIONAL INSTITUTION",
-            "locality": "FOLKSTON",
-        },
-        {"match": "COLLIER COUNTY NAPLES JAIL CENTER", "replace": "COLLIER COUNTY JAIL", "locality": "NAPLES"},
-        {
-            "match": "IAH SECURE ADULT DETENTION FACILITY (POLK)",
-            "replace": "IAM SECURE ADULT DET. FACILITY",
-            "locality": "LIVINGSTON",
-        },
-        {"match": "CIMMARRON CORR FACILITY", "replace": "CIMMARRON CORRECTIONAL FACILITY", "locality": "CUSHING"},
-        {"match": "ORANGE COUNTY JAIL (FL)", "replace": "ORANGE COUNTY JAIL", "locality": "ORLANDO"},
-        {"match": "CLARK COUNTY JAIL (IN)", "replace": "CLARK COUNTY JAIL", "locality": "JEFFERSONVILLE"},
-        {"match": "PRINCE EDWARD COUNTY (FARMVILLE)", "replace": "ICA - FARMVILLE", "locality": "FARMVILLE"},
-        {"match": "PHELPS COUNTY JAIL (NE)", "replace": "PHELPS COUNTY JAIL", "locality": "HOLDREGE"},
-        {
-            "match": "WASHINGTON COUNTY JAIL (PURGATORY CORRECTIONAL FAC",
-            "replace": "WASHINGTON COUNTY JAIL",
-            "locality": "HURRICANE",
-        },
-        {"match": "ETOWAH COUNTY JAIL (ALABAMA)", "replace": "ETOWAH COUNTY JAIL", "locality": "GADSDEN"},
-        {"match": "BURLEIGH COUNTY", "replace": "BURLEIGH COUNTY JAIL", "locality": "BISMARCK"},
-        {"match": "NELSON COLEMAN CORRECTION", "replace": "NELSON COLEMAN CORRECTIONS CENTER", "locality": "KILLONA"},
-        {
-            "match": "CIMMARRON CORR FACILITY",
-            "replace": "CIMARRON CORRECTIONAL FACILITY",
-            "locality": "CUSHING",
-        },
-        {
-            "match": "IAM SECURE ADULT DET. FACILITY",
-            "replace": "IAH SECURE ADULT DET. FACILITY",
-            "locality": "LIVINGSTON",
-        },
-    ]
-    cleaned = False
-    for m in matches:
-        if m["match"] == name and m["locality"] == locality:
-            name = m["replace"]
-            cleaned = True
-            break
-    return name, cleaned
 
 
 def repair_zip(zip_code: int, locality: str) -> Tuple[str, bool]:

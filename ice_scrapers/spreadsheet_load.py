@@ -26,7 +26,6 @@ from utils import (
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 base_xlsx_url = "https://www.ice.gov/detain/detention-management"
 filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
-
 # extracted ADP sheet header list 2025-09-07
 facility_sheet_header = [
     "Name",
@@ -198,5 +197,5 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
         details["field_office"]["id"] = row["AOR"]
         details["address_str"] = full_address
         results[full_address] = details
-    logger.info("  Loaded %s facilties", len(results.keys()))
+    logger.info("  Loaded %s facilities", len(results.keys()))
     return results

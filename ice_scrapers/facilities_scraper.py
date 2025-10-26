@@ -7,6 +7,7 @@ from ice_scrapers import (
     repair_locality,
     repair_street,
     repair_zip,
+    repair_name,
     special_facilities,
     update_facility,
 )
@@ -28,6 +29,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
     logger.info("Starting to scrape ICE.gov detention facilities...")
     facilities_data["scraped_date"] = datetime.datetime.now(datetime.UTC)
     urls = get_ice_scrape_pages(base_scrape_url)
+
     scraped_count = 0
     for page_num, url in enumerate(urls):
         logger.info("Scraping page %s/%s...", page_num + 1, len(urls))
@@ -53,7 +55,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
             if cleaned:
                 addr["locality"] = locality
                 facility["_repaired_record"] = True
-            name, cleaned = repair_locality(facility["name"], addr["locality"])
+            name, cleaned = repair_name(facility["name"], addr["locality"])
             if cleaned:
                 facility["name"] = name
                 facility["_repaired_record"] = True
@@ -181,6 +183,7 @@ def _scrape_page(page_url: str) -> list:
             facilities.append(facility_data)
 
     logger.info("  Extracted %s facilities from page", len(facilities))
+
     return facilities
 
 
@@ -193,6 +196,7 @@ def _find_facility_patterns(container):
         r"([A-Z][^|]+(?:\|[^|]+)?)\s*([A-Z][^A-Z]*Field Office)",
         r"([^-]+)\s*-\s*([A-Z][^A-Z]*Field Office)",
     ]
+
     text_content = container.get_text()
 
     for pattern in facility_patterns:

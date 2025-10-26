@@ -39,7 +39,7 @@ ice_facility_types = {
         "description": "A publicly-owned facility operated by state/local government(s), or private contractors, in which ICE contracts to use all bed space via a Dedicated Intergovernmental Service Agreement; or facilities used by ICE pursuant to Intergovernmental Service Agreements, which house only ICE detainees – typically these are operated by private contractors pursuant to their agreements with local governments.",
     },
     "DOD": {
-        "expanded_name": "Department of Defence",
+        "expanded_name": "Department of Defense",
         "description": "Department of Defence facilities - Often Army bases",
     },
     "FAMILY": {
@@ -66,13 +66,13 @@ ice_facility_types = {
         "expanded_name": "Other",
         "description": "Facilities including but not limited to transportation-related facilities, hotels, and/or other facilities",
     },
-    "Unknown": {
-        "expanded_name": "Unknown",
-        "description": "A facility whose type could not be identified",
-    },
     "SPC": {
         "expanded_name": "Service Processing Center",
         "description": "A facility owned by the government and staffed by a combination of federal and contract employees.",
+    },
+    "Unknown": {
+        "expanded_name": "Unknown",
+        "description": "A facility whose type could not be identified",
     },
     "USMS": {
         "expanded_name": "United States Marshals Service",
@@ -134,9 +134,9 @@ field_office_to_aor = {v: k for k, v in area_of_responsibility.items()}
 from .utils import (  # noqa: E402
     get_ice_scrape_pages,  # noqa: F401
     repair_locality,  # noqa: F401
-    repair_name,  # noqa: F401
     repair_street,  # noqa: F401
     repair_zip,  # noqa: F401
+    repair_name,  # noqa: F401
     special_facilities,  # noqa: F401
     update_facility,  # noqa: F401
 )
