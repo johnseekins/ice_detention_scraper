@@ -127,6 +127,7 @@ def main() -> None:
         logger.error("Can't scrape and load existing data!")
         exit(1)
 
+    facilities_data = {}
     if args.scrape:
         facilities_data = facilities_scrape_wrapper(
             keep_sheet=not args.delete_sheets,
@@ -137,6 +138,12 @@ def main() -> None:
         facilities_data = copy.deepcopy(default_data.facilities_data)
         logger.info(
             "Loaded %s existing facilities from local data. (Not scraping)",
+            len(facilities_data["facilities"].keys()),  # type: ignore [attr-defined]
+        )
+    elif args.enrich:
+        facilities_data = copy.deepcopy(default_data.facilities_data)
+        logger.warning(
+            "Did not supply --scrape or --load-existing. Proceeding with default data set (%s facilities)",
             len(facilities_data["facilities"].keys()),  # type: ignore [attr-defined]
         )
 
