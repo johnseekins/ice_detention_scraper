@@ -1,18 +1,38 @@
+#   Refer for explanation to following link:
+#   https://lefthook.dev/configuration/
 pre-commit:
+  parallel: true
   jobs:
+    - name: markdown linting
+      run: markdownlint-cli2 --fix --config .markdownlint.json {staged_files}
+      glob:
+        - "*.md"
+      exclude:
+        - .github/pull_request_template.md
+      stage_fixed: true
     - name: yaml linting
       run: yamllint -c .yamllint-config.yaml .
       glob: "*.y*ml"
     - name: Github Action linting
       run: actionlint
-      include:
+      glob:
         - ".github/workflows/*.y*ml"
     - name: Ruff Formatting
       run: uv run ruff format -q .
-      glob: "*.py"
+      glob:
+        - "*.py"
+      stage_fixed: true
     - name: Ruff Syntax checking
       run: uv run ruff check --fix -q
-      glob: "*.py"
+      glob:
+        - "*.py"
+      stage_fixed: true
     - name: MyPy type validation
       run: uv run mypy .
-      glob: "*.py"
+      glob:
+        - "*.py"
+
+output:
+  - success
+  - failure
+  - summary
