@@ -15,7 +15,8 @@ else
 fi
 SHEBANG_FIXED=()
 WHITESPACE_TO_FIX=()
-FILE_SIZE=${FILE_SIZE:-5000}
+# default to 5 MB
+FILE_SIZE=${FILE_SIZE:-5000000}
 TOO_BIG=()
 exit_code=0
 
