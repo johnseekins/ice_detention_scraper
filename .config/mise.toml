@@ -4,4 +4,5 @@ lefthook = "latest"
 yamllint = "latest"
 actionlint = "latest"
 shellcheck = "latest"
-markdownlint-cli2 = 'latest'
+markdownlint-cli2 = "latest"
+jq = "latest"
