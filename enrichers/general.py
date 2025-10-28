@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import copy
 from enrichers import (
     openstreetmap,
@@ -20,7 +20,7 @@ def enrich_facility_data(facilities_data: dict, workers: int = 3) -> dict:
     total = len(facilities_data["facilities"])
     processed = 0
 
-    with ThreadPoolExecutor(max_workers=workers) as pool:
+    with ProcessPoolExecutor(max_workers=workers) as pool:
         for res in pool.map(_enrich_facility, facilities_data["facilities"].items()):
             enriched_data["facilities"][res[0]] = res[1]  # type: ignore [index]
             processed += 1

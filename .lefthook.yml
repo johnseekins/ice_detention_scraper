@@ -1,0 +1,18 @@
+pre-commit:
+  jobs:
+    - name: yaml linting
+      run: yamllint -c .yamllint-config.yaml .
+      glob: "*.y*ml"
+    - name: Github Action linting
+      run: actionlint
+      include:
+        - ".github/workflows/*.y*ml"
+    - name: Ruff Formatting
+      run: uv run ruff format -q .
+      glob: "*.py"
+    - name: Ruff Syntax checking
+      run: uv run ruff check --fix -q
+      glob: "*.py"
+    - name: MyPy type validation
+      run: uv run mypy .
+      glob: "*.py"
