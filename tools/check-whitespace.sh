@@ -13,17 +13,22 @@ if [[ $# -eq 0 ]]; then
 else
 	FILES=$*
 fi
-exit_code=0
 
+TO_FIX=()
+exit_code=0
+set +e
 for fn in ${FILES}; do
-	if [[ "${fn}" == *".sh" || "${fn}" == *".zsh" || "${fn}" == *".bash" ]]; then
-		if [[ ! -x "${fn}" ]]; then
-			echo "${fn} is not executable, but probably should be"
-			exit_code=1
-		fi
+	found=$(grep -l ' +$' "${fn}")
+	if [[ -n "${found}" ]]; then
+		TO_FIX+=("${found}")
+		exit_code=1
 	fi
 done
+set -e
 
+if [[ "${#TO_FIX[@]}" -gt 0 ]]; then
+	printf '%s\n' "${TO_FIX[@]}"
+fi
 popd > /dev/null || exit 1
 popd > /dev/null || exit 1
 exit "${exit_code}"

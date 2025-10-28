@@ -56,8 +56,11 @@ pre-commit:
     - name: check for merge conflicts
       run: tools/check-merge-conflicts.sh {staged_files}
 
-    - name: check for file format
-      run: tools/check-file-format.sh {staged_files}
+    - name: check for bad file details
+      run: tools/check-file-details.sh {staged_files}
+      env:
+        - FILE_SIZE: 107374182400
+      stage_fixed: true
 
 output:
   - success
