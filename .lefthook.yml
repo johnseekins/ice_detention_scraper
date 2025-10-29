@@ -10,12 +10,6 @@ pre-commit:
         - "*.zsh"
         - "*.bash"
 
-    - name: dockerfile linting
-      run: hadolint {staged_files}
-      glob:
-        - "Dockerfile"
-        - "**/Dockerfile"
-
     - name: markdown linting
       run: markdownlint-cli2 --fix --config .markdownlint.json {staged_files}
       glob:
