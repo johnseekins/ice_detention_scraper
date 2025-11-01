@@ -55,7 +55,6 @@ def main() -> None:
     )
     parser.add_argument(
         "--file-type",
-        default="csv",
         choices=supported_output_types,
         help="type of file to export",
     )
@@ -157,7 +156,11 @@ def main() -> None:
         output_filename = args.output_file_name
         if args.enrich and not output_filename.endswith("_enriched"):
             output_filename = f"{output_filename}_enriched"
-        export_to_file(facilities_data, output_filename, args.file_type)
+        if not args.file_type:
+            for ftype in supported_output_types:
+                export_to_file(facilities_data, output_filename, ftype)
+        else:
+            export_to_file(facilities_data, output_filename, args.file_type)
         print_summary(facilities_data)
     else:
         logger.warning("  No data to export!")
