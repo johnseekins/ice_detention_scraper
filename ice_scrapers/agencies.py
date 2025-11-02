@@ -33,7 +33,6 @@ def scrape_agencies(keep_sheet: bool = True, force_download: bool = True) -> dic
     date_re = re.compile(r"\d{8}pm")
     agencies = copy.deepcopy(agencies_287g)
     for link in links:
-        data = list(dict())
         match link:
             case x if "participating" in x:
                 schema = copy.deepcopy(active_agency)
