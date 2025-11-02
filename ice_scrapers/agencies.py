@@ -1,7 +1,5 @@
-# ICEFieldOfficeScraper class and scraping-related code
 from bs4 import BeautifulSoup
 import copy
-from .utils import download_file
 import os
 import polars
 import re
@@ -15,6 +13,7 @@ from utils import (
     logger,
     session,
 )
+from .utils import download_file
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 base_xlsx_url = "https://www.ice.gov/identify-and-arrest/287g"

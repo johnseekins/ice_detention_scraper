@@ -5,7 +5,6 @@ import datetime
 from ice_scrapers import (
     area_of_responsibility,
     field_office_to_aor,
-    get_ice_scrape_pages,
 )
 import re
 from schemas import (
@@ -17,6 +16,7 @@ from utils import (
     logger,
     session,
 )
+from .utils import get_ice_scrape_pages
 
 base_scrape_url = "https://www.ice.gov/contact/field-offices"
 

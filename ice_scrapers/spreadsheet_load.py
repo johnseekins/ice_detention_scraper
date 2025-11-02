@@ -2,9 +2,11 @@ from bs4 import BeautifulSoup
 import copy
 import datetime
 from ice_scrapers import (
-    download_file,
     ice_facility_types,
     ice_inspection_types,
+)
+from .utils import (
+    download_file,
     repair_locality,
     repair_name,
     repair_street,
