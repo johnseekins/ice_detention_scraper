@@ -131,7 +131,9 @@ area_of_responsibility = {
 }
 field_office_to_aor = {v: k for k, v in area_of_responsibility.items()}
 
+from .agencies import scrape_agencies  # noqa: F401,E402
 from .utils import (  # noqa: E402
+    download_file,  # noqa: F401
     get_ice_scrape_pages,  # noqa: F401
     repair_locality,  # noqa: F401
     repair_street,  # noqa: F401
