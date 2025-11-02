@@ -41,7 +41,7 @@ def scrape_field_offices() -> dict:
     return office_data
 
 
-def _scrape_page(page_url: str) -> list:
+def _scrape_page(page_url: str) -> list[dict]:
     """Scrape a single page of facilities using BeautifulSoup"""
     logger.debug("  Fetching: %s", page_url)
     try:

@@ -35,76 +35,79 @@ def main() -> None:
         description="ICE Detention Facilities Data Scraper and Enricher",
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--scrape",
         action="store_true",
         default=False,
         help="Scrape initial facility data from ICE.gov",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--enrich",
         action="store_true",
         default=False,
         help="enrich collected data",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--load-existing",
         action="store_true",
         default=False,
         help="load data from local files",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--file-type",
         choices=supported_output_types,
+        type=str,
         help="type of file to export",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--output-file-name",
         "-o",
         default="ice_detention_facilities",
+        type=str,
         help="The file we'll write data out to (excluding the suffix)",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--debug",
         action="store_true",
         help="Full debug information and logging",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--enrich-workers",
         type=int,
         default=3,
         help="Number of concurrent processes to allow while enriching data",
     )
     # todo these need more attention, but should now be accepted as command line options now.
-    parser.add_argument(
+    _ = parser.add_argument(
         "--debug-wikipedia",
         action="store_true",
         help="Add another column on export for Wikipedia debugging details and redirects",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--debug-wikidata",
         action="store_true",
         help="Add another column on export for Wikidata debugging details and redirects",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--debug-osm",
         action="store_true",
         help="Add another column on export for OpenStreetMap debugging details and redirects",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--skip-downloads",
         action="store_true",
         help="Skip downloading sheet data",
     )
-    parser.add_argument(
+    _ = parser.add_argument(
         "--delete-sheets",
         action="store_true",
         help="Remove any sheets we downloaded",
     )
-    parser.add_argument(
-        "--skip-vera",
+    _ = parser.add_argument(
+        "--use-vera",
         action="store_true",
-        help="Don't collect vera.org data",
+        default=False,
+        help="Collect vera.org data",
     )
 
     args = parser.parse_args()
@@ -131,7 +134,7 @@ def main() -> None:
         facilities_data = facilities_scrape_wrapper(
             keep_sheet=not args.delete_sheets,
             force_download=not args.skip_downloads,
-            skip_vera=args.skip_vera,
+            skip_vera=not args.use_vera,
         )
     elif args.load_existing:
         facilities_data = copy.deepcopy(default_data.facilities_data)

@@ -17,7 +17,6 @@ from schemas import (
     facility_schema,
     field_office_schema,
 )
-from typing import Tuple
 from utils import (
     logger,
     session,
@@ -59,7 +58,7 @@ facility_sheet_header = [
 ]
 
 
-def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> Tuple[polars.DataFrame, str]:
+def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tuple[polars.DataFrame, str]:
     """Download the detention stats sheet from ice.gov"""
     resp = session.get(base_xlsx_url, timeout=120)
     resp.raise_for_status()

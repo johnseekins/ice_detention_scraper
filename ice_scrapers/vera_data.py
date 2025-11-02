@@ -3,7 +3,6 @@ from ice_scrapers import ice_facility_types
 import os
 import polars
 from schemas import facility_schema
-from typing import Tuple
 from utils import (
     logger,
     session,
@@ -17,7 +16,7 @@ base_url = (
 filename = f"{SCRIPT_DIR}{os.sep}vera_facilities.csv"
 
 
-def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
+def _vera_name_fixes(name: str, city: str) -> tuple[str, bool]:
     """Match Vera names with ice.gov names"""
     matches = [
         {"match": "Adams County", "replace": "Adams County Courthouse", "city": "Ritzville"},
@@ -199,7 +198,7 @@ def _vera_name_fixes(name: str, city: str) -> Tuple[str, bool]:
     return name, fixed
 
 
-def _vera_city_fixes(city: str, state: str) -> Tuple[str, bool]:
+def _vera_city_fixes(city: str, state: str) -> tuple[str, bool]:
     """There are a few cases where getting a state match requires some munging"""
     matches = [
         {"match": "Saipan", "replace": "Susupe, Saipan", "city": "MP"},
