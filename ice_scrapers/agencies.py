@@ -40,22 +40,18 @@ def scrape_agencies(keep_sheet: bool = True, force_download: bool = True) -> dic
             case x if "pending" in x:
                 schema = copy.deepcopy(pending_agency)
             case _:
-                raise(f"Found an unsupported agency datasheet: {link}")
+                raise Exception(f"Found an unsupported agency datasheet: {link}")
         """
         Yes, polars supports loading from a URL. But this pattern
         lets us cache the download
         """
         # remove the date so we can easily overwrite the local (cached) file
-        filename = date_re.sub("", link.split('/')[-1])
+        filename = date_re.sub("", link.split("/")[-1])
         path = f"{SCRIPT_DIR}{os.sep}{filename}"
         if force_download or not os.path.exists(path):
             logger.info("Downloading agency info sheet from %s", link)
             download_file(link, path)
-        df = polars.read_excel(
-            drop_empty_rows=True,
-            raise_if_empty=True,
-            source=open(path, "rb")
-        )
+        df = polars.read_excel(drop_empty_rows=True, raise_if_empty=True, source=open(path, "rb"))
         for row in df.iter_rows(named=True):
             data = copy.deepcopy(schema)
             data["state"] = row["STATE"]

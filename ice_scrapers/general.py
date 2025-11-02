@@ -11,7 +11,9 @@ from ice_scrapers import (
 from schemas import facilities_schema
 
 
-def facilities_scrape_wrapper(keep_sheet: bool = True, force_download: bool = True, skip_vera: bool = False) -> tuple[dict, dict]:
+def facilities_scrape_wrapper(
+    keep_sheet: bool = True, force_download: bool = True, skip_vera: bool = False
+) -> tuple[dict, dict]:
     agencies = scrape_agencies(keep_sheet, force_download)
     facilities_data = copy.deepcopy(facilities_schema)
     facilities = load_sheet(keep_sheet, force_download)
