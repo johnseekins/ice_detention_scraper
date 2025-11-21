@@ -26,6 +26,7 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 base_xlsx_url = "https://www.ice.gov/detain/detention-management"
 filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
 # extracted ADP sheet header list 2025-09-07
+# These headers periodically change. (eg the FY headers.)
 facility_sheet_header = [
     "Name",
     "Address",
@@ -35,7 +36,7 @@ facility_sheet_header = [
     "AOR",
     "Type Detailed",
     "Male/Female",
-    "FY25 ALOS",
+    "FY26 ALOS",
     "Level A",
     "Level B",
     "Level C",
@@ -52,7 +53,7 @@ facility_sheet_header = [
     "Guaranteed Minimum",
     "Last Inspection Type",
     "Last Inspection End Date",
-    "Pending FY25 Inspection",
+    # "Pending FY25 Inspection", # this was removed from the source sheet in late 2025.
     "Last Inspection Standard",
     "Last Final Rating",
 ]
@@ -176,7 +177,7 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
         details["population"]["security_threat"]["high"] = row["Level D"]
         details["population"]["housing"]["mandatory"] = row["Mandatory"]
         details["population"]["housing"]["guaranteed_min"] = row["Guaranteed Minimum"]
-        details["population"]["avg_stay_length"] = row["FY25 ALOS"]
+        details["population"]["avg_stay_length"] = row["FY26 ALOS"]
 
         details["facility_type"] = {
             "id": row["Type Detailed"],
