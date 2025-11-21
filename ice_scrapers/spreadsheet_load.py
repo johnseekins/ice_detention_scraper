@@ -4,6 +4,9 @@ import datetime
 from ice_scrapers import (
     ice_facility_types,
     ice_inspection_types,
+)
+from .utils import (
+    download_file,
     repair_locality,
     repair_name,
     repair_street,
@@ -84,13 +87,7 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tup
     logger.debug("Found sheet at: %s", actual_link)
     if force_download or not os.path.exists(filename):
         logger.info("Downloading detention stats sheet from %s", actual_link)
-        resp = session.get(actual_link, timeout=120, stream=True)
-        size = len(resp.content)
-        with open(filename, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
-        logger.debug("Wrote %s byte sheet to %s", size, filename)
+        download_file(actual_link, filename)
     df = polars.read_excel(
         drop_empty_rows=True,
         has_header=False,

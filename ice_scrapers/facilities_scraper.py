@@ -2,15 +2,6 @@ from bs4 import BeautifulSoup
 import copy
 import datetime
 import re
-from ice_scrapers import (
-    get_ice_scrape_pages,
-    repair_locality,
-    repair_street,
-    repair_zip,
-    repair_name,
-    special_facilities,
-    update_facility,
-)
 from schemas import facility_schema
 import time
 from utils import (
@@ -18,6 +9,15 @@ from utils import (
     logger,
     session,
     timestamp_format,
+)
+from .utils import (
+    get_ice_scrape_pages,
+    repair_locality,
+    repair_street,
+    repair_zip,
+    repair_name,
+    special_facilities,
+    update_facility,
 )
 
 base_scrape_url = "https://www.ice.gov/detention-facilities"

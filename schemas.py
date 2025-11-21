@@ -105,6 +105,31 @@ facility_schema: dict = {
     },
 }
 
+agencies_287g: dict = {
+    "active": [{}],
+    "pending": [{}],
+    "scrape_runtime": 0,
+    "scraped_date": datetime.datetime.now(datetime.UTC),
+}
+
+active_agency: dict = {
+    "state": "",
+    "agency": "",
+    "county": "",
+    "type": "",
+    "signed": None,
+    "moa": "",
+    "addendum": "",
+    "support_type": "",
+}
+
+pending_agency: dict = {
+    "state": "",
+    "agency": "",
+    "county": "",
+    "type": "",
+    "support_type": "",
+}
 
 # enrichment response object
 enrich_resp_schema: dict = {

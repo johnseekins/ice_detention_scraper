@@ -131,7 +131,7 @@ def main() -> None:
 
     facilities_data = {}
     if args.scrape:
-        facilities_data = facilities_scrape_wrapper(
+        facilities_data, agencies = facilities_scrape_wrapper(
             keep_sheet=not args.delete_sheets,
             force_download=not args.skip_downloads,
             skip_vera=not args.use_vera,

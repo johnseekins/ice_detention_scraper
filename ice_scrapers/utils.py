@@ -6,6 +6,19 @@ from utils import (
 )
 
 
+def download_file(link: str, path: str) -> None:
+    """
+    Standard pattern for downloading a binary file from a URL
+    """
+    resp = session.get(link, timeout=120, stream=True)
+    size = len(resp.content)
+    with open(path, "wb") as f:
+        for chunk in resp.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+    logger.debug("Wrote %s byte sheet to %s", size, path)
+
+
 def special_facilities(facility: dict) -> dict:
     """
     Some very specific facilities have unique fixes
