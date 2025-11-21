@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import re
-from typing import Tuple
 from utils import (
     logger,
     session,
@@ -35,7 +34,7 @@ def special_facilities(facility: dict) -> dict:
     return facility
 
 
-def repair_name(name: str, locality: str) -> Tuple[str, bool]:
+def repair_name(name: str, locality: str) -> tuple[str, bool]:
     """Even facility names are occasionally bad"""
     matches = [
         {"match": "ALEXANDRIA STAGING FACILI", "replace": "Alexandria Staging Facility", "locality": "ALEXANDRIA"},
@@ -96,7 +95,7 @@ def repair_name(name: str, locality: str) -> Tuple[str, bool]:
     return name, cleaned
 
 
-def repair_street(street: str, locality: str = "") -> Tuple[str, bool]:
+def repair_street(street: str, locality: str = "") -> tuple[str, bool]:
     """Generally, we'll let the spreadsheet win arguments just to be consistent"""
     street_filters = [
         # address mismatch between site and spreadsheet
@@ -217,7 +216,7 @@ def repair_street(street: str, locality: str = "") -> Tuple[str, bool]:
     return street, cleaned
 
 
-def repair_zip(zip_code: int, locality: str) -> Tuple[str, bool]:
+def repair_zip(zip_code: int, locality: str) -> tuple[str, bool]:
     """
     Excel does a cool thing where it strips leading 0s
     Also, many zip codes are mysteriously discordant
@@ -248,7 +247,7 @@ def repair_zip(zip_code: int, locality: str) -> Tuple[str, bool]:
     return zcode, cleaned
 
 
-def repair_locality(locality: str, administrative_area: str) -> Tuple[str, bool]:
+def repair_locality(locality: str, administrative_area: str) -> tuple[str, bool]:
     """
     There is no consistency with any address.
     How the post office ever successfully delivered a letter is beyond me

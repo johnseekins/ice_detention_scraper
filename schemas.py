@@ -124,4 +124,4 @@ enrichment_print_schema: dict = {
     "wikidata_found": 0,
 }
 
-supported_output_types: list = ["csv", "json", "parquet", "xlsx"]
+supported_output_types: list[str] = ["csv", "json", "parquet", "xlsx"]

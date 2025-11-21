@@ -41,7 +41,7 @@ def scrape_field_offices() -> dict:
     return office_data
 
 
-def _scrape_page(page_url: str) -> list:
+def _scrape_page(page_url: str) -> list[dict]:
     """Scrape a single page of facilities using BeautifulSoup"""
     logger.debug("  Fetching: %s", page_url)
     try:
@@ -120,7 +120,10 @@ def _extract_single_office(element: BeautifulSoup, page_url: str) -> dict:
     field_office = element.select_one(".views-field-title")
     if field_office:
         office["field_office"] = field_office.text.strip()
-        office["id"] = field_office_to_aor[office["field_office"]]
+        try:
+            office["id"] = field_office_to_aor[office["field_office"]]
+        except Exception:
+            logger.warning("Could not attach %s as a field office! Maybe update AORs?", office["field_office"])
     address = element.select_one(".address-line1")
     if address:
         office["address"]["street"] = address.text.strip()
