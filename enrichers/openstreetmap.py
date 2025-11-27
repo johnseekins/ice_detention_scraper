@@ -89,5 +89,5 @@ class OpenStreetMap(Enrichment):
             self.resp_info["url"] = f"https://www.openstreetmap.org/way/{osm_id}"
         else:
             self.resp_info["search_query_steps"].append(f"{lat}&{lon}")  # type: ignore [attr-defined]
-            self.resp_info["url"] = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+            self.resp_info["url"] = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}"
         return self.resp_info
