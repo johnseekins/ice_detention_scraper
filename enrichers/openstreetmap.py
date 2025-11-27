@@ -19,22 +19,14 @@ class OpenStreetMap(Enrichment):
         data = []
         if not address:
             logger.debug("No address for %s, simply searching for name", facility_name)
-            params = {
-                "q": search_name,
-                "format": "json",
-                "limit": 5,
-                "dedupe": 1,
+            search_params = {
+                "simple_name": {
+                    "q": search_name,
+                    "format": "json",
+                    "limit": 5,
+                    "dedupe": 1,
+                }
             }
-            logger.debug("Searching OSM for %s", search_name)
-            self.resp_info["search_query_steps"].append(search_name)  # type: ignore [attr-defined]
-            try:
-                response = self._req(search_url, params=params, timeout=15)
-                logger.debug("Response: %s", response.text)
-                data.extend(response.json())
-            except Exception as e:
-                logger.debug(" OSM search error for '%s': %s", facility_name, e)
-                self.resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
-                return self.resp_info
         else:
             full_address = (
                 f"{address['street']} {address['locality']}, {address['administrative_area']} {address['postal_code']}"
@@ -60,19 +52,19 @@ class OpenStreetMap(Enrichment):
                     "dedupe": 1,
                 },
             }
-            for search_name, params in search_params.items():
-                logger.debug("Searching OSM for %s", params["q"])
-                self.resp_info["search_query_steps"].append(params["q"])  # type: ignore [attr-defined]
-                try:
-                    response = self._req(search_url, params=params, timeout=15)
-                    data.extend(response.json())
-                except Exception as e:
-                    logger.debug(" OSM search error for '%s': %s", facility_name, e)
-                    self.resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
-                    continue
-                # if we find results, don't check for less accurate ones (speeds things up quite a bit)
-                if data:
-                    break
+        for search_name, params in search_params.items():
+            logger.debug("Searching OSM for %s", params["q"])
+            self.resp_info["search_query_steps"].append(params["q"])  # type: ignore [attr-defined]
+            try:
+                response = self._req(search_url, params=params, timeout=15)
+                data.extend(response.json())
+            except Exception as e:
+                logger.debug(" OSM search error for '%s': %s", facility_name, e)
+                self.resp_info["search_query_steps"].append(f"(Failed -> {e})")  # type: ignore [attr-defined]
+                continue
+            # if we find results, don't check for less accurate ones (speeds things up quite a bit)
+            if data:
+                break
         if not data:
             return self.resp_info
         # The first result in the list is the most detailed, so use that
