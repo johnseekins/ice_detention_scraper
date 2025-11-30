@@ -2,6 +2,7 @@
 
 set -eou pipefail
 
+LOG_FILES=${LOG_FILES:-"false"}
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 pushd "${SCRIPT_DIR}" > /dev/null || exit 1
 pushd "$(git rev-parse --show-toplevel)" > /dev/null || exit 1
@@ -16,6 +17,9 @@ fi
 
 exit_code=0
 for fn in ${FILES}; do
+	if [[ "${LOG_FILES}" == "true" ]]; then
+		echo "Validating ${fn}..."
+	fi
 	set +e
 	error=$(jq '.' "${fn}" 2>&1 > /dev/null)
 	set -e
