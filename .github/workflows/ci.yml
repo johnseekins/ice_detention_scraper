@@ -7,7 +7,7 @@ on:
 
 jobs:
   python-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: checkout
         uses: actions/checkout@v5
@@ -15,7 +15,7 @@ jobs:
         run: |
           curl -SsL https://mise.run | bash > /dev/null
           mise trust --quiet .config/mise.toml
-          mise install --quiet
+          mise install --quiet python
           eval "$(mise activate bash)" > /dev/null
           pip install -q --no-cache-dir --upgrade pip wheel uv
           uv sync
@@ -34,14 +34,19 @@ jobs:
 
   markdown:
     name: Markdown linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - name: setup markdownlint
+        run: |
+          curl -SsL https://mise.run | bash > /dev/null
+          mise trust --quiet .config/mise.toml
+          mise install --quiet markdownlint-cli2
+          eval "$(mise activate bash)" > /dev/null
       - name: Markdown linting
-        uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e
-        with:
-          config: .markdownlint.json
+        run: |
+          markdownlint-cli2 .
 
   yamllint:
     name: Yaml Linting
@@ -49,12 +54,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: yaml lint
-        uses: reviewdog/action-yamllint@f01d8a48fd8d89f89895499fca2cff09f9e9e8c0
-        with:
-          github_token: ${{ github.token }}
-          reporter: github-pr-review
-          fail_level: error
-          level: info
-          # we should consistently scan all files
-          yamllint_flags: "-c .yamllint-config.yaml --no-warnings ."
+      - name: setup yamllint
+        run: |
+          curl -SsL https://mise.run | bash > /dev/null
+          mise trust --quiet .config/mise.toml
+          mise install --quiet yamllint
+          eval "$(mise activate bash)" > /dev/null
+      - name: YAML linting
+        run: |
+          yamllint -c .yamllint-config.yaml --no-warnings .
