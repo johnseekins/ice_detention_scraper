@@ -22,7 +22,7 @@ session.mount("https://", _adapter)
 session.mount("http://", _adapter)
 session.headers.update(default_headers)
 
-output_folder = f"{SCRIPTDIR}/output/"
+output_folder = f"{SCRIPTDIR}{os.sep}output{os.sep}"
 # and make sure our output folder exists
 os.makedirs(output_folder, exist_ok=True)
 
