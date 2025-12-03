@@ -5,14 +5,6 @@ from ice_scrapers import (
     ice_facility_types,
     ice_inspection_types,
 )
-from .utils import (
-    download_file,
-    repair_locality,
-    repair_name,
-    repair_street,
-    repair_zip,
-    special_facilities,
-)
 import os
 import polars
 import re
@@ -22,13 +14,21 @@ from schemas import (
 )
 from utils import (
     logger,
+    output_folder,
     session,
 )
+from .utils import (
+    download_file,
+    repair_locality,
+    repair_name,
+    repair_street,
+    repair_zip,
+    special_facilities,
+)
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 base_xlsx_url = "https://www.ice.gov/detain/detention-management"
-filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
-# extracted ADP sheet header list 2025-09-07
+filename = f"{output_folder}{os.sep}detentionstats.xlsx"
+# extracted ADP sheet header list 2025-11-07
 # These headers periodically change. (eg the FY headers.)
 facility_sheet_header = [
     "Name",

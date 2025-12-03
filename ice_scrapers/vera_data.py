@@ -5,15 +5,15 @@ import polars
 from schemas import facility_schema
 from utils import (
     logger,
+    output_folder,
     session,
 )
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 # Github can aggressively rate-limit requests, so this may fail in surprising ways!
 base_url = (
     "https://raw.githubusercontent.com/vera-institute/ice-detention-trends/refs/heads/main/metadata/facilities.csv"
 )
-filename = f"{SCRIPT_DIR}{os.sep}vera_facilities.csv"
+filename = f"{output_folder}{os.sep}vera_facilities.csv"
 
 
 def _vera_name_fixes(name: str, city: str) -> tuple[str, bool]:

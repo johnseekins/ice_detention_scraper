@@ -7,6 +7,7 @@ from .field_offices import (
     merge_field_offices,
     scrape_field_offices,
 )
+from .inspections import find_inspections
 from .spreadsheet_load import load_sheet
 from .vera_data import collect_vera_facility_data
 
@@ -24,5 +25,6 @@ def facilities_scrape_wrapper(
     field_offices = scrape_field_offices()
     facilities_data = merge_field_offices(facilities_data, field_offices)
     facilities_data = insert_additional_facilities(facilities_data)
+    _ = find_inspections()
 
     return facilities_data, agencies

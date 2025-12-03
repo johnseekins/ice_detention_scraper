@@ -23,6 +23,9 @@ session.mount("http://", _adapter)
 session.headers.update(default_headers)
 
 output_folder = f"{SCRIPTDIR}/output/"
+# and make sure our output folder exists
+os.makedirs(output_folder, exist_ok=True)
+
 default_timestamp = "1970-01-01T00:00:00-+0000"
 timestamp_format = "%Y-%m-%dT%H:%M:%S-%z"
 
