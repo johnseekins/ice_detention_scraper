@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
+from compression import zstd
 import os
 import pdfplumber
 from pprint import pformat
 import re
+import sys
 from utils import (
     logger,
     output_folder,
@@ -53,9 +55,15 @@ def find_inspections() -> dict:
         # fifth capture group should be the inspection date
         date: str = matches.group(5)  # type: ignore [union-attr]
         obj["date"] = date
-        logger.debug("    Facility: %s, date: %s, details: %s", location, date, url)
-        obj["text"] = _extract_txt(str(url))
-        exit(1)
+        text = zstd.compress(_extract_txt(str(url)).encode("utf-8"))
+        logger.debug(
+            "    Facility: %s, date: %s, url: %s, report length (compressed): %s",
+            location,
+            date,
+            url,
+            sys.getsizeof(text),
+        )
+        obj["text"] = text
         if location in inspections:
             inspections[location].append(obj)
         else:
