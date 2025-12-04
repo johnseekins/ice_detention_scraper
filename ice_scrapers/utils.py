@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import os
 import re
 from utils import (
     logger,
@@ -6,17 +7,19 @@ from utils import (
 )
 
 
-def download_file(link: str, path: str) -> None:
+def download_file(link: str, path: str, redownload: bool = False) -> None:
     """
     Standard pattern for downloading a binary file from a URL
     """
+    if os.path.exists(path) and os.path.getsize(path) > 0 and not redownload:
+        logger.debug("    Skipping redownload of existing file %s", path)
     resp = session.get(link, timeout=120, stream=True)
     size = len(resp.content)
     with open(path, "wb") as f:
         for chunk in resp.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
-    logger.debug("Wrote %s byte sheet to %s", size, path)
+    logger.debug("    Wrote %s byte file to %s", size, path)
 
 
 def special_facilities(facility: dict) -> dict:
