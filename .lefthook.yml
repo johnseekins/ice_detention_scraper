@@ -17,8 +17,9 @@ pre-commit:
       stage_fixed: true
 
     - name: yaml linting
-      run: yamllint -c .yamllint-config.yaml .
+      run: yamllint -c .yamllint-config.yaml {staged_files}
       glob: "*.y*ml"
+      stage_fixed: true
 
     - name: Github Action linting
       run: actionlint

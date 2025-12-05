@@ -7,54 +7,75 @@ on:
 
 jobs:
   python-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: setup python
         run: |
           curl -SsL https://mise.run | bash > /dev/null
-          mise trust --quiet .config/mise.toml
-          mise install --quiet
-          eval "$(mise activate bash)" > /dev/null
+          ~/.local/bin/mise trust --quiet .config/mise.toml
+          ~/.local/bin/mise install --quiet python
+          eval "$(~/.local/bin/mise activate bash)" > /dev/null
           pip install -q --no-cache-dir --upgrade pip wheel uv
           uv sync
       - name: Ruff Format
         run: |
-          eval "$(mise activate bash)"
+          eval "$(~/.local/bin/mise activate bash)" > /dev/null
           uv run ruff format --check
       - name: Ruff Check
         run: |
-          eval "$(mise activate bash)"
+          eval "$(~/.local/bin/mise activate bash)" > /dev/null
           uv run ruff check
       - name: run mypy
         run: |
-          eval "$(mise activate bash)"
+          eval "$(~/.local/bin/mise activate bash)" > /dev/null
           uv run mypy .
 
   markdown:
     name: Markdown linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
+      - name: setup markdownlint
+        run: |
+          curl -SsL https://mise.run | bash > /dev/null
+          ~/.local/bin/mise trust --quiet .config/mise.toml
+          ~/.local/bin/mise install --quiet markdownlint-cli2
       - name: Markdown linting
-        uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e
-        with:
-          config: .markdownlint.json
+        run: |
+          eval "$(~/.local/bin/mise activate bash)" > /dev/null
+          markdownlint-cli2 .
 
   yamllint:
     name: Yaml Linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-      - name: yaml lint
-        uses: reviewdog/action-yamllint@f01d8a48fd8d89f89895499fca2cff09f9e9e8c0
-        with:
-          github_token: ${{ github.token }}
-          reporter: github-pr-review
-          fail_level: error
-          level: info
-          # we should consistently scan all files
-          yamllint_flags: "-c .yamllint-config.yaml --no-warnings ."
+        uses: actions/checkout@v6
+      - name: setup yamllint
+        run: |
+          curl -SsL https://mise.run | bash > /dev/null
+          ~/.local/bin/mise trust --quiet .config/mise.toml
+          ~/.local/bin/mise install --quiet yamllint
+      - name: YAML linting
+        run: |
+          eval "$(~/.local/bin/mise activate bash)" > /dev/null
+          yamllint -c .yamllint-config.yaml --no-warnings .
+
+  jsonlint:
+    name: JSON linting
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: setup jq
+        run: |
+          curl -SsL https://mise.run | bash > /dev/null
+          ~/.local/bin/mise trust --quiet .config/mise.toml
+          ~/.local/bin/mise install --quiet jq
+      - name: JSON linting
+        run: |
+          eval "$(~/.local/bin/mise activate bash)" > /dev/null
+          LOG_FILES=true tools/check-json.sh
