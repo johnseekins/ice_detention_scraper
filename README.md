@@ -115,7 +115,7 @@ seems wrong.
 
 ## Contributing & Code Standards
 
-We have a [.lefthook.yml](.lefthook.yml) file which enforces some linting / formatting rules.
+We have a [.lefthook.yml](https://lefthook.dev/) file which enforces some linting / formatting rules.
 
 We also rely on [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) for ensuring python coding standards.
 
