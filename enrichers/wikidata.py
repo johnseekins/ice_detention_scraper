@@ -1,8 +1,5 @@
 from enrichers import Enrichment
-from utils import (
-    logger,
-    req_get,
-)
+from utils import logger, req_get
 
 
 class Wikidata(Enrichment):
