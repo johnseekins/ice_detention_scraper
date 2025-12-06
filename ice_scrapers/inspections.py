@@ -34,7 +34,7 @@ def _extract_txt(url: str) -> str:
     return full_text
 
 
-def find_inspections() -> dict:
+def find_inspections(keep_text: bool = True) -> dict:
     os.makedirs(storage_dir, exist_ok=True)
     inspections: dict = {}
     logger.info("Collecting inspection reports from %s", root_url)
@@ -55,15 +55,16 @@ def find_inspections() -> dict:
         # fifth capture group should be the inspection date
         date: str = matches.group(5)  # type: ignore [union-attr]
         obj["date"] = date
-        text = zstd.compress(_extract_txt(str(url)).encode("utf-8"))
-        logger.debug(
-            "    Facility: %s, date: %s, url: %s, report length (compressed): %s",
-            location,
-            date,
-            url,
-            sys.getsizeof(text),
-        )
-        obj["text"] = text
+        if keep_text:
+            text = zstd.compress(_extract_txt(str(url)).encode("utf-8"))
+            logger.debug(
+                "    Facility: %s, date: %s, url: %s, report length (compressed): %s",
+                location,
+                date,
+                url,
+                sys.getsizeof(text),
+            )
+            obj["text"] = text
         if location in inspections:
             inspections[location].append(obj)
         else:
