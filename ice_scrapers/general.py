@@ -26,6 +26,7 @@ def facilities_scrape_wrapper(
     facilities_data["facilities"] = copy.deepcopy(facilities)
     facility_name_map = {v["name"].lower(): k for k, v in facilities_data["facilities"].items()}
     inspections = find_inspections(keep_text=inspection_text)
+    facilities_data = scrape_facilities(facilities_data)
 
     # actually attach inspections to facilities
     for facility, inspect in inspections.items():
@@ -36,16 +37,15 @@ def facilities_scrape_wrapper(
                 inspect
             )
             break
-        logger.debug("    Checking fuzzy matches:")
+        # logger.debug("    Checking fuzzy matches:")
         for k, v in facility_name_map.items():
             r = fuzz.partial_ratio(facility, k)
-            logger.debug("    %s === %s, ratio: %s", facility, k, r)
+            # logger.debug("    %s === %s, ratio: %s", facility, k, r)
             if r > 80:
-                logger.info("  Probably the right facility %s => %s, (ratio %s)", k, facility, r)
+                logger.debug("  Probably the right facility %s => %s, (ratio %s)", k, facility, r)
                 facilities_data["facilities"][facility_name_map[k]]["inspection"]["details"] = copy.deepcopy(inspect)
                 break
 
-    facilities_data = scrape_facilities(facilities_data)
     if not skip_vera:
         facilities_data = collect_vera_facility_data(facilities_data, keep_sheet, force_download)
     field_offices = scrape_field_offices()

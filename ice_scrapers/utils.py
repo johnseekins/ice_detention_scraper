@@ -304,7 +304,7 @@ def get_ice_scrape_pages(url: str) -> list[str]:
     This _may_ be generic to Drupal's pagination code...
     """
     try:
-        resp = req_get(url, timeout=30)
+        resp = req_get(url, timeout=30, wait_time=0.1)
     except Exception:
         return []
     soup = BeautifulSoup(resp.content, "html.parser")

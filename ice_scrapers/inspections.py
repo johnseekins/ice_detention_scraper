@@ -8,7 +8,7 @@ import sys
 from utils import (
     logger,
     output_folder,
-    session,
+    req_get,
 )
 from .utils import download_file
 
@@ -38,7 +38,7 @@ def find_inspections(keep_text: bool = True) -> dict:
     os.makedirs(storage_dir, exist_ok=True)
     inspections: dict = {}
     logger.info("Collecting inspection reports from %s", root_url)
-    resp = session.get(root_url, timeout=120)
+    resp = req_get(root_url, timeout=120)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.content, "html.parser")
     content = soup.select_one("div.facility-inspections")

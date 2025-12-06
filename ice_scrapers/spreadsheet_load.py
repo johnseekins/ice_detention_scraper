@@ -15,7 +15,7 @@ from schemas import (
 from utils import (
     logger,
     output_folder,
-    session,
+    req_get,
 )
 from .utils import (
     download_file,
@@ -64,8 +64,7 @@ facility_sheet_header = [
 
 def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tuple[polars.DataFrame, str]:
     """Download the detention stats sheet from ice.gov"""
-    resp = session.get(base_xlsx_url, timeout=120)
-    resp.raise_for_status()
+    resp = req_get(base_xlsx_url, timeout=120)
     soup = BeautifulSoup(resp.content, "html.parser")
     links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
     if not links:

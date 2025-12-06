@@ -12,7 +12,7 @@ import time
 from utils import (
     logger,
     output_folder,
-    session,
+    req_get,
 )
 from .utils import download_file
 
@@ -22,8 +22,7 @@ base_xlsx_url = "https://www.ice.gov/identify-and-arrest/287g"
 def scrape_agencies(keep_sheet: bool = True, force_download: bool = True) -> dict:
     """Collect data on participating agencies"""
     start_time = time.time()
-    resp = session.get(base_xlsx_url, timeout=120)
-    resp.raise_for_status()
+    resp = req_get(base_xlsx_url, timeout=120)
     soup = BeautifulSoup(resp.content, "html.parser")
     links = [link["href"] for link in soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))]
     if not links:

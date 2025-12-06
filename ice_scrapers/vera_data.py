@@ -6,7 +6,7 @@ from schemas import facility_schema
 from utils import (
     logger,
     output_folder,
-    session,
+    req_get,
 )
 
 # Github can aggressively rate-limit requests, so this may fail in surprising ways!
@@ -216,8 +216,7 @@ def _vera_city_fixes(city: str, state: str) -> tuple[str, bool]:
 def collect_vera_facility_data(facilities_data: dict, keep_sheet: bool = True, force_download: bool = True) -> dict:
     logger.info("Collecting and extracting data from vera.org facility data...")
     if force_download or not os.path.exists(filename):
-        res = session.get(base_url, timeout=120, stream=True)
-        res.raise_for_status()
+        res = req_get(base_url, timeout=120, stream=True)
         size = len(res.content)
         with open(filename, "wb") as f:
             for chunk in res.iter_content(chunk_size=1024):
