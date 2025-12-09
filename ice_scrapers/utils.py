@@ -49,12 +49,13 @@ def special_facilities(facility: dict) -> dict:
             facility["address"]["country"] = "Cuba"
             facility["address"]["administrative_area"] = "FPO"
             facility["name"] = "Naval Station Guantanamo Bay (JTF Camp Six and Migrant Ops Center Main A)"
+            facility["other_names"] = ["JTF CAMP SIX"]
         case _:
             pass
     return facility
 
 
-def repair_name(name: str, locality: str) -> tuple[str, bool]:
+def repair_name(name: str, locality: str) -> tuple[str, bool, list[str]]:
     """Even facility names are occasionally bad"""
     matches = [
         {"match": "ALEXANDRIA STAGING FACILI", "replace": "Alexandria Staging Facility", "locality": "ALEXANDRIA"},
@@ -107,15 +108,17 @@ def repair_name(name: str, locality: str) -> tuple[str, bool]:
         },
     ]
     cleaned = False
+    other_names = []
     for m in matches:
         if m["match"] == name and m["locality"] == locality:
+            other_names = [m["match"]]
             name = m["replace"]
             cleaned = True
             break
-    return name, cleaned
+    return name, cleaned, other_names
 
 
-def repair_street(street: str, locality: str = "") -> tuple[str, bool]:
+def repair_street(street: str, locality: str = "") -> tuple[str, bool, list[str]]:
     """Generally, we'll let the spreadsheet win arguments just to be consistent"""
     street_filters = [
         # address mismatch between site and spreadsheet
@@ -218,8 +221,10 @@ def repair_street(street: str, locality: str = "") -> tuple[str, bool]:
         # default matches should come last
     ]
     cleaned = False
+    other_streets = []
     for f in street_filters:
         if (f["match"] in street) and ((f["locality"] and f["locality"] == locality) or not f["locality"]):
+            other_streets = [f["match"]]
             street = street.replace(f["match"], f["replace"])
             cleaned = True
             break
@@ -233,22 +238,24 @@ def repair_street(street: str, locality: str = "") -> tuple[str, bool]:
         if f["match"] in street:
             street = street.replace(f["match"], f["replace"])
             cleaned = True
-    return street, cleaned
+    return street, cleaned, other_streets
 
 
-def repair_zip(zip_code: int, locality: str) -> tuple[str, bool]:
+def repair_zip(zip_code: int, locality: str) -> tuple[str, bool, list[str]]:
     """
     Excel does a cool thing where it strips leading 0s
     Also, many zip codes are mysteriously discordant
     """
+    other_zips = []
     zcode = str(zip_code)
     cleaned = False
     # don't replace an empty zip with all 0s
     if 0 < len(zcode) < 5:
+        other_zips = [zcode]
         # pad any prefix
         zeros = "0" * (5 - len(zcode))
         zcode = f"{zeros}{zcode}"
-        return zcode, cleaned
+        return zcode, cleaned, other_zips
     matches = [
         {"match": "89512", "replace": "89506", "locality": "Reno"},
         {"match": "82901", "replace": "82935", "locality": "Rock Springs"},
@@ -261,18 +268,20 @@ def repair_zip(zip_code: int, locality: str) -> tuple[str, bool]:
     ]
     for z in matches:
         if z["match"] == zcode and z["locality"] == locality:
+            other_zips = [z["match"]]
             zcode = z["replace"]
             cleaned = True
             break
-    return zcode, cleaned
+    return zcode, cleaned, other_zips
 
 
-def repair_locality(locality: str, administrative_area: str) -> tuple[str, bool]:
+def repair_locality(locality: str, administrative_area: str) -> tuple[str, bool, list[str]]:
     """
     There is no consistency with any address.
     How the post office ever successfully delivered a letter is beyond me
     """
     cleaned = False
+    other_city = []
     matches = [
         {"match": "LaGrange", "replace": "La Grange", "area": "KY"},
         {"match": "Leachfield", "replace": "LEITCHFIELD", "area": "KY"},
@@ -282,10 +291,11 @@ def repair_locality(locality: str, administrative_area: str) -> tuple[str, bool]
     ]
     for f in matches:
         if f["match"] == locality and f["area"] == administrative_area:
+            other_city = [f["match"]]
             locality = f["replace"]
             cleaned = True
             break
-    return locality, cleaned
+    return locality, cleaned, other_city
 
 
 def update_facility(old: dict, new: dict) -> dict:

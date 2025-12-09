@@ -43,19 +43,23 @@ def scrape_facilities(facilities_data: dict) -> dict:
         for facility in facilities:
             facility = special_facilities(facility)
             addr = facility["address"]
-            street, cleaned = repair_street(addr["street"], addr["locality"])
+            street, cleaned, other_st = repair_street(addr["street"], addr["locality"])
+            addr["other_streets"].extend(other_st)
             if cleaned:
                 addr["street"] = street
                 facility["_repaired_record"] = True
-            zcode, cleaned = repair_zip(addr["postal_code"], addr["locality"])
+            zcode, cleaned, other_zip = repair_zip(addr["postal_code"], addr["locality"])
+            addr["other_postal_codes"].extend(other_zip)
             if cleaned:
                 addr["postal_code"] = zcode
                 facility["_repaired_record"] = True
-            locality, cleaned = repair_locality(addr["locality"], addr["administrative_area"])
+            locality, cleaned, other_city = repair_locality(addr["locality"], addr["administrative_area"])
+            addr["other_localities"].extend(other_city)
             if cleaned:
                 addr["locality"] = locality
                 facility["_repaired_record"] = True
-            name, cleaned = repair_name(facility["name"], addr["locality"])
+            name, cleaned, other_name = repair_name(facility["name"], addr["locality"])
+            facility["other_names"].extend(other_name)
             if cleaned:
                 facility["name"] = name
                 facility["_repaired_record"] = True

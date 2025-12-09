@@ -38,6 +38,9 @@ facility_schema: dict = {
         "administrative_area": "",
         "country": "",
         "locality": "",
+        "other_localities": [],
+        "other_postal_codes": [],
+        "other_streets": [],
         "postal_code": "",
         "street": "",
     },
@@ -62,6 +65,8 @@ facility_schema: dict = {
         "url": "",
     },
     "name": "",
+    "other_names": [],
+    "other_phones": [],
     "page_updated_date": None,
     "phone": "",
     "population": {

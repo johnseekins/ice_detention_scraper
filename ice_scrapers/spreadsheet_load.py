@@ -111,20 +111,26 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
     phone_re = re.compile(r".+(\d{3}\s\d{3}\s\d{4})$")
     for row in df.iter_rows(named=True):
         details = copy.deepcopy(facility_schema)
-        zcode, cleaned = repair_zip(row["Zip"], row["City"])
+        zcode, cleaned, other_zips = repair_zip(row["Zip"], row["City"])
+        details["address"]["other_postal_codes"].extend(other_zips)
         if cleaned:
             details["_repaired_record"] = True
-        street, cleaned = repair_street(row["Address"], row["City"])
+        street, cleaned, other_st = repair_street(row["Address"], row["City"])
+        details["address"]["other_streets"].extend(other_st)
         if cleaned:
             details["_repaired_record"] = True
         match = phone_re.search(row["Address"])
         if match:
+            if details.get("phone", None):
+                details["other_phones"].append(details["phone"])
             details["phone"] = match.group(1)
             details["_repaired_record"] = True
-        locality, cleaned = repair_locality(row["City"], row["State"])
+        locality, cleaned, other_city = repair_locality(row["City"], row["State"])
+        details["address"]["other_localities"].extend(other_city)
         if cleaned:
             details["_repaired_record"] = True
-        name, cleaned = repair_name(row["Name"], row["City"])
+        name, cleaned, other_names = repair_name(row["Name"], row["City"])
+        details["other_names"].extend(other_names)
         if cleaned:
             details["_repaired_record"] = True
         details["address"]["administrative_area"] = row["State"]
