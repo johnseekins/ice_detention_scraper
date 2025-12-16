@@ -1,21 +1,24 @@
-from bs4 import BeautifulSoup
 import copy
 import datetime
 import re
-from schemas import facility_schema
 import time
+
+from bs4 import BeautifulSoup
+
+from schemas import facility_schema
 from utils import (
     default_timestamp,
     logger,
     req_get,
     timestamp_format,
 )
+
 from .utils import (
     get_ice_scrape_pages,
     repair_locality,
+    repair_name,
     repair_street,
     repair_zip,
-    repair_name,
     special_facilities,
     update_facility,
 )
@@ -33,6 +36,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
     scraped_count = 0
     for page_num, url in enumerate(urls):
         logger.info("Scraping page %s/%s...", page_num + 1, len(urls))
+        facilities = []
         try:
             facilities = _scrape_page(url)
         except Exception as e:
