@@ -39,7 +39,7 @@ facility_sheet_header = [
     "AOR",
     "Type Detailed",
     "Male/Female",
-    "FY26 ALOS",
+    "YEAR ALOS",
     "Level A",
     "Level B",
     "Level C",
@@ -56,7 +56,7 @@ facility_sheet_header = [
     "Guaranteed Minimum",
     "Last Inspection Type",
     "Last Inspection End Date",
-    # "Pending FY25 Inspection", # this was removed from the source sheet in late 2025.
+    # "Pending YEAR Inspection",
     "Last Inspection Standard",
     "Last Final Rating",
 ]
@@ -73,6 +73,7 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tup
     # this is _usually_ the most recently uploaded sheet...
     actual_link = links[0]["href"]
     cur_year = int(datetime.datetime.now().strftime("%y"))
+    fy = f"FY{cur_year}"
     # try to find the most recent
     for link in links:
         match = fy_re.search(link["href"])
@@ -83,6 +84,7 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tup
             actual_link = link["href"]
             # this seems like tracking into the future...
             cur_year = year
+            fy = f"FY{cur_year}"
     logger.debug("Found sheet at: %s", actual_link)
     if force_download or not os.path.exists(filename):
         logger.info("Downloading detention stats sheet from %s", actual_link)
@@ -92,8 +94,8 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tup
         has_header=False,
         raise_if_empty=True,
         # because we're manually defining the header...
-        read_options={"skip_rows": 7, "column_names": facility_sheet_header},
-        sheet_name=f"Facilities FY{cur_year}",
+        read_options={"skip_rows": 9, "column_names": [f.replace("YEAR", fy) for f in facility_sheet_header]},
+        sheet_name=f"Facilities {fy}",
         source=open(filename, "rb"),
     )
     if not keep_sheet:
@@ -110,6 +112,7 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
     # let's capture it
     phone_re = re.compile(r".+(\d{3}\s\d{3}\s\d{4})$")
     for row in df.iter_rows(named=True):
+        # logger.debug("processing %s", row)
         details = copy.deepcopy(facility_schema)
         zcode, cleaned, other_zips = repair_zip(row["Zip"], row["City"])
         details["address"]["other_postal_codes"].extend(other_zips)
