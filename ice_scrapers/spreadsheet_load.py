@@ -60,6 +60,15 @@ facility_sheet_header = [
     "Last Inspection Standard",
     "Last Final Rating",
 ]
+required_cols = [
+    "Name",
+    "Address",
+    "City",
+    "State",
+    "Zip",
+    "AOR",
+    "Type Detailed",
+]
 
 
 def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tuple[polars.DataFrame, str]:
@@ -91,10 +100,11 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tup
         download_file(actual_link, filename)
     df = polars.read_excel(
         drop_empty_rows=True,
+        drop_empty_cols=False,
         has_header=False,
         raise_if_empty=True,
-        # because we're manually defining the header...
-        read_options={"skip_rows": 9, "column_names": [f.replace("YEAR", fy) for f in facility_sheet_header]},
+        # because we're manually defining the column headers...
+        read_options={"column_names": [f.replace("YEAR", fy) for f in facility_sheet_header]},
         sheet_name=f"Facilities {fy}",
         source=open(filename, "rb"),
     )
@@ -112,6 +122,10 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
     # let's capture it
     phone_re = re.compile(r".+(\d{3}\s\d{3}\s\d{4})$")
     for row in df.iter_rows(named=True):
+        # skip all rows that don't manage to populate all required headers
+        if not all(row[k] is not None for k in required_cols):
+            logger.debug("Skipping bad row in spreadsheet: %s", row)
+            continue
         # logger.debug("processing %s", row)
         details = copy.deepcopy(facility_schema)
         zcode, cleaned, other_zips = repair_zip(row["Zip"], row["City"])
@@ -165,7 +179,7 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
             if "/" in row["Male/Female"]:
                 details["population"]["female"]["allowed"] = True
                 details["population"]["male"]["allowed"] = True
-            elif "Female" in row["Male/Female"]:
+            elif row["Male/Female"] == "Female":
                 details["population"]["female"]["allowed"] = True
             else:
                 details["population"]["male"]["allowed"] = True
