@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from compression import zstd
+import zstandard as zstd
 import os
 import pdfplumber
 from pprint import pformat
