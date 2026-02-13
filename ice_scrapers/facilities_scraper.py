@@ -1,21 +1,24 @@
-from bs4 import BeautifulSoup
 import copy
 import datetime
 import re
-from schemas import facility_schema
 import time
+
+from bs4 import BeautifulSoup
+
+from schemas import facility_schema
 from utils import (
     default_timestamp,
     logger,
-    session,
+    req_get,
     timestamp_format,
 )
+
 from .utils import (
     get_ice_scrape_pages,
     repair_locality,
+    repair_name,
     repair_street,
     repair_zip,
-    repair_name,
     special_facilities,
     update_facility,
 )
@@ -33,6 +36,7 @@ def scrape_facilities(facilities_data: dict) -> dict:
     scraped_count = 0
     for page_num, url in enumerate(urls):
         logger.info("Scraping page %s/%s...", page_num + 1, len(urls))
+        facilities = []
         try:
             facilities = _scrape_page(url)
         except Exception as e:
@@ -43,19 +47,23 @@ def scrape_facilities(facilities_data: dict) -> dict:
         for facility in facilities:
             facility = special_facilities(facility)
             addr = facility["address"]
-            street, cleaned = repair_street(addr["street"], addr["locality"])
+            street, cleaned, other_st = repair_street(addr["street"], addr["locality"])
+            addr["other_streets"].extend(other_st)
             if cleaned:
                 addr["street"] = street
                 facility["_repaired_record"] = True
-            zcode, cleaned = repair_zip(addr["postal_code"], addr["locality"])
+            zcode, cleaned, other_zip = repair_zip(addr["postal_code"], addr["locality"])
+            addr["other_postal_codes"].extend(other_zip)
             if cleaned:
                 addr["postal_code"] = zcode
                 facility["_repaired_record"] = True
-            locality, cleaned = repair_locality(addr["locality"], addr["administrative_area"])
+            locality, cleaned, other_city = repair_locality(addr["locality"], addr["administrative_area"])
+            addr["other_localities"].extend(other_city)
             if cleaned:
                 addr["locality"] = locality
                 facility["_repaired_record"] = True
-            name, cleaned = repair_name(facility["name"], addr["locality"])
+            name, cleaned, other_name = repair_name(facility["name"], addr["locality"])
+            facility["other_names"].extend(other_name)
             if cleaned:
                 facility["name"] = name
                 facility["_repaired_record"] = True
@@ -95,8 +103,7 @@ def _scrape_updated(url: str) -> datetime.datetime:
         return datetime.datetime.strptime(default_timestamp, timestamp_format)
     logger.debug("  Fetching: %s", url)
     try:
-        response = session.get(url, timeout=30)
-        response.raise_for_status()
+        response = req_get(url, timeout=30, wait_time=0.1)
     except Exception as e:
         logger.error("  Error parsing %s: %s", url, e)
         return datetime.datetime.strptime(default_timestamp, timestamp_format)
@@ -118,8 +125,7 @@ def _scrape_page(page_url: str) -> list:
     """Scrape a single page of facilities using BeautifulSoup"""
     logger.debug("  Fetching: %s", page_url)
     try:
-        response = session.get(page_url, timeout=30)
-        response.raise_for_status()
+        response = req_get(page_url, timeout=30, wait_time=0.1)
     except Exception as e:
         logger.error("  Error parsing %s: %s", page_url, e)
         return []

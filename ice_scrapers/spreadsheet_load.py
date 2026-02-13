@@ -5,14 +5,6 @@ from ice_scrapers import (
     ice_facility_types,
     ice_inspection_types,
 )
-from .utils import (
-    download_file,
-    repair_locality,
-    repair_name,
-    repair_street,
-    repair_zip,
-    special_facilities,
-)
 import os
 import polars
 import re
@@ -22,13 +14,21 @@ from schemas import (
 )
 from utils import (
     logger,
-    session,
+    output_folder,
+    req_get,
+)
+from .utils import (
+    download_file,
+    repair_locality,
+    repair_name,
+    repair_street,
+    repair_zip,
+    special_facilities,
 )
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 base_xlsx_url = "https://www.ice.gov/detain/detention-management"
-filename = f"{SCRIPT_DIR}{os.sep}detentionstats.xlsx"
-# extracted ADP sheet header list 2025-09-07
+filename = f"{output_folder}{os.sep}detentionstats.xlsx"
+# extracted ADP sheet header list 2025-11-07
 # These headers periodically change. (eg the FY headers.)
 facility_sheet_header = [
     "Name",
@@ -39,7 +39,7 @@ facility_sheet_header = [
     "AOR",
     "Type Detailed",
     "Male/Female",
-    "FY26 ALOS",
+    "YEAR ALOS",
     "Level A",
     "Level B",
     "Level C",
@@ -56,16 +56,24 @@ facility_sheet_header = [
     "Guaranteed Minimum",
     "Last Inspection Type",
     "Last Inspection End Date",
-    # "Pending FY25 Inspection", # this was removed from the source sheet in late 2025.
+    # "Pending YEAR Inspection",
     "Last Inspection Standard",
     "Last Final Rating",
+]
+required_cols = [
+    "Name",
+    "Address",
+    "City",
+    "State",
+    "Zip",
+    "AOR",
+    "Type Detailed",
 ]
 
 
 def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tuple[polars.DataFrame, str]:
     """Download the detention stats sheet from ice.gov"""
-    resp = session.get(base_xlsx_url, timeout=120)
-    resp.raise_for_status()
+    resp = req_get(base_xlsx_url, timeout=120)
     soup = BeautifulSoup(resp.content, "html.parser")
     links = soup.findAll("a", href=re.compile("^https://www.ice.gov/doclib.*xlsx"))
     if not links:
@@ -74,6 +82,7 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tup
     # this is _usually_ the most recently uploaded sheet...
     actual_link = links[0]["href"]
     cur_year = int(datetime.datetime.now().strftime("%y"))
+    fy = f"FY{cur_year}"
     # try to find the most recent
     for link in links:
         match = fy_re.search(link["href"])
@@ -84,17 +93,19 @@ def _download_sheet(keep_sheet: bool = True, force_download: bool = True) -> tup
             actual_link = link["href"]
             # this seems like tracking into the future...
             cur_year = year
+            fy = f"FY{cur_year}"
     logger.debug("Found sheet at: %s", actual_link)
     if force_download or not os.path.exists(filename):
         logger.info("Downloading detention stats sheet from %s", actual_link)
         download_file(actual_link, filename)
     df = polars.read_excel(
         drop_empty_rows=True,
+        drop_empty_cols=False,
         has_header=False,
         raise_if_empty=True,
-        # because we're manually defining the header...
-        read_options={"skip_rows": 7, "column_names": facility_sheet_header},
-        sheet_name=f"Facilities FY{cur_year}",
+        # because we're manually defining the column headers...
+        read_options={"column_names": [f.replace("YEAR", fy) for f in facility_sheet_header]},
+        sheet_name=f"Facilities {fy}",
         source=open(filename, "rb"),
     )
     if not keep_sheet:
@@ -111,21 +122,32 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
     # let's capture it
     phone_re = re.compile(r".+(\d{3}\s\d{3}\s\d{4})$")
     for row in df.iter_rows(named=True):
+        # skip all rows that don't manage to populate all required headers
+        if not all(row[k] is not None for k in required_cols):
+            logger.debug("Skipping bad row in spreadsheet: %s", row)
+            continue
+        # logger.debug("processing %s", row)
         details = copy.deepcopy(facility_schema)
-        zcode, cleaned = repair_zip(row["Zip"], row["City"])
+        zcode, cleaned, other_zips = repair_zip(row["Zip"], row["City"])
+        details["address"]["other_postal_codes"].extend(other_zips)
         if cleaned:
             details["_repaired_record"] = True
-        street, cleaned = repair_street(row["Address"], row["City"])
+        street, cleaned, other_st = repair_street(row["Address"], row["City"])
+        details["address"]["other_streets"].extend(other_st)
         if cleaned:
             details["_repaired_record"] = True
         match = phone_re.search(row["Address"])
         if match:
+            if details.get("phone", None):
+                details["other_phones"].append(details["phone"])
             details["phone"] = match.group(1)
             details["_repaired_record"] = True
-        locality, cleaned = repair_locality(row["City"], row["State"])
+        locality, cleaned, other_city = repair_locality(row["City"], row["State"])
+        details["address"]["other_localities"].extend(other_city)
         if cleaned:
             details["_repaired_record"] = True
-        name, cleaned = repair_name(row["Name"], row["City"])
+        name, cleaned, other_names = repair_name(row["Name"], row["City"])
+        details["other_names"].extend(other_names)
         if cleaned:
             details["_repaired_record"] = True
         details["address"]["administrative_area"] = row["State"]
@@ -157,7 +179,7 @@ def load_sheet(keep_sheet: bool = True, force_download: bool = True) -> dict:
             if "/" in row["Male/Female"]:
                 details["population"]["female"]["allowed"] = True
                 details["population"]["male"]["allowed"] = True
-            elif "Female" in row["Male/Female"]:
+            elif row["Male/Female"] == "Female":
                 details["population"]["female"]["allowed"] = True
             else:
                 details["population"]["male"]["allowed"] = True

@@ -1,22 +1,29 @@
 from bs4 import BeautifulSoup
+import os
 import re
 from utils import (
     logger,
-    session,
+    req_get,
 )
 
 
-def download_file(link: str, path: str) -> None:
+def download_file(link: str, path: str, redownload: bool = False) -> None:
     """
     Standard pattern for downloading a binary file from a URL
     """
-    resp = session.get(link, timeout=120, stream=True)
-    size = len(resp.content)
-    with open(path, "wb") as f:
-        for chunk in resp.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
-    logger.debug("Wrote %s byte sheet to %s", size, path)
+    if os.path.exists(path) and os.path.getsize(path) > 0 and not redownload:
+        logger.debug("    Skipping redownload of existing file %s", path)
+    try:
+        resp = req_get(link, timeout=120, stream=True)
+    except Exception as e:
+        logger.error("Failed to download %s :: %s", link, e)
+    else:
+        size = len(resp.content)
+        with open(path, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+        logger.debug("    Wrote %s byte file to %s", size, path)
 
 
 def special_facilities(facility: dict) -> dict:
@@ -42,12 +49,13 @@ def special_facilities(facility: dict) -> dict:
             facility["address"]["country"] = "Cuba"
             facility["address"]["administrative_area"] = "FPO"
             facility["name"] = "Naval Station Guantanamo Bay (JTF Camp Six and Migrant Ops Center Main A)"
+            facility["other_names"] = ["JTF CAMP SIX"]
         case _:
             pass
     return facility
 
 
-def repair_name(name: str, locality: str) -> tuple[str, bool]:
+def repair_name(name: str, locality: str) -> tuple[str, bool, list[str]]:
     """Even facility names are occasionally bad"""
     matches = [
         {"match": "ALEXANDRIA STAGING FACILI", "replace": "Alexandria Staging Facility", "locality": "ALEXANDRIA"},
@@ -100,15 +108,17 @@ def repair_name(name: str, locality: str) -> tuple[str, bool]:
         },
     ]
     cleaned = False
+    other_names = []
     for m in matches:
         if m["match"] == name and m["locality"] == locality:
+            other_names = [m["match"]]
             name = m["replace"]
             cleaned = True
             break
-    return name, cleaned
+    return name, cleaned, other_names
 
 
-def repair_street(street: str, locality: str = "") -> tuple[str, bool]:
+def repair_street(street: str, locality: str = "") -> tuple[str, bool, list[str]]:
     """Generally, we'll let the spreadsheet win arguments just to be consistent"""
     street_filters = [
         # address mismatch between site and spreadsheet
@@ -211,8 +221,10 @@ def repair_street(street: str, locality: str = "") -> tuple[str, bool]:
         # default matches should come last
     ]
     cleaned = False
+    other_streets = []
     for f in street_filters:
         if (f["match"] in street) and ((f["locality"] and f["locality"] == locality) or not f["locality"]):
+            other_streets = [f["match"]]
             street = street.replace(f["match"], f["replace"])
             cleaned = True
             break
@@ -226,22 +238,24 @@ def repair_street(street: str, locality: str = "") -> tuple[str, bool]:
         if f["match"] in street:
             street = street.replace(f["match"], f["replace"])
             cleaned = True
-    return street, cleaned
+    return street, cleaned, other_streets
 
 
-def repair_zip(zip_code: int, locality: str) -> tuple[str, bool]:
+def repair_zip(zip_code: int, locality: str) -> tuple[str, bool, list[str]]:
     """
     Excel does a cool thing where it strips leading 0s
     Also, many zip codes are mysteriously discordant
     """
+    other_zips = []
     zcode = str(zip_code)
     cleaned = False
     # don't replace an empty zip with all 0s
     if 0 < len(zcode) < 5:
+        other_zips = [zcode]
         # pad any prefix
         zeros = "0" * (5 - len(zcode))
         zcode = f"{zeros}{zcode}"
-        return zcode, cleaned
+        return zcode, cleaned, other_zips
     matches = [
         {"match": "89512", "replace": "89506", "locality": "Reno"},
         {"match": "82901", "replace": "82935", "locality": "Rock Springs"},
@@ -254,18 +268,20 @@ def repair_zip(zip_code: int, locality: str) -> tuple[str, bool]:
     ]
     for z in matches:
         if z["match"] == zcode and z["locality"] == locality:
+            other_zips = [z["match"]]
             zcode = z["replace"]
             cleaned = True
             break
-    return zcode, cleaned
+    return zcode, cleaned, other_zips
 
 
-def repair_locality(locality: str, administrative_area: str) -> tuple[str, bool]:
+def repair_locality(locality: str, administrative_area: str) -> tuple[str, bool, list[str]]:
     """
     There is no consistency with any address.
     How the post office ever successfully delivered a letter is beyond me
     """
     cleaned = False
+    other_city = []
     matches = [
         {"match": "LaGrange", "replace": "La Grange", "area": "KY"},
         {"match": "Leachfield", "replace": "LEITCHFIELD", "area": "KY"},
@@ -275,10 +291,11 @@ def repair_locality(locality: str, administrative_area: str) -> tuple[str, bool]
     ]
     for f in matches:
         if f["match"] == locality and f["area"] == administrative_area:
+            other_city = [f["match"]]
             locality = f["replace"]
             cleaned = True
             break
-    return locality, cleaned
+    return locality, cleaned, other_city
 
 
 def update_facility(old: dict, new: dict) -> dict:
@@ -291,13 +308,15 @@ def update_facility(old: dict, new: dict) -> dict:
     return old
 
 
-def get_ice_scrape_pages(url: str) -> list:
+def get_ice_scrape_pages(url: str) -> list[str]:
     """
     Discover all facility pages
     This _may_ be generic to Drupal's pagination code...
     """
-    resp = session.get(url, timeout=30)
-    resp.raise_for_status()
+    try:
+        resp = req_get(url, timeout=30, wait_time=0.1)
+    except Exception:
+        return []
     soup = BeautifulSoup(resp.content, "html.parser")
     links = soup.findAll("a", href=re.compile(r"\?page="))
     if not links:
