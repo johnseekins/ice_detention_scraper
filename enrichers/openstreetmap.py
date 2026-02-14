@@ -74,7 +74,7 @@ class OpenStreetMap(Enrichment):
         osm_type = first_result.get("osm_type", "")
         osm_id = first_result.get("osm_id", "")
         self.resp_info["title"] = first_result.get("display_name", "")
-        self.resp_info["details"] = {"latitude": lat, "logitude": lon, "class": first_result.get("class", "")}
+        self.resp_info["details"] = {"latitude": lat, "longitude": lon, "class": first_result.get("class", "")}
         if osm_type == "way":
             self.resp_info["url"] = f"https://www.openstreetmap.org/way/{osm_id}"
         else:
