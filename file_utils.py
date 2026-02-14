@@ -10,15 +10,22 @@ from utils import (
 )
 import xlsxwriter  # type: ignore [import-untyped]
 
+
 # Deals with list columns data that CSV cannot deal with.
 def _stringify_list_columns(df: pl.DataFrame) -> pl.DataFrame:
     """Convert any List-type columns to JSON strings so CSV/Excel can handle them."""
     list_cols = [col for col, dtype in zip(df.columns, df.dtypes) if dtype.base_type() == pl.List]
     if list_cols:
         df = df.with_columns(
-            [pl.col(c).map_elements(lambda val: json.dumps(val.to_list(), default=str), return_dtype=pl.String).alias(c) for c in list_cols]
+            [
+                pl.col(c)
+                .map_elements(lambda val: json.dumps(val.to_list(), default=str), return_dtype=pl.String)
+                .alias(c)
+                for c in list_cols
+            ]
         )
     return df
+
 
 def export_to_file(
     facilities_data: dict,
