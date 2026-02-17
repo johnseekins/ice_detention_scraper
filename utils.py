@@ -101,7 +101,14 @@ def convert_to_dataframe(d: dict) -> polars.DataFrame:
     """
     fieldnames = [k for k in flatdata[0].keys() if k not in flatdata_filtered_keys]
     # https://docs.pola.rs/api/python/stable/reference/api/polars.from_dicts.html
-    df = polars.from_dicts(flatdata, schema=fieldnames)
-    # logger.debug("Dataframe: %s", df)
+    df = polars.from_dicts(
+        flatdata,
+        schema=fieldnames,
+        schema_overrides={
+            "address.postal_code": polars.Utf8,
+            "field_office.address.postal_code": polars.Utf8,
+        },
+    )
+    logger.info("Dataframe schema: %s", df.schema)
     # logger.debug("All header fields: %s", fieldnames)
     return df
