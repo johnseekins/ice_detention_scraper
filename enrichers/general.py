@@ -59,7 +59,7 @@ def _enrich_facility(facility_data: tuple) -> tuple:
     if lat:
         enriched_facility["osm"]["latitude"] = lat
     if long:
-        enriched_facility["osm"]["longitude"] = lat
+        enriched_facility["osm"]["longitude"] = long
     url = osm_res.get("url", None)
     if url:
         enriched_facility["osm"]["url"] = url

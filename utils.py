@@ -32,12 +32,9 @@ timestamp_format = "%Y-%m-%dT%H:%M:%S-%z"
 
 # all values that will only complicate workbook output types
 flatdata_filtered_keys = [
-    "_repaired_record",
     "address_str",
     "field_office.address_str",
-    "field_office.source_urls",
     "osm.search_query",
-    "source_urls",
     "wikipedia.search_query",
     "wikidata.search_query",
 ]
@@ -73,13 +70,23 @@ def req_get(url: str, **kwargs) -> requests.Response:
     return response
 
 
-def _flatdict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
+def _flatdict(d: dict, parent_key: str = "", sep: str = ".", list_sep: str = ",") -> dict:
     """flatten a nested dictionary for nicer printing to workbooks (excel/csv/etc.)"""
     items: list = []
     for k, v in d.items():
         new_key = f"{parent_key}{sep}{str(k)}" if parent_key else str(k)
         if isinstance(v, dict):
-            items.extend(_flatdict(v, new_key, sep=sep).items())
+            items.extend(_flatdict(v, new_key, sep=sep, list_sep=list_sep).items())
+        elif isinstance(v, list):
+            if not v:
+                items.append((new_key, ""))
+            elif isinstance(v[0], dict):
+                logger.info("List of dicts: %s", v)
+                for idx, value in enumerate(v):
+                    items.extend(_flatdict(value, f"{new_key}{sep}{idx}", sep=sep, list_sep=list_sep).items())
+
+            else:
+                items.append((new_key, list_sep.join(v)))
         else:
             items.append((new_key, v))
     return dict(items)
