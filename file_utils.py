@@ -23,10 +23,7 @@ def export_to_file(
         writer = convert_to_dataframe(facilities_data["facilities"])
         match file_type:
             case "xlsx":
-                """
-                objects end up with dates without timezones, so trying to guess it can
-                mess up the translation to XLSX.
-                """
+                # Excel doesn't support timezones properly, so...
                 with xlsxwriter.Workbook(full_name, {"remove_timezone": True}) as wb:
                     _ = writer.write_excel(workbook=wb, include_header=True, autofit=True)
             case "csv":
