@@ -1,5 +1,4 @@
 # For general helpers, regexes, or shared logic (e.g. phone/address parsing functions).
-import copy
 import logging
 import os
 import polars
@@ -96,18 +95,11 @@ def convert_to_dataframe(d: dict) -> polars.DataFrame:
     """internal dict to dataframe"""
     flatdata = [_flatdict(f) for f in d.values()]
     """
-    Field names should find the _longest_ set of keys, not just the first one
-    to avoid dropping data by accident from some rows (with things like additional inspections)
+    Ideally we'd look for the longest row to use as our schema,
+    but dataframes are picky about services missing those extra rows,
+    so for simpler logic, we'll just use the first row
     """
-    longest: list = list(flatdata[0].keys())
-    longest_len: int = len(longest)
-    for dobj in flatdata[1:]:
-        keys = list(dobj.keys())
-        if len(keys) > longest_len:
-            longest = copy.deepcopy(keys)
-            longest_len = len(longest)
-    logger.info("Key list is: %s", longest)
-    fieldnames = [k for k in longest if k not in flatdata_filtered_keys]
+    fieldnames = [k for k in flatdata[0].keys() if k not in flatdata_filtered_keys]
     # https://docs.pola.rs/api/python/stable/reference/api/polars.from_dicts.html
     df = polars.from_dicts(flatdata, schema=fieldnames)
     # logger.debug("Dataframe: %s", df)
